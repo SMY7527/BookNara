@@ -13,8 +13,8 @@ import lombok.NoArgsConstructor;
 //외부 API변경 대응
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class InfoNaruDTO {
-    private String bookname;
-    private String authors;
+    @JsonProperty("bookname")
+    private String booktitle;
     private String publisher;
     private String isbn13;
 

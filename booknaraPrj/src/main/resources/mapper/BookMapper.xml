@@ -6,13 +6,29 @@
 <mapper namespace="com.booknara.booknaraPrj.mapper.BookMapper">
 
     <!--도서 삽입 -->
-    <insert id="insertBook" parameterType="java.util.List">
-        INSERT IGNORE INTO book_isbn
-        (isbn13, bookname, authors, publisher)
+    <insert id="insertBookIsbnTemp" parameterType="java.util.List">
+        INSERT INTO book_isbn_temp
+        (isbn13,
+        book_title,
+        publisher,
+        image,
+        infonaru_fetched_at,
+        status_cd)
         VALUES
-        <foreach collection="list" item="b" separator=",">
-            (#{b.isbn13}, #{b.bookname}, #{b.authors}, #{b.publisher})
+        <foreach collection="list" item="bookIsbnTemp" separator=",">
+            (#{bookIsbnTemp.isbn13},
+            #{bookIsbnTemp.bookTitle},
+            #{bookIsbnTemp.publisher},
+            #{bookIsbnTemp.image},
+            #{bookIsbnTemp.infonaruFetchedAt},
+            #{bookIsbnTemp.statusCd})
         </foreach>
+        ON DUPLICATE KEY UPDATE
+        book_title = COALESCE(VALUES(book_title), book_title),
+        publisher = COALESCE(VALUES(publisher), publisher),
+        image = COALESCE(VALUES(image), image),
+        infonaru_fetched_at = VALUES(infonaru_fetched_at);
     </insert>
+
 
 </mapper>

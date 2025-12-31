@@ -1,6 +1,6 @@
 package com.booknara.booknaraPrj.client.infoNaru;
 
-import com.booknara.booknaraPrj.domain.BookDTO;
+import com.booknara.booknaraPrj.domain.BookIsbnTempDTO;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
@@ -22,7 +22,7 @@ public class InfoNaruClient {
     }
 
     // 도서 목록 조회 (메타 정보 불필요한 경우)
-    public List<BookDTO> getBookList(Map<String, String> params) {
+    public List<BookIsbnTempDTO> getBookList(Map<String, String> params) {
         InfoNaruResponse response = fetchResponse(params);
 
         if (response == null
@@ -38,48 +38,16 @@ public class InfoNaruClient {
     }
 
     // 외부 API DTO → 내부 도메인(BookDTO) 변환
-    private BookDTO convertToBookDTO(InfoNaruDTO info) {
-        BookDTO book = new BookDTO();
+    private BookIsbnTempDTO convertToBookDTO(InfoNaruDTO info) {
+        BookIsbnTempDTO book = new BookIsbnTempDTO();
         book.setIsbn13(info.getIsbn13());
-        book.setBookname(info.getBookname());
-        book.setAuthors(normalizeAuthors(info.getAuthors()));
+        book.setBookTitle(info.getBooktitle());
         book.setPublisher(info.getPublisher());
+        book.setImage(info.getBookimageURL());
 
         return book;
     }
 
-    // 저자 문자열 정규화 (구분자/역할어 제거)
-    private String normalizeAuthors(String rawAuthors) {
-        if (rawAuthors == null || rawAuthors.isBlank()) {
-            return rawAuthors;
-        }
-
-        String normalizedAuthors = rawAuthors;
-
-        // 구분자 통일
-        normalizedAuthors = normalizedAuthors.replaceAll("[,|/]", ";");
-
-        // 접두어 제거
-        normalizedAuthors = normalizedAuthors.replaceAll(
-                "^\\s*(지은이:|저자:|지은이|저자)\\s*",
-                ""
-        );
-
-        // 역할어 제거
-        normalizedAuthors = normalizedAuthors.replaceAll(
-                "\\s+(저|역해|역|편|엮음|글|그림|옮김)\\b",
-                ""
-        );
-
-        // 구분자/공백 정리
-        normalizedAuthors = normalizedAuthors
-                .replaceAll("\\s*;\\s*", ";")
-                .replaceAll(";{2,}", ";")
-                .replaceAll("^;|;$", "")
-                .trim();
-
-        return normalizedAuthors;
-    }
 
     // 정보나루 API 실제 HTTP 호출 담당
     private InfoNaruResponse fetchResponse(Map<String, String> params) {
@@ -106,7 +74,7 @@ public class InfoNaruClient {
 
         int numFound = response.getResponse().getNumFound();
 
-        List<BookDTO> books = (response.getResponse().getDocs() == null)
+        List<BookIsbnTempDTO> books = (response.getResponse().getDocs() == null)
                 ? List.of()
                 : response.getResponse().getDocs().stream()
                 .map(InfoNaruResponse.DocWrapper::getDoc)

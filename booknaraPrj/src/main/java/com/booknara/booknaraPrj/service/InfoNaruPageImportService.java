@@ -2,7 +2,7 @@ package com.booknara.booknaraPrj.service;
 
 import com.booknara.booknaraPrj.client.infoNaru.InfoNaruClient;
 import com.booknara.booknaraPrj.client.infoNaru.InfoNaruPageResult;
-import com.booknara.booknaraPrj.domain.BookDTO;
+import com.booknara.booknaraPrj.domain.BookIsbnTempDTO;
 import com.booknara.booknaraPrj.mapper.BookMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,7 +44,7 @@ public class InfoNaruPageImportService {
 
         // API 호출
         InfoNaruPageResult result = infoNaruClient.getBookPage(params);
-        List<BookDTO> books = (result == null) ? List.of() : result.getBooks();
+        List<BookIsbnTempDTO> books = (result == null) ? List.of() : result.getBooks();
 
         // 응답이 없으면 종료
         if (books == null || books.isEmpty()) {
@@ -51,14 +52,29 @@ public class InfoNaruPageImportService {
             return false;
         }
 
+        LocalDateTime now = LocalDateTime.now();
+        //null값 검증
+        books = books.stream()
+                .filter(b -> b.getIsbn13() != null && !b.getIsbn13().isBlank())
+                .filter(b -> b.getBookTitle() != null && !b.getBookTitle().isBlank())
+                .filter(b -> b.getPublisher() != null && !b.getPublisher().isBlank())
+                .toList();
+
+        books.forEach(book -> {
+            book.setInfonaruFetchedAt(now);
+            book.setStatusCd(0); // NOTREADY
+        });
+
+
+
         // DB 부하 방지를 위해 1000건씩 분할 삽입
         int chunkSize = 1000;
         int inserted = 0;
 
         for (int i = 0; i < books.size(); i += chunkSize) {
-            List<BookDTO> chunk =
+            List<BookIsbnTempDTO> chunk =
                     books.subList(i, Math.min(i + chunkSize, books.size()));
-            inserted += bookMapper.insertBook(chunk);
+            inserted += bookMapper.insertBookIsbnTemp(chunk);
         }
 
         // 중복 ISBN으로 인해 삽입되지 않은 건수

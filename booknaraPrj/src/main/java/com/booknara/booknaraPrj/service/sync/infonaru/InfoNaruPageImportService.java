@@ -1,9 +1,9 @@
-package com.booknara.booknaraPrj.service;
+package com.booknara.booknaraPrj.service.sync.infonaru;
 
 import com.booknara.booknaraPrj.client.infoNaru.InfoNaruClient;
 import com.booknara.booknaraPrj.client.infoNaru.InfoNaruPageResult;
 import com.booknara.booknaraPrj.domain.BookIsbnTempDTO;
-import com.booknara.booknaraPrj.mapper.BookMapper;
+import com.booknara.booknaraPrj.mapper.BookBatchMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,7 +25,7 @@ public class InfoNaruPageImportService {
     private final InfoNaruClient infoNaruClient;
 
     // 도서 테이블 MyBatis Mapper
-    private final BookMapper bookMapper;
+    private final BookBatchMapper bookBatchMapper;
 
     // 정보나루 인증키
     @Value("${api.infonaru.key}")
@@ -74,7 +74,7 @@ public class InfoNaruPageImportService {
         for (int i = 0; i < books.size(); i += chunkSize) {
             List<BookIsbnTempDTO> chunk =
                     books.subList(i, Math.min(i + chunkSize, books.size()));
-            inserted += bookMapper.insertBookIsbnTemp(chunk);
+            inserted += bookBatchMapper.insertBookIsbnTemp(chunk);
         }
 
         // 중복 ISBN으로 인해 삽입되지 않은 건수

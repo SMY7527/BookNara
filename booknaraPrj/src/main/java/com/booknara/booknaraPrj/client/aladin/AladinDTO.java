@@ -1,6 +1,7 @@
 package com.booknara.booknaraPrj.client.aladin;
 
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -9,7 +10,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AladinDTO {
+
+    @JsonProperty("pubDate")
     private String pubdate;
     private String cover;
     private String categoryId;
+    private String description;
+
 }

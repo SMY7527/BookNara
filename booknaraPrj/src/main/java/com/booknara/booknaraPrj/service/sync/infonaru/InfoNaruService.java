@@ -1,4 +1,4 @@
-package com.booknara.booknaraPrj.service;
+package com.booknara.booknaraPrj.service.sync.infonaru;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

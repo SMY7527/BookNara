@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.booknara.booknaraPrj.mapper.BookBatchMapper">
+
+    <!-- 0) 도서 삽입 -->
+    <insert id="insertBookIsbnTemp" parameterType="java.util.List">
+        INSERT INTO book_isbn_temp
+        (isbn13,
+        book_title,
+        publisher,
+        infonaru_fetched_at,
+        status_cd)
+        VALUES
+        <foreach collection="list" item="bookIsbnTemp" separator=",">
+            (#{bookIsbnTemp.isbn13},
+            #{bookIsbnTemp.bookTitle},
+            #{bookIsbnTemp.publisher},
+            #{bookIsbnTemp.infonaruFetchedAt},
+            #{bookIsbnTemp.statusCd})
+        </foreach>
+        ON DUPLICATE KEY UPDATE
+        book_title = COALESCE(VALUES(book_title), book_title),
+        publisher = COALESCE(VALUES(publisher), publisher),
+        infonaru_fetched_at = VALUES(infonaru_fetched_at);
+    </insert>
+
+    <!-- 1) 네이버 보강 대상 ISBN 조회 -->
+    <select id="selectTempIsbnForNaver" resultType="string">
+        SELECT ISBN13
+        FROM BOOK_ISBN_TEMP
+        WHERE STATUS_CD = 0
+        AND NAVER_FETCHED_AT IS NULL
+        ORDER BY INFONARU_FETCHED_AT ASC
+        LIMIT #{limit}
+    </select>
+
+    <!-- 2) 네이버 결과로 TEMP 업데이트 -->
+    <update id="updateTempFromNaver" parameterType="com.booknara.booknaraPrj.domain.BookIsbnTempDTO">
+        UPDATE BOOK_ISBN_TEMP
+        SET
+        BOOK_TITLE = COALESCE(#{bookTitle}, BOOK_TITLE),
+        AUTHORS      = COALESCE(#{authors}, AUTHORS),
+        PUBLISHER    = COALESCE(#{publisher}, PUBLISHER),
+        DESCRIPTION  = COALESCE(#{description}, DESCRIPTION),
+        NAVER_IMAGE  = COALESCE(#{naverImage}, NAVER_IMAGE),
+        NAVER_FETCHED_AT = #{naverFetchedAt}
+        WHERE ISBN13 = #{isbn13}
+    </update>
+
+    <!-- 3) 알라딘 보강 대상 ISBN 조회 -->
+    <select id="selectTempIsbnForAladin" resultType="string">
+        SELECT ISBN13
+        FROM BOOK_ISBN_TEMP
+        WHERE STATUS_CD = 0
+        AND ALADIN_FETCHED_AT IS NULL
+        AND (
+        PUBDATE IS NULL
+        OR GENRE_ID IS NULL
+        OR ALADIN_IMAGE_BIG IS NULL OR ALADIN_IMAGE_BIG = ''
+        OR DESCRIPTION IS NULL OR DESCRIPTION = ''
+        )
+        ORDER BY COALESCE(NAVER_FETCHED_AT, INFONARU_FETCHED_AT) ASC
+        LIMIT #{limit}
+    </select>
+
+
+
+    <!-- 4) 알라딘 결과로 TEMP 업데이트 -->
+    <update id="updateTempFromAladin" parameterType="com.booknara.booknaraPrj.domain.BookIsbnTempDTO">
+        UPDATE BOOK_ISBN_TEMP
+        SET
+        PUBDATE          = COALESCE(#{pubdate}, PUBDATE),
+        GENRE_ID         = COALESCE(#{genreId}, GENRE_ID),
+        ALADIN_IMAGE_BIG = COALESCE(#{aladinImageBig}, ALADIN_IMAGE_BIG),
+        DESCRIPTION = COALESCE(#{description}, DESCRIPTION),
+        ALADIN_FETCHED_AT = #{aladinFetchedAt}
+        WHERE ISBN13 = #{isbn13}
+    </update>
+
+    <!-- 5) DATA_HASH 내용 TEMP 업데이트 -->
+    <update id="updateTempDataHash">
+        UPDATE BOOK_ISBN_TEMP
+        SET DATA_HASH = #{dataHash}
+        WHERE ISBN13 = #{isbn13}
+    </update>
+
+
+
+    <!-- 6) READY 승격 -->
+    <update id="markTempReady">
+        UPDATE BOOK_ISBN_TEMP
+        SET STATUS_CD = 1
+        WHERE ISBN13 = #{isbn13}
+        AND STATUS_CD = 0
+    </update>
+
+    <!-- 7) MERGED(=2) 처리 -->
+    <update id="markTempMerged">
+        UPDATE BOOK_ISBN_TEMP
+        SET STATUS_CD = 2
+        WHERE ISBN13 = #{isbn13}
+        AND STATUS_CD = 1
+    </update>
+
+    <!-- 8)ISBN 한건 조회 -->
+    <select id="selectTempByIsbn13"
+            resultType="com.booknara.booknaraPrj.domain.BookIsbnTempDTO">
+        SELECT
+        ISBN13 AS isbn13,
+        BOOK_TITLE AS bookTitle,
+        AUTHORS AS authors,
+        PUBLISHER AS publisher,
+        GENRE_ID AS genreId,
+        DESCRIPTION AS description,
+        PUBDATE AS pubdate,
+        NAVER_IMAGE AS naverImage,
+        ALADIN_IMAGE_BIG AS aladinImageBig,
+        DATA_HASH AS dataHash,
+        INFONARU_FETCHED_AT AS infonaruFetchedAt,
+        NAVER_FETCHED_AT AS naverFetchedAt,
+        ALADIN_FETCHED_AT AS aladinFetchedAt,
+        STATUS_CD AS statusCd
+        FROM BOOK_ISBN_TEMP
+        WHERE ISBN13 = #{isbn13}
+    </select>
+
+    <!-- 9) READY(1) -> 운영 반영 대상 ISBN 조회 -->
+    <select id="selectTempIsbnForMerge" resultType="string">
+        SELECT ISBN13
+        FROM BOOK_ISBN_TEMP
+        WHERE STATUS_CD = 1
+        ORDER BY COALESCE(ALADIN_FETCHED_AT, NAVER_FETCHED_AT, INFONARU_FETCHED_AT) ASC
+        LIMIT #{limit}
+    </select>
+
+    <!-- 10) TEMP(READY) -> BOOK_ISBN 업서트 (해시 변경시에만 UPDATE) -->
+    <insert id="upsertBookIsbnFromTemp">
+        INSERT INTO BOOK_ISBN
+        (
+        ISBN13, BOOK_TITLE, AUTHORS, DESCRIPTION, PUBLISHER, PUBDATE, IMAGE,
+        EBOOK_YN, EPUB, GENRE_ID, DATA_HASH
+        )
+        SELECT
+        t.ISBN13,
+        t.BOOK_TITLE,
+        t.AUTHORS,
+        COALESCE(t.DESCRIPTION,''),
+        t.PUBLISHER,
+        t.PUBDATE,
+        COALESCE(t.NAVER_IMAGE, t.ALADIN_IMAGE_BIG),
+        'N',
+        NULL,
+        t.GENRE_ID,
+        t.DATA_HASH
+        FROM BOOK_ISBN_TEMP t
+        WHERE t.ISBN13 = #{isbn13}
+        AND t.STATUS_CD = 1
+        AS new
+        ON DUPLICATE KEY UPDATE
+        BOOK_TITLE  = IF(BOOK_ISBN.DATA_HASH != new.DATA_HASH, new.BOOK_TITLE,  BOOK_ISBN.BOOK_TITLE),
+        AUTHORS     = IF(BOOK_ISBN.DATA_HASH != new.DATA_HASH, new.AUTHORS,     BOOK_ISBN.AUTHORS),
+        DESCRIPTION = IF(BOOK_ISBN.DATA_HASH != new.DATA_HASH, new.DESCRIPTION, BOOK_ISBN.DESCRIPTION),
+        PUBLISHER   = IF(BOOK_ISBN.DATA_HASH != new.DATA_HASH, new.PUBLISHER,   BOOK_ISBN.PUBLISHER),
+        PUBDATE     = IF(BOOK_ISBN.DATA_HASH != new.DATA_HASH, new.PUBDATE,     BOOK_ISBN.PUBDATE),
+        IMAGE       = IF(BOOK_ISBN.DATA_HASH != new.DATA_HASH, new.IMAGE,       BOOK_ISBN.IMAGE),
+        GENRE_ID    = IF(BOOK_ISBN.DATA_HASH != new.DATA_HASH, new.GENRE_ID,    BOOK_ISBN.GENRE_ID),
+        DATA_HASH   = IF(BOOK_ISBN.DATA_HASH != new.DATA_HASH, new.DATA_HASH,   BOOK_ISBN.DATA_HASH),
+        UPDATED_AT  = IF(BOOK_ISBN.DATA_HASH != new.DATA_HASH, CURRENT_TIMESTAMP, BOOK_ISBN.UPDATED_AT);
+    </insert>
+
+
+
+
+
+
+</mapper>

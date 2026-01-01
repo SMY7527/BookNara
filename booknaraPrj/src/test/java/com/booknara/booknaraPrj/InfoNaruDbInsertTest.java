@@ -2,7 +2,7 @@ package com.booknara.booknaraPrj;
 
 import com.booknara.booknaraPrj.client.infoNaru.InfoNaruClient;
 import com.booknara.booknaraPrj.domain.BookIsbnTempDTO;
-import com.booknara.booknaraPrj.mapper.BookMapper;
+import com.booknara.booknaraPrj.mapper.BookBatchMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,7 +19,8 @@ import static org.junit.jupiter.api.Assertions.*;
 class InfoNaruDbInsertTest {
 
     @Autowired InfoNaruClient infoNaruClient;
-    @Autowired BookMapper bookMapper;
+    @Autowired
+    BookBatchMapper bookMapper;
     @Autowired JdbcTemplate jdbcTemplate;
 
     @Value("${api.infonaru.key}")

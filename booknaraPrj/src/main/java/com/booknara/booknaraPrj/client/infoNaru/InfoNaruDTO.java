@@ -17,8 +17,4 @@ public class InfoNaruDTO {
     private String booktitle;
     private String publisher;
     private String isbn13;
-
-    //JSON필드명과 자바 필드명을 연결
-    @JsonProperty("bookImageURL")
-    private String bookimageURL;
 }

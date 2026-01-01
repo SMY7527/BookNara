@@ -43,7 +43,6 @@ public class InfoNaruClient {
         book.setIsbn13(info.getIsbn13());
         book.setBookTitle(info.getBooktitle());
         book.setPublisher(info.getPublisher());
-        book.setImage(info.getBookimageURL());
 
         return book;
     }

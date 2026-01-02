@@ -12,24 +12,27 @@ import java.time.LocalDateTime;
 @Data
 public class BookIsbnTempDTO {
 
-    private String isbn13;                 // ISBN13
+    private String isbn13;                  // ISBN13 (PK)
 
-    private String bookTitle;              // BOOK_TITLE
-    private String authors;                // AUTHORS
-    private String publisher;              // PUBLISHER
-    private Integer genreId;               // GENRE_ID (INT)
+    private String bookTitle;               // BOOK_TITLE
+    private String authors;                 // AUTHORS
+    private String publisher;               // PUBLISHER
+    private Integer genreId;                // GENRE_ID
 
-    private String description;            // DESCRIPTION
-    private LocalDate pubdate;             // PUBDATE
+    private String description;             // DESCRIPTION
+    private LocalDate pubdate;              // PUBDATE
 
-    private String naverImage;             // NAVER_IMAGE
-    private String aladinImageBig;         // ALADIN_IMAGE_BIG
+    private String naverImage;              // NAVER_IMAGE
+    private String aladinImageBig;           // ALADIN_IMAGE_BIG
 
-    private String naverHash;              // NAVER_HASH (CHAR(64))
+    private String dataHash;                // DATA_HASH (변경 감지용)
 
     private LocalDateTime infonaruFetchedAt; // INFONARU_FETCHED_AT
     private LocalDateTime naverFetchedAt;    // NAVER_FETCHED_AT
     private LocalDateTime aladinFetchedAt;   // ALADIN_FETCHED_AT
 
-    private Integer statusCd;              // STATUS_CD (TINYINT)
+    private Integer naverResStatus;          // NAVER_RES_STATUS
+    private Integer aladinResStatus;         // ALADIN_RES_STATUS
+
+    private Integer statusCd;                // STATUS_CD (0=NOTREADY,1=READY,2=MERGED)
 }

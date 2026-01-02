@@ -14,7 +14,7 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/test/**").permitAll()   // ✅ 테스트만 오픈
+                        .requestMatchers("/test/**").permitAll()   //  테스트만 오픈
                         .anyRequest().authenticated()
                 )
                 .formLogin(Customizer.withDefaults());         // 기본 로그인 유지

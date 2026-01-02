@@ -4,6 +4,7 @@ import com.booknara.booknaraPrj.client.naver.NaverClient;
 import com.booknara.booknaraPrj.client.naver.NaverDTO;
 import com.booknara.booknaraPrj.client.naver.NaverResponse;
 import com.booknara.booknaraPrj.domain.BookIsbnTempDTO;
+import com.booknara.booknaraPrj.domain.ResponseStatus;
 import com.booknara.booknaraPrj.mapper.BookBatchMapper;
 import com.booknara.booknaraPrj.service.policy.TempReadyPolicy;
 import lombok.RequiredArgsConstructor;
@@ -32,18 +33,17 @@ public class NaverBookSyncService {
     // =========================
     private static final int MAX_RETRY_COUNT = 3;
     private static final long INITIAL_BACKOFF_MS = 200;
-    //KeyIndex별 429 누적 횟수(일일 한도)
+
+    // keyIndex별 429 누적 횟수 (너의 기존 정책 유지)
     private final ConcurrentHashMap<Integer, Integer> daily429Count = new ConcurrentHashMap<>();
-    //횟수 시준
-    private static final int DAILY_429_COUNT_Limit=3;
+    private static final int DAILY_429_COUNT_LIMIT = 3;
+
     /** 429 발생 시 해당 API Key를 잠시 제외 */
     private static final long KEY_COOLDOWN_ON_429_MS = 15_000; // 15초
 
-    /**
-     * NOTREADY(0) 중 네이버 보강이 필요한 ISBN을 limit 단위로 처리
-     * - authors / description / naverImage 보강
-     * - READY 조건 충족 시 STATUS_CD=1로 승격
-     */
+    private static final ZoneId KST_ZONE = ZoneId.of("Asia/Seoul");
+    private static final long DELAY_MINUTES = 5;
+
     public int syncOnce(int limit) {
         List<String> targetIsbnList = batchMapper.selectTempIsbnForNaver(limit);
 
@@ -60,14 +60,9 @@ public class NaverBookSyncService {
         }
 
         log.info("naver sync: success={}/{}", successCount, targetIsbnList.size());
-
-        // 종료 판단은 "성공 수"가 아니라 "대상 수" 기준이 더 안전
         return targetIsbnList.size();
     }
 
-    /**
-     * 더 이상 처리 대상이 없을 때까지 반복
-     */
     public void syncLoop(int limit) {
         while (true) {
             int targetCount = syncOnce(limit);
@@ -77,79 +72,60 @@ public class NaverBookSyncService {
     }
 
     /**
-     * 네이버 API를 이용해 단일 ISBN의 TEMP 데이터를 보강.
-     *
-     * 처리 흐름:
-     * 1) 네이버 API 호출 (재시도 + 백오프 포함)
-     * 2) 응답을 TEMP 업데이트용 DTO로 변환
-     * 3) TEMP 테이블 업데이트
-     * 4) DB 재조회 후 READY 조건 충족 시 STATUS_CD 승격
-     *
-     * 실패해도 예외를 전파하지 않음.
-     *  - NOTREADY 상태 유지
-     *  - 다음 스케줄에서 재시도 대상이 됨
+     * 네이버 API 보강 (단일 ISBN)
+     * - NAVER_FETCHED_AT: 시도하면 무조건 기록
+     * - NAVER_RES_STATUS: 응답 결과에 따라 기록
+     * - 데이터가 있으면 authors/description/image 업데이트
      */
     @Transactional
     public boolean syncOne(String isbn13) {
-
-        // 네이버 시도 시간은 성공/실패 관계없이 기록
-        //    → "무한 재시도 루프" 방지 목적
         LocalDateTime triedAt = LocalDateTime.now();
 
         try {
-            // 1) 네이버 API 호출 (지수 백오프 + 재시도 포함)
-            NaverResponse apiResponse = fetchWithRetry(isbn13);
+            NaverCallResult result = fetchWithRetry(isbn13);
 
-            // 2) 응답 → TEMP 업데이트 DTO
-            //    - 응답이 null이어도 fetchedAt(triedAt)은 기록해야 하므로 DTO는 항상 생성
-            BookIsbnTempDTO tempUpdate =
-                    (apiResponse == null)
-                            ? buildTriedOnlyDto(isbn13, triedAt)   // 실패: 시도 기록만
-                            : toTempUpdateDto(isbn13, apiResponse); // 성공: authors/description/image 보강
+            // 1) 시도 시각 + 상태 저장은 "항상" (핵심)
+            batchMapper.updateTempNaverMeta(
+                    isbn13,
+                    triedAt,
+                    result.status.getCode()
+            );
 
-            // 실패 케이스에서도 naverFetchedAt은 강제로 기록
-            tempUpdate.setNaverFetchedAt(triedAt);
-
-            // 3) TEMP 업데이트
-            int updatedRows = batchMapper.updateTempFromNaver(tempUpdate);
-            if (updatedRows == 0) {
-                log.warn("naver sync skipped (no row) isbn13={}", isbn13);
-                return false;
+            // 2) 데이터가 있는 성공일 때만 실제 데이터 업데이트
+            if (result.status == ResponseStatus.SUCCESS_WITH_DATA) {
+                BookIsbnTempDTO tempUpdate = toTempUpdateDto(isbn13, result.response, triedAt);
+                batchMapper.updateTempFromNaver(tempUpdate);
             }
 
-            // 4) DB 재조회 후 READY 판정
-            //    - 네이버/알라딘/InfoNaru가 합쳐진 "최종 상태" 기준
+            // 3) READY 판정 (최종 상태 기준)
             BookIsbnTempDTO mergedTemp = batchMapper.selectTempByIsbn13(isbn13);
-            if (readyPolicy.isReady(mergedTemp)) {
+            if (mergedTemp != null && readyPolicy.isReady(mergedTemp)) {
                 batchMapper.markTempReady(isbn13);
             }
 
-            // apiResponse가 null이면 "실패지만 시도 기록은 남김"
-            return apiResponse != null;
+            return result.status == ResponseStatus.SUCCESS_WITH_DATA;
 
         } catch (InterruptedException ie) {
-            // InterruptedException은 인터럽트 플래그 복구 필수
             Thread.currentThread().interrupt();
             log.warn("naver sync interrupted isbn13={}", isbn13);
             return false;
 
         } catch (Exception ex) {
-            // 네이버 실패는 정상 흐름: NOTREADY 유지
-            log.warn("naver sync failed isbn13={}", isbn13, ex);
+            // 여기까지 온 예외는 "정상적인 HTTP 에러 외" 케이스들
+            log.warn("naver sync failed (unexpected) isbn13={}", isbn13, ex);
 
+            // 예외라도 "시도"는 했으니 상태를 retryable로 박아두는게 보통 안전
             try {
-                BookIsbnTempDTO triedOnly = buildTriedOnlyDto(isbn13, triedAt);
-                batchMapper.updateTempFromNaver(triedOnly);
-            } catch (Exception ignore) {
-                // 배치 전체 중단 방지
-            }
+                batchMapper.updateTempNaverMeta(
+                        isbn13,
+                        triedAt,
+                        ResponseStatus.RETRYABLE_FAIL.getCode()
+                );
+            } catch (Exception ignore) {}
 
             return false;
 
         } finally {
-            // 네이버 API 정책:
-            // - 초당 10건 제한
-            // - 안전 마진 두고 6~7 TPS 수준으로 제한
             try {
                 Thread.sleep(150);
             } catch (InterruptedException ie) {
@@ -158,88 +134,94 @@ public class NaverBookSyncService {
         }
     }
 
-    private BookIsbnTempDTO buildTriedOnlyDto(String isbn13, LocalDateTime triedAt) {
-        BookIsbnTempDTO dto = new BookIsbnTempDTO();
-        dto.setIsbn13(isbn13);
-        dto.setNaverFetchedAt(triedAt);
-        return dto;
-    }
-
     /**
-     * 429 / 403 발생 시 지수 백오프 + 지터로 재시도
-     *
-     * - 429: 초당/일일 호출 한도 초과 가능성
-     *        → 해당 API Key를 일정 시간 제외(cooldown)
-     * - 401 / 403: 인증/권한 문제 가능성
-     *        → 재시도 의미 없으므로 즉시 포기
+     * 네이버 호출 + 정책 적용
+     * - 200 + items 있음  -> SUCCESS_WITH_DATA
+     * - 200 + items 없음  -> SUCCESS_NO_DATA  (데이터 문제)
+     * - 429 / 5xx / 네트워크 -> RETRYABLE_FAIL
+     * - 401/403/400 등     -> NONRETRY_FAIL
      */
-    private NaverResponse fetchWithRetry(String isbn13) throws InterruptedException {
+    private NaverCallResult fetchWithRetry(String isbn13) throws InterruptedException {
         long backoffMs = INITIAL_BACKOFF_MS;
 
         for (int attempt = 1; attempt <= MAX_RETRY_COUNT; attempt++) {
             try {
-                return naverClient.searchByIsbnOnce(isbn13);
+                NaverResponse resp = naverClient.searchByIsbnOnce(isbn13);
+
+                // 200 OK 이지만 데이터 없는 경우
+                if (resp == null || resp.getItems() == null || resp.getItems().isEmpty()) {
+                    return NaverCallResult.noData();
+                }
+
+                return NaverCallResult.withData(resp);
 
             } catch (RestClientResponseException ex) {
                 int statusCode = ex.getStatusCode().value();
 
-                // 이번 요청에 사용된 API Key index
                 Integer keyIdx = naverClient.getLastKeyIndex();
                 naverClient.clearLastKeyIndex();
 
+                // 429: 재시도 가능 + 키 쿨다운
                 if (statusCode == 429) {
                     if (keyIdx != null) {
                         int count = daily429Count.merge(keyIdx, 1, Integer::sum);
 
-                        // ✅ 반복 429 → 오늘 소진 판단
-                        if (count >= DAILY_429_COUNT_Limit) {
+                        if (count >= DAILY_429_COUNT_LIMIT) {
                             long until = getNextScheduledTime();
                             naverClient.cooldownKeyUntil(keyIdx, until);
-                            //자정 쿨다운시 리셋
                             daily429Count.remove(keyIdx);
 
-                            log.warn("naver key daily exhausted. keyIdx={} until={}", keyIdx, until);
-                            return null;
+                            log.warn("naver key exhausted keyIdx={} until={} isbn13={}", keyIdx, until, isbn13);
+                            return NaverCallResult.retryableFail();
                         }
 
-                        // ❌ 아직은 초당 제한으로 판단 → 짧은 쿨다운
                         naverClient.cooldownKey(keyIdx, KEY_COOLDOWN_ON_429_MS);
                     }
 
+                    log.warn("naver 429 rate-limited isbn13={} attempt={}/{}", isbn13, attempt, MAX_RETRY_COUNT);
                     Thread.sleep(backoffMs);
                     backoffMs = Math.min(backoffMs * 2, 3000);
                     continue;
                 }
 
-                // 401/403 등은 retry 의미 적음 → 즉시 포기
-                log.warn("naver request failed isbn13={} status={} keyIdx={}",
-                        isbn13, statusCode, keyIdx);
-                return null;
+                // 5xx: 서버 장애 -> 재시도 가능
+                if (statusCode >= 500 && statusCode <= 599) {
+                    log.warn("naver 5xx server error isbn13={} status={} attempt={}/{}", isbn13, statusCode, attempt, MAX_RETRY_COUNT);
+                    Thread.sleep(backoffMs);
+                    backoffMs = Math.min(backoffMs * 2, 3000);
+                    continue;
+                }
+
+                // 401/403: 인증/차단 -> 재시도 불가
+                if (statusCode == 401 || statusCode == 403) {
+                    log.error("naver auth/forbidden isbn13={} status={}", isbn13, statusCode);
+                    return NaverCallResult.nonRetryFail();
+                }
+
+                // 400/404 등: 요청 문제 가능성 -> 재시도 불가(보통)
+                log.warn("naver non-retry client error isbn13={} status={}", isbn13, statusCode);
+                return NaverCallResult.nonRetryFail();
+
+            } catch (Exception ex) {
+                // 네트워크/파싱 등 -> 재시도 가능
+                log.warn("naver unexpected error isbn13={} attempt={}/{} msg={}", isbn13, attempt, MAX_RETRY_COUNT, ex.getMessage());
+                Thread.sleep(backoffMs);
+                backoffMs = Math.min(backoffMs * 2, 3000);
             }
         }
 
-        log.warn("naver retry exhausted isbn13={}", isbn13);
-        return null;
+        return NaverCallResult.retryableFail();
     }
 
     /**
-     * 네이버 응답을 TEMP 업데이트용 DTO로 변환
-     *
-     * - 프로젝트 NaverDTO는 image / author / description만 제공
-     * - 제목 / 출판사는 InfoNaru에서 채우므로
-     *   네이버는 "보강" 역할만 수행
+     * resp -> temp dto 변환 (성공+데이터 있을 때만 호출됨)
      */
-    private BookIsbnTempDTO toTempUpdateDto(String isbn13, NaverResponse apiResponse) {
+    private BookIsbnTempDTO toTempUpdateDto(String isbn13, NaverResponse apiResponse, LocalDateTime triedAt) {
         BookIsbnTempDTO updateDto = new BookIsbnTempDTO();
         updateDto.setIsbn13(isbn13);
-        updateDto.setNaverFetchedAt(LocalDateTime.now());
-
-        if (apiResponse == null || apiResponse.getItems() == null || apiResponse.getItems().isEmpty()) {
-            return updateDto;
-        }
+        updateDto.setNaverFetchedAt(triedAt);
 
         NaverDTO firstItem = apiResponse.getItems().get(0);
-
         updateDto.setAuthors(normalizeText(firstItem.getAuthor()));
         updateDto.setDescription(normalizeText(firstItem.getDescription()));
         updateDto.setNaverImage(normalizeText(firstItem.getImage()));
@@ -253,10 +235,6 @@ public class NaverBookSyncService {
         return trimmed.isEmpty() ? null : trimmed;
     }
 
-    private static final ZoneId KST_ZONE = ZoneId.of("Asia/Seoul");
-    private static final long DELAY_MINUTES = 5;
-
-    // 이름 추천: getNextScheduledTime()
     private long getNextScheduledTime() {
         return ZonedDateTime.now(KST_ZONE)
                 .plusDays(1)
@@ -265,5 +243,34 @@ public class NaverBookSyncService {
                 .plusMinutes(DELAY_MINUTES)
                 .toInstant()
                 .toEpochMilli();
+    }
+
+    // =========================================================
+    // 내부 결과 객체: status + response
+    // =========================================================
+    private static class NaverCallResult {
+        final ResponseStatus status;
+        final NaverResponse response;
+
+        private NaverCallResult(ResponseStatus status, NaverResponse response) {
+            this.status = status;
+            this.response = response;
+        }
+
+        static NaverCallResult withData(NaverResponse response) {
+            return new NaverCallResult(ResponseStatus.SUCCESS_WITH_DATA, response);
+        }
+
+        static NaverCallResult noData() {
+            return new NaverCallResult(ResponseStatus.SUCCESS_NO_DATA, null);
+        }
+
+        static NaverCallResult retryableFail() {
+            return new NaverCallResult(ResponseStatus.RETRYABLE_FAIL, null);
+        }
+
+        static NaverCallResult nonRetryFail() {
+            return new NaverCallResult(ResponseStatus.NONRETRY_FAIL, null);
+        }
     }
 }

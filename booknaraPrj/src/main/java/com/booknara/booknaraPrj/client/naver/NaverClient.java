@@ -53,7 +53,9 @@ public class NaverClient {
         int size = clients.size();
         long now = System.currentTimeMillis();
 
-        // 최대 size번까지 시도하면서 쿨다운 아닌 키를 선택
+        long minUntil = Long.MAX_VALUE;
+        int fallbackIdx = -1;
+
         for (int tries = 0; tries < size; tries++) {
             int idx = Math.floorMod(apiKeyIndex.getAndIncrement(), size);
             long until = cooldownUntil.getOrDefault(idx, 0L);
@@ -62,15 +64,33 @@ public class NaverClient {
                 lastKeyIndex.set(idx);
                 return clients.get(idx);
             }
+
+            // 모두 쿨다운일 때 대비: 가장 빨리 풀리는 키 기록
+            if (until < minUntil) {
+                minUntil = until;
+                fallbackIdx = idx;
+            }
         }
 
-        // 전부 쿨다운이면: 일단 다음 키를 반환(어쩔 수 없이)
+        //  전부 쿨다운이면: 가장 빨리 풀리는 키까지 짧게 대기 후 그 키 사용
+        if (fallbackIdx >= 0 && minUntil != Long.MAX_VALUE) {
+            long sleepMs = Math.min(Math.max(minUntil - now, 50), 500); // 50~500ms만 대기
+            try { Thread.sleep(sleepMs); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+            lastKeyIndex.set(fallbackIdx);
+            return clients.get(fallbackIdx);
+        }
+
+        // 최후 fallback
         int idx = Math.floorMod(apiKeyIndex.getAndIncrement(), size);
         lastKeyIndex.set(idx);
         return clients.get(idx);
     }
 
-    /** 네이버 book 검색 API를 1회 호출해서 DTO로 반환 (재시도/대응은 Service에서) */
+
+    /**
+     * 네이버 book 검색 API를 1회 호출해서 DTO로 반환
+     * - 재시도/백오프/응답 정책은 Service에서 수행
+     */
     public NaverResponse searchByIsbnOnce(String isbn13) {
         NaverProperties.Client client = selectClient();
 
@@ -91,7 +111,7 @@ public class NaverClient {
         }
     }
 
-    //Service에서 읽고 난 뒤 정리
+    /** Service에서 keyIdx 읽고 난 뒤 정리 (ThreadLocal 오염 방지) */
     public void clearLastKeyIndex() {
         lastKeyIndex.remove();
     }

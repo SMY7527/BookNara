@@ -34,7 +34,7 @@ public class TempReadyPolicy {
     private boolean hasQualityContent(BookIsbnTempDTO tempBook) {
         boolean hasAuthors = isNotBlank(tempBook.getAuthors());
         boolean hasPubdate = tempBook.getPubdate() != null;
-        boolean hasGenreId = tempBook.getGenreId() != null;   // ✅ 핵심 추가
+        boolean hasGenreId = tempBook.getGenreId() != null;
         boolean hasCover   = hasCoverImage(tempBook);
 
         return hasAuthors && hasPubdate && hasGenreId && hasCover;

@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>도서 대여 관리 시스템 - 도서관리</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+        /* [1] 공통 테마 설정 */
+        :root { --main-color: #DCA244; --hover-color: #C8903A; }
+        .bg-main { background-color: var(--main-color); }
+        .text-main { color: var(--main-color); }
+
+        /* [2] 사이드바 네비게이션 스타일 */
+        .nav-item { display: flex; align-items: center; gap: 12px; padding: 16px 24px; cursor: pointer; transition: all 0.2s; color: rgba(255,255,255,0.7); font-weight: 500; text-decoration: none; }
+        .nav-item:hover { background-color: rgba(255,255,255,0.1); color: white; }
+        .active-tab { background-color: rgba(255, 255, 255, 0.15); border-left: 4px solid white; color: white; font-weight: 700; }
+
+        /* [3] 버튼 및 필터 스타일 */
+        .btn-main { background-color: var(--main-color); color: white; padding: 10px 24px; border-radius: 12px; font-weight: bold; transition: all 0.2s; box-shadow: 0 4px 6px -1px rgba(220, 162, 68, 0.3); }
+        .btn-main:hover { background-color: var(--hover-color); }
+        .btn-dark { background-color: #1F2937; color: white; padding: 10px 40px; border-radius: 12px; font-weight: bold; transition: all 0.2s; }
+        .btn-dark:hover { background-color: #111827; }
+
+        .filter-group { display: flex; gap: 8px; padding: 6px; background: white; border-radius: 16px; border: 1px solid #E5E7EB; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .filter-btn { padding: 8px 20px; border-radius: 12px; font-size: 14px; font-weight: bold; color: #6B7280; transition: all 0.2s; }
+        .filter-btn:hover { background-color: #F9FAFB; }
+        .filter-btn.active { background-color: var(--main-color); color: white; }
+
+        /* [4] 테이블 및 리스트 스타일 */
+        .table-container { background: white; border-radius: 24px; border: 1px solid #E5E7EB; overflow: hidden; }
+        .th-style { padding: 16px 24px; font-size: 12px; font-weight: bold; color: #9CA3AF; text-transform: uppercase; background: #F9FAFB; border-bottom: 1px solid #E5E7EB; }
+        .td-style { padding: 20px 24px; border-bottom: 1px solid #F3F4F6; }
+
+        /* [5] 상태 배지 */
+        .badge { padding: 4px 12px; border-radius: 9999px; font-size: 11px; font-weight: bold; }
+        .badge-green { background-color: #DCFCE7; color: #16A34A; }
+        .badge-orange { background-color: #FFEDD5; color: #EA580C; }
+        .badge-gray { background-color: #F3F4F6; color: #6B7280; }
+
+        /* [6] 페이지네이션 */
+        .page-btn { width: 40px; height: 40px; border: 1px solid #E5E7EB; border-radius: 10px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; font-weight: 500; color: #4B5563; }
+        .page-btn:hover { background-color: #F9FAFB; }
+        .page-btn.active { background-color: var(--main-color); color: white; border-color: var(--main-color); box-shadow: 0 4px 6px -1px rgba(220, 162, 68, 0.3); }
+    </style>
+</head>
+<body class="bg-gray-50 flex h-screen overflow-hidden">
+
+<nav class="w-64 bg-main text-white flex flex-col shadow-xl z-50">
+    <div class="p-8 text-2xl font-black border-b border-white/10 flex items-center gap-3">
+        <i class="fas fa-book-reader"></i>
+        <span>ADMIN</span>
+    </div>
+
+    <div class="flex-1 overflow-y-auto py-4">
+        <div class="px-6 mb-2 text-[10px] font-bold text-white/40 uppercase tracking-widest">Main Menu</div>
+        <ul class="space-y-1">
+            <li><a href="/admin/Statistics" class="nav-item"><i class="fas fa-chart-pie w-5 text-center"></i> 대시보드</a></li>
+            <li><a href="/admin/BookManageMent" class="nav-item active-tab"><i class="fas fa-book w-5 text-center"></i> 도서관리</a></li>
+            <li><a href="/admin/UserManageMent" class="nav-item"><i class="fas fa-users w-5 text-center"></i> 회원관리</a></li>
+        </ul>
+
+        <div class="px-6 mt-8 mb-2 text-[10px] font-bold text-white/40 uppercase tracking-widest">Support & Service</div>
+        <ul class="space-y-1">
+            <li><a href="/admin/Inquiries" class="nav-item"><i class="fas fa-question-circle w-5 text-center"></i> 문의관리</a></li>
+            <li><a href="/admin/Notifications" class="nav-item"><i class="fas fa-bell w-5 text-center"></i> 알림관리</a></li>
+        </ul>
+
+        <div class="px-6 mt-8 mb-2 text-[10px] font-bold text-white/40 uppercase tracking-widest">System</div>
+        <ul class="space-y-1">
+            <li><a href="/admin/Settings" class="nav-item"><i class="fas fa-cog w-5 text-center"></i> 시스템 설정</a></li>
+        </ul>
+    </div>
+
+    <div class="p-6 bg-black/10">
+        <div class="flex items-center justify-between group">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center font-bold text-sm border border-white/10">AD</div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-bold truncate">관리자 님</p>
+                    <p class="text-[10px] text-white/50 uppercase tracking-tighter font-medium">Master Account</p>
+                </div>
+            </div>
+            <form th:action="@{/logout}" method="post">
+                <button type="submit" class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-red-500/20 hover:text-red-300 transition-all text-white/50" title="로그아웃">
+                    <i class="fas fa-sign-out-alt text-sm"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+</nav>
+
+<main class="flex-1 overflow-y-auto p-10 bg-[#FBFBFD]">
+    <div class="mb-10">
+        <h2 class="text-3xl font-extrabold text-gray-800 tracking-tight">도서관리</h2>
+        <p class="text-gray-400 mt-2 font-medium">전체 도서 목록을 관리하고 상태를 변경합니다.</p>
+    </div>
+
+    <div class="flex items-center justify-between mb-6">
+        <div class="filter-group">
+            <button class="filter-btn active">전체</button>
+            <button class="filter-btn flex items-center gap-2"><span class="w-2 h-2 bg-green-500 rounded-full"></span> 대여가능</button>
+            <button class="filter-btn flex items-center gap-2"><span class="w-2 h-2 bg-orange-500 rounded-full"></span> 대여중</button>
+            <button class="filter-btn flex items-center gap-2"><span class="w-2 h-2 bg-gray-400 rounded-full"></span> 정비중</button>
+        </div>
+        <button class="btn-main flex items-center gap-2"><i class="fas fa-plus"></i> 도서등록</button>
+    </div>
+
+    <form th:action="@{/admin/BookManageMent}" method="get" class="bg-white p-4 rounded-2xl shadow-sm border border-gray-200 flex gap-3 mb-8">
+        <div class="relative flex-1">
+            <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+            <input type="text" name="keyword" th:value="${keyword}" placeholder="도서명, 저자, ISBN 검색..."
+                   class="w-full pl-12 pr-4 py-3 bg-gray-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-[#DCA244]/20 focus:bg-white outline-none transition-all">
+        </div>
+
+        <button type="submit" class="btn-dark">검색</button>
+
+        <a th:if="${keyword != null and keyword != ''}"
+           th:href="@{/admin/BookManageMent}"
+           class="px-6 py-3 bg-gray-100 text-gray-500 rounded-xl font-bold hover:bg-gray-200 transition-all flex items-center justify-center">
+            초기화
+        </a>
+    </form>
+
+    <div class="table-container shadow-sm">
+        <table class="w-full text-left">
+            <thead>
+            <tr>
+                <th class="th-style w-20">No.</th>
+                <th class="th-style">도서정보</th>
+                <th class="th-style">카테고리</th>
+                <th class="th-style">상태</th>
+                <th class="th-style text-center">관리</th>
+            </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+            <tr th:each="book, iterStat : ${bookList}" class="hover:bg-gray-50/50 transition-colors">
+
+                <td class="td-style text-gray-400 font-medium"
+                    th:text="${(currentPage * 50) + iterStat.count}">1</td>
+                <td class="td-style">
+                    <div class="flex items-center gap-4">
+                        <img th:src="${book.aladinImageBig}" alt="Book Cover" class="w-12 h-16 object-cover rounded shadow-sm border border-gray-100">
+                        <div class="flex-1 min-w-0">
+                            <div class="font-bold text-gray-800 truncate" th:text="${book.bookTitle}">도서 제목</div>
+                            <div class="text-[11px] text-gray-500 mt-0.5 font-mono">
+                                <span th:text="${book.authors}">저자명</span> |
+                                <span th:text="${book.isbn13}">ISBN</span>
+                            </div>
+                            <p class="text-[10px] text-gray-400 mt-1 truncate max-w-xs" th:text="${book.description}">설명</p>
+                        </div>
+                    </div>
+                </td>
+                <td class="td-style">
+                    <div class="text-sm text-gray-600 font-medium" th:text="${book.genreNm}">카테고리</div>
+                    <div class="text-[10px] text-gray-400" th:text="${book.publisher}">출판사</div>
+                </td>
+                <td class="td-style">
+                    <span th:if="${book.bookState == 'N'}" class="badge badge-green">대여가능</span>
+                    <span th:if="${book.bookState == 'L'}" class="badge badge-gray">분실/정비중</span>
+                </td>
+                <td class="td-style text-center">
+                    <div class="flex justify-center gap-1">
+                        <button class="p-2 text-main hover:bg-[#DCA244]/10 rounded-lg transition-colors"><i class="fas fa-edit text-sm"></i></button>
+                        <button class="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"><i class="fas fa-trash-alt text-sm"></i></button>
+                    </div>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(bookList)}">
+                <td colspan="5" class="py-20 text-center text-gray-400">
+                    <i class="fas fa-search-minus text-4xl mb-4 block"></i>
+                    <p class="text-lg font-medium">검색 결과가 없습니다.</p>
+                    <p class="text-sm">다른 키워드로 검색해 보세요.</p>
+                </td>
+            </tr>
+
+            <tr th:unless="${#lists.isEmpty(bookList)}" th:each="book, iterStat : ${bookList}">
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="mt-10 flex justify-center items-center gap-2">
+
+        <a th:href="@{/admin/BookManageMent(page=0, keyword=${keyword})}"
+           class="page-btn text-gray-400 hover:text-main"
+           th:classappend="${currentPage == 0} ? 'opacity-30 cursor-not-allowed pointer-events-none' : ''"
+           title="처음 페이지">
+            <i class="fas fa-angle-double-left text-xs"></i>
+        </a>
+
+        <a th:href="${currentPage > 0} ? @{/admin/BookManageMent(page=${currentPage - 1}, keyword=${keyword})} : '#'"
+           class="page-btn"
+           th:classappend="${currentPage == 0} ? 'opacity-30 cursor-not-allowed pointer-events-none' : 'text-gray-400 hover:text-main'">
+            <i class="fas fa-chevron-left text-xs"></i>
+        </a>
+
+        <th:block th:if="${totalPages > 0}" th:each="pageNum : ${#numbers.sequence(startPage, endPage)}">
+            <a th:href="@{/admin/BookManageMent(page=${pageNum - 1}, keyword=${keyword})}"
+               th:text="${pageNum}"
+               class="page-btn"
+               th:classappend="${currentPage + 1 == pageNum} ? 'active' : ''">
+            </a>
+        </th:block>
+
+        <a th:href="${hasNext} ? @{/admin/BookManageMent(page=${endPage}, keyword=${keyword})} : '#'"
+           class="page-btn"
+           th:classappend="${!hasNext} ? 'opacity-30 cursor-not-allowed pointer-events-none' : 'text-gray-400 hover:text-main'">
+            <i class="fas fa-chevron-right text-xs"></i>
+        </a>
+
+        <a th:href="@{/admin/BookManageMent(page=${totalPages - 1}, keyword=${keyword})}"
+           class="page-btn text-gray-400 hover:text-main"
+           th:classappend="${currentPage + 1 == totalPages} ? 'opacity-30 cursor-not-allowed pointer-events-none' : ''"
+           title="마지막 페이지">
+            <i class="fas fa-angle-double-right text-xs"></i>
+        </a>
+    </div>
+    <div id="bookModal" class="fixed inset-0 bg-black/50 z-[100] hidden items-center justify-center backdrop-blur-sm transition-all">
+        <div class="bg-white w-[500px] rounded-3xl shadow-2xl overflow-hidden transform transition-all scale-95 opacity-0" id="modalContent">
+
+            <div class="p-8 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+                <h3 class="text-xl font-bold text-gray-800">신규 도서 등록</h3>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+
+            <form th:action="@{/admin/BookSave}" method="post" id="bookForm" class="p-8 space-y-5">
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-400 uppercase mb-1.5 ml-1">ISBN 13</label>
+                        <input type="text" name="isbn13" required placeholder="13자리 숫자"
+                               class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-[#DCA244]/20 focus:bg-white outline-none transition-all text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-400 uppercase mb-1.5 ml-1">출판사</label>
+                        <input type="text" name="publisher" required
+                               class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-[#DCA244]/20 focus:bg-white outline-none transition-all text-sm">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-400 uppercase mb-1.5 ml-1">도서 제목</label>
+                    <input type="text" name="bookTitle" required placeholder="도서명을 입력하세요"
+                           class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-[#DCA244]/20 focus:bg-white outline-none transition-all text-sm">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-400 uppercase mb-1.5 ml-1">저자</label>
+                    <input type="text" name="authors" required placeholder="저자명을 입력하세요"
+                           class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-[#DCA244]/20 focus:bg-white outline-none transition-all text-sm">
+                </div>
+                <div class="space-y-1 relative" id="genreSearchContainer">
+                    <label class="block text-xs font-bold text-gray-400 uppercase mb-1.5 ml-1">카테고리 선택 (필수) <span class="text-red-400">*</span></label>
+                    <div class="relative">
+                        <i class="fas fa-tag absolute left-4 top-1/2 -translate-y-1/2 text-gray-300"></i>
+                        <input type="text" id="genreInput" placeholder="카테고리 명을 검색하세요..." autocomplete="off"
+                               class="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-[#DCA244]/20 focus:bg-white outline-none transition-all text-sm">
+                        <input type="hidden" name="genreId" id="selectedGenreId" required>
+                    </div>
+
+                    <div id="genreListDropdown" class="absolute z-[110] w-full mt-1 bg-white border border-gray-100 rounded-xl shadow-xl max-h-48 overflow-y-auto hidden">
+                        <ul class="py-2">
+                            <li th:each="genre : ${genreList}"
+                                th:data-id="${genre.genreId}"
+                                th:data-nm="${genre.genreNm}"
+                                class="genre-item px-5 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#DCA244] cursor-pointer transition-colors"
+                                th:text="${genre.genreNm}">장르명</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-400 uppercase mb-1.5 ml-1">이미지 URL</label>
+                    <input type="url" name="aladinImageBig" placeholder="https://..."
+                           class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-[#DCA244]/20 focus:bg-white outline-none transition-all text-sm">
+                </div>
+
+                <div class="flex gap-3 pt-4">
+                    <button type="button" onclick="closeModal()" class="flex-1 py-4 bg-gray-100 text-gray-500 rounded-xl font-bold hover:bg-gray-200 transition-all">취소</button>
+                    <button type="submit" class="flex-1 py-4 bg-main text-white rounded-xl font-bold hover:shadow-lg hover:shadow-[#DCA244]/30 transition-all">등록하기</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        /* --- 모달 제어 로직 --- */
+        const modal = document.getElementById('bookModal');
+        const content = document.getElementById('modalContent');
+
+        function openModal() {
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => {
+                content.classList.remove('scale-95', 'opacity-0');
+                content.classList.add('scale-100', 'opacity-100');
+            }, 10);
+        }
+
+        function closeModal() {
+            content.classList.remove('scale-100', 'opacity-100');
+            content.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                modal.classList.remove('flex');
+                modal.classList.add('hidden');
+                // 닫을 때 폼 초기화
+                document.getElementById('bookForm').reset();
+                document.getElementById('selectedGenreId').value = "";
+            }, 200);
+        }
+
+        /* --- 카테고리 검색/선택 로직 --- */
+        const genreInput = document.getElementById('genreInput');
+        const genreDropdown = document.getElementById('genreListDropdown');
+        const genreItems = document.querySelectorAll('.genre-item');
+        const selectedGenreId = document.getElementById('selectedGenreId');
+
+        // 입력 시 필터링
+        genreInput.addEventListener('input', function() {
+            const val = this.value.toLowerCase();
+            let hasMatch = false;
+
+            genreItems.forEach(item => {
+                const nm = item.getAttribute('data-nm').toLowerCase();
+                if (nm.includes(val)) {
+                    item.style.display = 'block';
+                    hasMatch = true;
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+
+            if (hasMatch && val !== "") genreDropdown.classList.remove('hidden');
+            else genreDropdown.classList.add('hidden');
+
+            selectedGenreId.value = ""; // 입력 중엔 ID 비움 (선택 강제)
+        });
+
+        // 항목 클릭 시 선택
+        genreItems.forEach(item => {
+            item.addEventListener('click', function() {
+                genreInput.value = this.getAttribute('data-nm');
+                selectedGenreId.value = this.getAttribute('data-id');
+                genreDropdown.classList.add('hidden');
+            });
+        });
+
+        // 외부 클릭 시 닫기 및 유효성 체크
+        document.addEventListener('click', function(e) {
+            if (!document.getElementById('genreSearchContainer').contains(e.target)) {
+                genreDropdown.classList.add('hidden');
+                if (selectedGenreId.value === "") genreInput.value = "";
+            }
+            if (e.target === modal) closeModal();
+        });
+
+        // 등록 버튼 이벤트 연결
+        document.addEventListener('DOMContentLoaded', () => {
+            const addBtn = document.querySelector('.btn-main');
+            if(addBtn) addBtn.onclick = openModal;
+        });
+    </script>
+</main>
+</body>
+</html>

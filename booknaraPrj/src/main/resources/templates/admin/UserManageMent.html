@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>도서 대여 관리 시스템 - 회원관리</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+        :root { --main-color: #DCA244; --hover-color: #C8903A; }
+        .bg-main { background-color: var(--main-color); }
+        .text-main { color: var(--main-color); }
+
+        /* 사이드바 스타일 */
+        .nav-item { display: flex; align-items: center; gap: 12px; padding: 16px 24px; cursor: pointer; transition: all 0.2s; color: rgba(255,255,255,0.7); font-weight: 500; text-decoration: none; }
+        .nav-item:hover { background-color: rgba(255,255,255,0.1); color: white; }
+        .active-tab { background-color: rgba(255, 255, 255, 0.15); border-left: 4px solid white; color: white; font-weight: 700; }
+
+        /* 검색창 스타일 */
+        .search-container { background: white; padding: 16px; border-radius: 20px; border: 1px solid #E5E7EB; display: flex; gap: 12px; margin-bottom: 24px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .btn-dark { background-color: #1F2937; color: white; padding: 10px 32px; border-radius: 12px; font-weight: bold; transition: all 0.2s; cursor: pointer; }
+        .btn-dark:hover { background-color: #111827; }
+
+        /* 통계 카드 */
+        .stats-card { background: white; padding: 24px; border-radius: 20px; border: 1px solid #E5E7EB; box-shadow: 0 1px 3px rgba(0,0,0,0.05); transition: all 0.2s; cursor: pointer; }
+        .stats-card:hover { transform: translateY(-4px); border-color: var(--main-color); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+        .stats-icon { width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; border-radius: 12px; }
+        .stats-label { font-size: 10px; font-weight: 900; padding: 2px 8px; border-radius: 6px; text-transform: uppercase; }
+
+        /* 테이블 레이아웃 */
+        .table-container { background: white; border-radius: 24px; border: 1px solid #E5E7EB; overflow: hidden; }
+        .fixed-table { table-layout: fixed; width: 100%; border-collapse: collapse; }
+        .th-style { padding: 16px 24px; font-size: 12px; font-weight: bold; color: #9CA3AF; text-transform: uppercase; background: #F9FAFB; border-bottom: 1px solid #E5E7EB; }
+        .td-style { padding: 20px 24px; border-bottom: 1px solid #F3F4F6; vertical-align: middle; }
+
+        /* 상태 배지 */
+        .badge { padding: 4px 12px; border-radius: 9999px; font-size: 11px; font-weight: bold; white-space: nowrap; }
+        .badge-active { background-color: #DCFCE7; color: #16A34A; }
+        .badge-dormant { background-color: #FFEDD5; color: #EA580C; }
+        .badge-banned { background-color: #FEE2E2; color: #EF4444; }
+        .badge-gray { background-color: #F3F4F6; color: #6B7280; }
+
+        /* 관리 액션 버튼 */
+        .action-btn { width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; border-radius: 10px; transition: all 0.2s; }
+        .btn-view { color: #6B7280; background: #F3F4F6; }
+        .btn-view:hover { background: #E5E7EB; color: #111827; }
+        .btn-edit { color: var(--main-color); background: #FFFBEB; }
+        .btn-edit:hover { background: #FEF3C7; }
+
+        /* 페이징 버튼 */
+        .page-btn { width: 36px; height: 36px; border: 1px solid #E5E7EB; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; background: white; font-weight: 600; transition: all 0.2s; color: #4B5563; font-size: 13px; }
+        .page-btn:hover:not(.disabled) { border-color: var(--main-color); color: var(--main-color); }
+        .page-btn.active { background-color: var(--main-color); color: white; border-color: var(--main-color); }
+        .page-btn.disabled { opacity: 0.3; cursor: not-allowed; background-color: #F9FAFB; pointer-events: none; }
+
+        /* 모달 스타일 */
+        .status-option { border: 2px solid #F3F4F6; padding: 16px; border-radius: 16px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 12px; width: 100%; }
+        input[type="radio"]:checked + .status-option { border-color: var(--main-color); background-color: #FFFBEB; }
+        .detail-item { padding: 12px; border-radius: 12px; background: #F9FAFB; display: flex; align-items: center; gap: 16px; }
+        .detail-icon { width: 40px; height: 40px; background: white; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--main-color); flex-shrink: 0; }
+        .detail-label { font-size: 11px; font-weight: 800; color: #9CA3AF; text-transform: uppercase; margin-bottom: 2px; }
+        .detail-value { font-size: 14px; font-weight: 600; color: #374151; }
+    </style>
+</head>
+<body class="bg-gray-50 flex h-screen overflow-hidden">
+
+<nav class="w-64 bg-main text-white flex flex-col shadow-xl z-50">
+    <div class="p-8 text-2xl font-black border-b border-white/10 flex items-center gap-3">
+        <i class="fas fa-book-reader"></i> <span>ADMIN</span>
+    </div>
+
+    <div class="flex-1 overflow-y-auto py-4">
+        <div class="px-6 mb-2 text-[10px] font-bold text-white/40 uppercase tracking-widest">Main Menu</div>
+        <ul class="space-y-1">
+            <li><a href="/admin/Statistics" class="nav-item"><i class="fas fa-chart-pie w-5 text-center"></i> 대시보드</a></li>
+            <li><a href="/admin/BookManageMent" class="nav-item"><i class="fas fa-book w-5 text-center"></i> 도서관리</a></li>
+            <li><a href="/admin/UserManageMent" class="nav-item active-tab"><i class="fas fa-users w-5 text-center"></i> 회원관리</a></li>
+        </ul>
+        <div class="px-6 mt-8 mb-2 text-[10px] font-bold text-white/40 uppercase tracking-widest">Support & Service</div>
+        <ul class="space-y-1">
+            <li><a href="/admin/Inquiries" class="nav-item"><i class="fas fa-question-circle w-5 text-center"></i> 문의관리</a></li>
+            <li><a href="/admin/Notifications" class="nav-item flex justify-between">
+                <div class="flex items-center gap-3"><i class="fas fa-bell w-5 text-center"></i> 알림관리</div>
+                <span class="bg-red-500 text-[10px] px-1.5 py-0.5 rounded-full font-bold text-white">2</span>
+            </a></li>
+        </ul>
+        <div class="px-6 mt-8 mb-2 text-[10px] font-bold text-white/40 uppercase tracking-widest">System</div>
+        <ul class="space-y-1">
+            <li><a href="/admin/Settings" class="nav-item"><i class="fas fa-cog w-5 text-center"></i> 시스템 설정</a></li>
+        </ul>
+    </div>
+
+    <div class="p-6 bg-black/10">
+        <div class="flex items-center justify-between group">
+            <div class="flex items-center gap-3">
+                <img src="https://ui-avatars.com/api/?name=Admin&background=random" class="w-10 h-10 rounded-full border border-white/20" alt="Admin Profile">
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-bold truncate">관리자 님</p>
+                    <p class="text-[10px] text-white/50 uppercase tracking-tighter font-medium">Master Account</p>
+                </div>
+            </div>
+            <form th:action="@{/logout}" method="post">
+                <button type="submit" class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-red-500/20 hover:text-red-300 transition-all text-white/50" title="로그아웃">
+                    <i class="fas fa-sign-out-alt text-sm"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+</nav>
+
+<main id="mainContainer" class="flex-1 overflow-y-auto p-10 bg-[#FBFBFD]">
+    <div class="mb-10">
+        <h2 class="text-3xl font-extrabold text-gray-800 tracking-tight">회원관리</h2>
+        <p class="text-gray-400 mt-2 font-medium">회원 목록 및 상세 수신 동의 여부를 관리합니다.</p>
+    </div>
+
+    <div class="grid grid-cols-4 gap-6 mb-10">
+        <div class="stats-card" onclick="filterByState('all')">
+            <div class="flex items-center justify-between mb-4">
+                <div class="stats-icon bg-blue-50 text-blue-600"><i class="fas fa-user-friends text-xl"></i></div>
+                <span class="stats-label bg-blue-50 text-blue-600">Total</span>
+            </div>
+            <p class="text-xs text-gray-400 font-bold mb-1 uppercase tracking-wider">전체 회원수</p>
+            <p class="text-2xl font-black text-gray-800"><span th:text="${stats.total}">0</span>명</p>
+        </div>
+        <div class="stats-card" onclick="filterByState('정상')">
+            <div class="flex items-center justify-between mb-4">
+                <div class="stats-icon bg-green-50 text-green-600"><i class="fas fa-check-circle text-xl"></i></div>
+                <span class="stats-label bg-green-50 text-green-600">Active</span>
+            </div>
+            <p class="text-xs text-gray-400 font-bold mb-1 uppercase tracking-wider">활동 회원수</p>
+            <p class="text-2xl font-black text-gray-800"><span th:text="${stats.active}">0</span>명</p>
+        </div>
+        <div class="stats-card" onclick="filterByState('휴면')">
+            <div class="flex items-center justify-between mb-4">
+                <div class="stats-icon bg-orange-50 text-orange-600"><i class="fas fa-moon text-xl"></i></div>
+                <span class="stats-label bg-orange-50 text-orange-600">Dormant</span>
+            </div>
+            <p class="text-xs text-gray-400 font-bold mb-1 uppercase tracking-wider">휴면 회원수</p>
+            <p class="text-2xl font-black text-gray-800"><span th:text="${stats.dormant}">0</span>명</p>
+        </div>
+        <div class="stats-card" onclick="filterByState('제한')">
+            <div class="flex items-center justify-between mb-4">
+                <div class="stats-icon bg-red-50 text-red-600"><i class="fas fa-ban text-xl"></i></div>
+                <span class="stats-label bg-red-50 text-red-600">Banned</span>
+            </div>
+            <p class="text-xs text-gray-400 font-bold mb-1 uppercase tracking-wider">정지 회원수</p>
+            <p class="text-2xl font-black text-gray-800"><span th:text="${stats.banned}">0</span>명</p>
+        </div>
+    </div>
+
+    <form action="/admin/UserManageMent" method="get" id="searchForm" class="search-container shadow-sm">
+        <div class="relative flex-1 flex items-center">
+            <i class="fas fa-search absolute left-5 text-gray-400"></i>
+            <input type="text" name="keyword" id="keywordInput" th:value="${param.keyword}" placeholder="회원명, 아이디 또는 이메일로 검색..."
+                   class="w-full pl-14 pr-12 py-3 bg-gray-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-[#DCA244]/20 focus:bg-white outline-none transition-all font-medium">
+            <button type="button" id="clearBtn" th:classappend="${#strings.isEmpty(param.keyword)} ? 'hidden' : ''" onclick="clearSearch()"
+                    class="absolute right-4 w-8 h-8 flex items-center justify-center bg-gray-200 hover:bg-gray-300 text-gray-500 rounded-full transition-all">
+                <i class="fas fa-times text-xs"></i>
+            </button>
+        </div>
+        <button type="submit" class="btn-dark">검색</button>
+    </form>
+
+    <div class="table-container shadow-sm">
+        <table class="fixed-table text-left">
+            <thead>
+            <tr>
+                <th class="th-style" style="width:16%">회원정보</th>
+                <th class="th-style" style="width:18%">연락처</th>
+                <th class="th-style" style="width:14%">성별/생일</th>
+                <th class="th-style" style="width:9%">SMS 수신</th>
+                <th class="th-style" style="width:20%">주소/상세주소</th>
+                <th class="th-style text-center" style="width:10%">상태</th>
+                <th class="th-style text-center" style="width:13%">관리</th>
+            </tr>
+            </thead>
+            <tbody id="userTableBody" class="divide-y divide-gray-100">
+            <tr th:each="user : ${users}" class="user-row hover:bg-gray-50 transition-colors">
+                <td class="td-style">
+                    <div class="flex items-center gap-3">
+                        <img th:src="'https://ui-avatars.com/api/?name=' + ${user.userNm} + '&background=random&size=40'" class="w-9 h-9 rounded-full shadow-sm" alt="User Image">
+                        <div class="min-w-0">
+                            <div class="font-bold text-gray-800 truncate" th:text="${user.userNm}">이름</div>
+                            <div class="text-[10px] text-main font-mono" th:text="${user.userId}">ID</div>
+                        </div>
+                    </div>
+                </td>
+                <td class="td-style">
+                    <div class="text-sm text-gray-700 truncate"><i class="far fa-envelope text-gray-300 mr-1.5 w-3 text-center"></i><span th:text="${user.email}">email</span></div>
+                    <div class="text-[11px] text-gray-400"><i class="fas fa-mobile-alt text-gray-300 mr-1.5 w-3 text-center"></i><span th:text="${user.phoneNo}">phone</span></div>
+                </td>
+                <td class="td-style">
+                    <div class="mb-1.5">
+                        <span th:if="${user.gender == 'M'}" class="px-2 py-0.5 rounded-md bg-blue-50 text-blue-600 text-[10px] font-bold">
+                            <i class="fas fa-mars mr-1"></i>남성
+                        </span>
+                        <span th:if="${user.gender == 'F'}" class="px-2 py-0.5 rounded-md bg-pink-50 text-pink-600 text-[10px] font-bold">
+                            <i class="fas fa-venus mr-1"></i>여성
+                        </span>
+                    </div>
+                    <div class="flex items-center gap-1.5 text-gray-500">
+                        <i class="far fa-calendar-alt text-[10px] text-gray-300"></i>
+                        <span class="text-[11px] font-medium tracking-tighter" th:text="${user.birthday ?: '-'}">1990-01-01</span>
+                    </div>
+                </td>
+                <td class="td-style">
+                    <span th:class="${user.smsYn == 'Y' ? 'text-blue-600 font-bold' : 'text-gray-400'}"
+                          th:text="${user.smsYn == 'Y' ? '동의' : '미동의'}" class="text-xs">미동의</span>
+                </td>
+                <td class="td-style">
+                    <div class="text-xs text-gray-600 truncate"><i class="fas fa-map-marker-alt text-gray-300 mr-1.5"></i><span th:text="${user.addr}">기본주소</span></div>
+                    <div class="text-[11px] text-gray-400 truncate mt-0.5 ml-4" th:text="${user.detailAddr ?: ''}">상세주소</div>
+                </td>
+                <td class="td-style text-center status-cell">
+                    <span th:if="${user.userState == '1'}" class="badge badge-active">정상</span>
+                    <span th:if="${user.userState == '2'}" class="badge badge-dormant">휴면</span>
+                    <span th:if="${user.userState == '3'}" class="badge badge-banned">제한</span>
+                    <span th:if="${user.userState == '4'}" class="badge badge-gray">탈퇴</span>
+                </td>
+                <td class="td-style">
+                    <div class="flex justify-center gap-2">
+                        <button th:onclick="openUserDetail([[${user}]])" class="action-btn btn-view" title="상세보기"><i class="fas fa-search"></i></button>
+                        <button th:onclick="openManagementModal([[${user.userId}]], [[${user.userNm}]], [[${user.userState}]])" class="action-btn btn-edit" title="회원관리"><i class="fas fa-edit"></i></button>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div id="pagination" class="mt-10 flex justify-center items-center gap-2"></div>
+</main>
+
+<div id="detailModal" class="hidden fixed inset-0 bg-black/60 z-[80] flex items-center justify-center backdrop-blur-sm p-4">
+    <div class="bg-white rounded-[32px] w-full max-w-2xl shadow-2xl overflow-hidden">
+        <div class="p-8 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+            <h3 class="text-2xl font-black text-gray-800">회원 상세 정보</h3>
+            <button onclick="closeDetailModal()" class="w-10 h-10 flex items-center justify-center bg-white border border-gray-200 rounded-full text-gray-400 hover:text-gray-600 shadow-sm transition-all"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="p-8 grid grid-cols-2 gap-4">
+            <div class="detail-item"><div class="detail-icon"><i class="fas fa-user"></i></div><div><div class="detail-label">이름 / 아이디</div><div id="detNm" class="detail-value">-</div><div id="detId" class="text-[11px] text-main font-bold">-</div></div></div>
+            <div class="detail-item"><div class="detail-icon"><i class="fas fa-envelope"></i></div><div><div class="detail-label">이메일 주소</div><div id="detEmail" class="detail-value">-</div></div></div>
+            <div class="detail-item"><div class="detail-icon"><i class="fas fa-phone"></i></div><div><div class="detail-label">휴대폰 번호</div><div id="detPhone" class="detail-value">-</div></div></div>
+            <div class="detail-item"><div class="detail-icon"><i class="fas fa-birthday-cake"></i></div><div><div class="detail-label">성별 / 생년월일</div><div id="detInfo" class="detail-value">-</div></div></div>
+            <div class="detail-item"><div class="detail-icon"><i class="fas fa-comment-dots"></i></div><div><div class="detail-label">SMS 마케팅 수신동의</div><div id="detSms" class="detail-value">-</div></div></div>
+            <div class="detail-item col-span-2"><div class="detail-icon"><i class="fas fa-map-marked-alt"></i></div><div><div class="detail-label">배송지 정보</div><div id="detAddr" class="detail-value">-</div></div></div>
+        </div>
+        <div class="p-6 bg-gray-50 flex justify-end">
+            <button onclick="closeDetailModal()" class="px-10 py-3.5 bg-gray-800 text-white rounded-2xl font-extrabold hover:bg-black transition-all">닫기</button>
+        </div>
+    </div>
+</div>
+
+<div id="userManagementModal" class="hidden fixed inset-0 bg-black/60 z-[70] flex items-center justify-center backdrop-blur-sm">
+    <div class="bg-white rounded-[32px] w-full max-w-md shadow-2xl overflow-hidden transform transition-all" id="mgmtModalContainer">
+
+        <div class="p-8 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+            <div>
+                <h3 class="text-2xl font-black text-gray-800" id="managementTitle">회원 관리</h3>
+                <p class="text-gray-400 text-sm mt-1"><span id="targetUserNm" class="text-main font-bold">사용자</span> 님 관리</p>
+            </div>
+            <button type="button" onclick="closeManagementModal()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times text-xl"></i></button>
+        </div>
+
+        <div class="p-8">
+            <div id="stepMenu" class="grid grid-cols-2 gap-4">
+                <button onclick="changeStep('nickname')" class="flex flex-col items-center gap-3 p-6 rounded-2xl border-2 border-gray-100 hover:border-main hover:bg-amber-50 transition-all group">
+                    <div class="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center text-blue-500 group-hover:bg-main group-hover:text-white transition-colors">
+                        <i class="fas fa-id-card text-xl"></i>
+                    </div>
+                    <span class="font-bold text-gray-700">닉네임 변경</span>
+                </button>
+                <button onclick="changeStep('status')" class="flex flex-col items-center gap-3 p-6 rounded-2xl border-2 border-gray-100 hover:border-main hover:bg-amber-50 transition-all group">
+                    <div class="w-12 h-12 rounded-full bg-orange-50 flex items-center justify-center text-orange-500 group-hover:bg-main group-hover:text-white transition-colors">
+                        <i class="fas fa-user-shield text-xl"></i>
+                    </div>
+                    <span class="font-bold text-gray-700">상태 변경</span>
+                </button>
+            </div>
+
+            <form id="formNickname" action="/admin/UpdateUserNickname" method="post" class="hidden space-y-5">
+                <input type="hidden" name="userId" class="modal-user-id">
+                <div>
+                    <label class="block text-xs font-bold text-gray-400 uppercase mb-2 ml-1">현재 닉네임</label>
+                    <input type="text" id="displayCurrentNickname" readonly class="w-full px-4 py-3 bg-gray-100 border-none rounded-xl text-gray-500 text-sm outline-none font-medium">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-400 uppercase mb-2 ml-1">새로운 닉네임</label>
+                    <input type="text" name="userNm" required placeholder="변경할 이름을 입력하세요"
+                           class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-[#DCA244]/20 focus:bg-white outline-none transition-all text-sm font-bold">
+                </div>
+                <div class="flex gap-3 pt-2">
+                    <button type="button" onclick="resetStep()" class="flex-1 py-4 bg-white border border-gray-200 text-gray-500 rounded-2xl font-bold">뒤로가기</button>
+                    <button type="submit" class="flex-1 py-4 bg-main text-white rounded-2xl font-bold hover:shadow-lg hover:shadow-[#DCA244]/30 transition-all">수정완료</button>
+                </div>
+            </form>
+
+            <form id="formStatus" action="/admin/UpdateUserStatus" method="post" class="hidden space-y-5">
+                <input type="hidden" name="userId" class="modal-user-id">
+                <div class="space-y-3">
+                    <label class="block"><input type="radio" name="userState" value="1" class="hidden peer"><div class="status-option peer-checked:border-main peer-checked:bg-amber-50"><i class="fas fa-check-circle text-green-500"></i><span class="font-bold">정상 상태</span></div></label>
+                    <label class="block"><input type="radio" name="userState" value="2" class="hidden peer"><div class="status-option peer-checked:border-main peer-checked:bg-amber-50"><i class="fas fa-moon text-orange-400"></i><span class="font-bold">휴면 계정</span></div></label>
+                    <label class="block"><input type="radio" name="userState" value="3" class="hidden peer"><div class="status-option peer-checked:border-main peer-checked:bg-amber-50"><i class="fas fa-ban text-red-500"></i><span class="font-bold">이용 제한</span></div></label>
+                </div>
+                <div class="flex gap-3 pt-2">
+                    <button type="button" onclick="resetStep()" class="flex-1 py-4 bg-white border border-gray-200 text-gray-500 rounded-2xl font-bold">뒤로가기</button>
+                    <button type="submit" class="flex-1 py-4 bg-main text-white rounded-2xl font-bold hover:shadow-lg hover:shadow-[#DCA244]/30 transition-all">상태저장</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    const rowsPerPage = 15;
+    const pageBlockSize = 5;
+    let currentPage = 1;
+    let initialAllRows = [];
+    let filteredRows = [];
+
+    // --- 초기화 및 필터 로직 ---
+    function clearSearch() {
+        const input = document.getElementById('keywordInput');
+        input.value = '';
+        window.location.href = '/admin/UserManageMent';
+    }
+
+    function init() {
+        initialAllRows = Array.from(document.querySelectorAll('.user-row'));
+        filteredRows = [...initialAllRows];
+        const input = document.getElementById('keywordInput');
+        const clearBtn = document.getElementById('clearBtn');
+        if(input) {
+            input.addEventListener('input', () => {
+                if (input.value.trim().length > 0) clearBtn.classList.remove('hidden');
+                else clearBtn.classList.add('hidden');
+            });
+        }
+        updateUI(false);
+    }
+    document.addEventListener('DOMContentLoaded', init);
+
+    function updateUI(shouldScroll = true) {
+        renderPageData();
+        setupPagination();
+        if(shouldScroll) document.getElementById('mainContainer').scrollTop = 0;
+    }
+
+    function renderPageData() {
+        const tableBody = document.getElementById('userTableBody');
+        tableBody.innerHTML = '';
+        const start = (currentPage - 1) * rowsPerPage;
+        const pageData = filteredRows.slice(start, start + rowsPerPage);
+        if (pageData.length === 0) {
+            tableBody.innerHTML = `<tr><td colspan="7" class="td-style py-20 text-center text-gray-400 font-medium">데이터가 없습니다.</td></tr>`;
+        } else {
+            pageData.forEach(row => tableBody.appendChild(row));
+        }
+    }
+
+    function setupPagination() {
+        const paginationContainer = document.getElementById('pagination');
+        paginationContainer.innerHTML = '';
+        const totalPages = Math.ceil(filteredRows.length / rowsPerPage);
+        if (totalPages === 0) return;
+        const currentBlock = Math.ceil(currentPage / pageBlockSize);
+        const startPage = (currentBlock - 1) * pageBlockSize + 1;
+        const endPage = Math.min(startPage + pageBlockSize - 1, totalPages);
+        const addBtn = (content, target, isDis, isActive = false) => {
+            const btn = document.createElement('div');
+            btn.className = `page-btn ${isDis ? 'disabled' : ''} ${isActive ? 'active' : ''}`;
+            btn.innerHTML = content;
+            if (!isDis) btn.onclick = () => { currentPage = target; updateUI(true); };
+            paginationContainer.appendChild(btn);
+        };
+        addBtn('<i class="fas fa-angle-double-left"></i>', 1, currentPage === 1);
+        addBtn('<i class="fas fa-angle-left"></i>', Math.max(1, startPage - 1), currentPage === 1);
+        for (let i = startPage; i <= endPage; i++) addBtn(i, i, false, i === currentPage);
+        addBtn('<i class="fas fa-angle-right"></i>', Math.min(totalPages, endPage + 1), currentPage === totalPages);
+        addBtn('<i class="fas fa-angle-double-right"></i>', totalPages, currentPage === totalPages);
+    }
+
+    function filterByState(state) {
+        currentPage = 1;
+        filteredRows = (state === 'all') ? [...initialAllRows] : initialAllRows.filter(row => row.querySelector('.status-cell').innerText.trim().includes(state));
+        updateUI(true);
+    }
+
+    // --- 상세 보기 모달 제어 ---
+    function openUserDetail(user) {
+        document.getElementById('detNm').innerText = user.userNm;
+        document.getElementById('detId').innerText = user.userId;
+        document.getElementById('detEmail').innerText = user.email || '-';
+        document.getElementById('detPhone').innerText = user.phoneNo || '-';
+        document.getElementById('detInfo').innerText = `${user.gender === 'M' ? '남성' : '여성'} / ${user.birthday || '-'}`;
+        document.getElementById('detSms').innerText = user.smsYn === 'Y' ? '동의' : '미동의';
+        document.getElementById('detAddr').innerText = `${user.addr || ''} ${user.detailAddr || ''}` || '주소 정보 없음';
+        document.getElementById('detailModal').classList.remove('hidden');
+    }
+    function closeDetailModal() { document.getElementById('detailModal').classList.add('hidden'); }
+
+    // --- 통합 관리 모달 제어 로직 ---
+    const mgmtModal = document.getElementById('userManagementModal');
+    const stepMenu = document.getElementById('stepMenu');
+    const formNickname = document.getElementById('formNickname');
+    const formStatus = document.getElementById('formStatus');
+    const mgmtTitle = document.getElementById('managementTitle');
+
+    function openManagementModal(id, name, currentState) {
+        // 모든 유저 ID input 업데이트
+        document.querySelectorAll('.modal-user-id').forEach(el => el.value = id);
+        document.getElementById('targetUserNm').innerText = name;
+        document.getElementById('displayCurrentNickname').value = name;
+
+        // 상태 라디오 버튼 미리 체크
+        const radios = document.getElementsByName('userState');
+        radios.forEach(r => { if(r.value == currentState) r.checked = true; });
+
+        resetStep(); // 초기 메뉴 상태로 세팅
+        mgmtModal.classList.remove('hidden');
+    }
+
+    function changeStep(type) {
+        stepMenu.classList.add('hidden');
+        if(type === 'nickname') {
+            mgmtTitle.innerText = '닉네임 변경';
+            formNickname.classList.remove('hidden');
+        } else if(type === 'status') {
+            mgmtTitle.innerText = '상태 변경';
+            formStatus.classList.remove('hidden');
+        }
+    }
+
+    function resetStep() {
+        mgmtTitle.innerText = '회원 관리';
+        stepMenu.classList.remove('hidden');
+        formNickname.classList.add('hidden');
+        formStatus.classList.add('hidden');
+    }
+
+    function closeManagementModal() {
+        mgmtModal.classList.add('hidden');
+    }
+
+    // 배경 클릭 시 모달 닫기
+    window.onclick = function(event) {
+        if (event.target == mgmtModal) closeManagementModal();
+        if (event.target == document.getElementById('detailModal')) closeDetailModal();
+    }
+</script>
+</body>
+</html>

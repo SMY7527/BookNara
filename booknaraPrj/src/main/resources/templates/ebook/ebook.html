@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>EPUB Viewer (epub.js)</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.5/jszip.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/epubjs/dist/epub.min.js"></script>
+    <style>
+        :root{
+          --w: 1920px;
+          --h: 1080px;
+          --page-bg: #ffffff;
+          --frame: rgba(0,0,0,.45);
+          --overlay-w: 100px;
+        }
+
+        html, body {
+          height: 100%;
+          margin: 0;
+          background: #fff; /* 바깥 배경 */
+          overflow: hidden;
+          font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+        }
+
+        /* 1920x1080 기준 “스테이지” */
+        .stage {
+          width: var(--w);
+          height: var(--h);
+          margin: 0 auto;
+          position: relative;
+
+          //background: #111;
+        }
+
+        /* 가운데 책 프레임 */
+        .reader-shell {
+          position: absolute;
+          inset: 24px;
+          background: var(--page-bg);
+          box-shadow: 0 10px 40px rgba(0,0,0,.55);
+          border: 1px solid rgba(0,0,0,.18);
+          overflow: hidden;
+        }
+
+        /* epub.js 렌더링 영역 */
+        #viewer {
+          position: absolute;
+          inset: 0;
+          z-index: 1;
+          /* “책 종이” 느낌을 위해 살짝 여백을 주고 싶으면 여기 padding을 늘리면 됨 */
+        }
+
+        /* 좌상단 로드 버튼(임시) */
+        .loader {
+          position: absolute;
+          top: 10px;
+          left: 10px;
+          z-index: 50;
+          display: flex;
+          gap: 8px;
+          align-items: center;
+          padding: 8px 10px;
+          border-radius: 10px;
+          background: rgba(0,0,0,.55);
+          color: #fff;
+          font-size: 13px;
+          user-select: none;
+        }
+        .loader button {
+          border: 0;
+          cursor: pointer;
+          padding: 7px 10px;
+          border-radius: 8px;
+          background: rgba(255,255,255,.14);
+          color: #fff;
+        }
+        .loader button:hover { background: rgba(255,255,255,.22); }
+        .loader .hint { opacity: .85; }
+
+        /* 좌/우 오버레이 */
+        .nav-overlay {
+          position: absolute;
+          top: 0;
+          bottom: 0;
+          width: var(--overlay-w);
+          z-index: 9999;
+          pointer-events: auto;
+          display: none; /* 기본 숨김 */
+          cursor: pointer;
+          user-select: none;
+        }
+        .nav-overlay.show { display: block; }
+
+        .nav-overlay.left {
+          left: 0;
+          background: linear-gradient(to right, rgba(0,0,0,.28), rgba(0,0,0,0));
+        }
+        .nav-overlay.right {
+          right: 0;
+          background: linear-gradient(to left, rgba(0,0,0,.28), rgba(0,0,0,0));
+        }
+
+        /* 화살표 아이콘 */
+        .nav-overlay .arrow {
+          position: absolute;
+          top: 50%;
+          transform: translateY(-50%);
+          width: 56px;
+          height: 56px;
+          border-radius: 999px;
+          background: rgba(0,0,0,.32);
+          display: grid;
+          place-items: center;
+          backdrop-filter: blur(6px);
+        }
+        .nav-overlay.left .arrow { left: 18px; }
+        .nav-overlay.right .arrow { right: 18px; }
+
+        .nav-overlay svg {
+          width: 22px;
+          height: 22px;
+          fill: none;
+          stroke: rgba(255,255,255,.92);
+          stroke-width: 3;
+          stroke-linecap: round;
+          stroke-linejoin: round;
+        }
+
+        /* 선택 방지(드래그 시 텍스트 선택 같은 거 최소화) */
+        .reader-shell, .nav-overlay { -webkit-user-select: none; user-select: none; }
+
+        .epub-container {
+            z-index: 1;
+        }
+
+        .epub-view {
+            z-index: 2;
+        }
+
+        iframe {
+            position: relative;
+            z-index: 3;
+        }
+
+        /* 데스크탑 화면이 1920x1080보다 작으면 축소해서 맞춤(“기준 해상도” 유지 느낌) */
+        @media (max-width: 1920px), (max-height: 1080px) {
+          .stage {
+            transform-origin: top left;
+          }
+        }
+    </style>
+</head>
+<body>
+<div class="loader">
+    <h1>17</h1>
+    <button id="btnLoad">EPUB 불러오기</button>
+    <span class="hint">←/→ 또는 가장자리(100px) 클릭</span>
+    <input id="fileInput" type="file" accept=".epub,application/epub+zip" hidden />
+</div>
+<div class="stage" id="stage">
+    <div class="reader-shell" id="shell">
+        <div id="viewer"></div>
+
+        <!-- 좌/우 그라데이션 + 화살표 오버레이 -->
+        <div class="nav-overlay left" id="navLeft" aria-label="Previous page">
+            <div class="arrow" aria-hidden="true">
+                <svg viewBox="0 0 24 24">
+                    <path d="M15 18l-6-6 6-6"></path>
+                </svg>
+            </div>
+        </div>
+
+        <div class="nav-overlay right" id="navRight" aria-label="Next page">
+            <div class="arrow" aria-hidden="true">
+                <svg viewBox="0 0 24 24">
+                    <path d="M9 6l6 6-6 6"></path>
+                </svg>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ====== 1920x1080 스테이지 스케일(현재 화면이 더 작으면 축소) ======
+    const stage = document.getElementById("stage");
+    function fitStage() {
+      const sw = 1920, sh = 1080;
+      const vw = window.innerWidth, vh = window.innerHeight;
+      const scale = Math.min(vw / sw, vh / sh, 1);
+      stage.style.transform = `scale(${scale})`;
+      stage.style.position = "absolute";
+      stage.style.left = `${Math.max(0, (vw - sw * scale) / 2)}px`;
+      stage.style.top  = `${Math.max(0, (vh - sh * scale) / 2)}px`;
+    }
+    window.addEventListener("resize", fitStage);
+    fitStage();
+
+    // ====== epub.js 기본 세팅 ======
+    const viewerEl = document.getElementById("viewer");
+    let book = null;
+    let rendition = null;
+
+    function initRendition() {
+      if (!book) return;
+
+      rendition = book.renderTo(viewerEl, {
+        width: "100%",
+        height: "100%",
+        spread: "always",      // 2페이지 스프레드
+        flow: "paginated",     // 페이지네이션
+        manager: "default"
+      });
+
+      rendition.display();
+
+      // 기본 스타일(필요하면 추후 설정 패널로 이동)
+      rendition.themes.default({
+        "body": {
+          "margin": "0",
+          "padding": "48px 64px",
+          "line-height": "1.7",
+          "color": "#111",
+          "background": "#fff"
+        }
+      });
+
+      // epub.js가 페이지를 렌더링할 때마다(=문서가 새로 생길 때마다) 다시 바인딩
+      rendition.on("rendered", (section, contents) => {
+        bindEdgeOverlayForContents(contents);
+      });
+
+      // 키보드 포커스 느낌: 클릭하면 키 입력이 자연스럽게 먹도록
+      viewerEl.tabIndex = 0;
+      viewerEl.focus();
+    }
+
+
+
+    // ====== 파일 로드(로컬 EPUB) ======
+    const btnLoad = document.getElementById("btnLoad");
+    const fileInput = document.getElementById("fileInput");
+
+    btnLoad.addEventListener("click", () => fileInput.click());
+
+    fileInput.addEventListener("change", async (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+
+      // 기존 정리
+      if (rendition) {
+        try { rendition.destroy(); } catch {}
+        rendition = null;
+      }
+      if (book) {
+        try { book.destroy(); } catch {}
+        book = null;
+      }
+
+      const buf = await file.arrayBuffer();
+      book = ePub(buf);
+      initRendition();
+    });
+
+    // ====== 페이지 이동 ======
+    function goPrev() { if (rendition) rendition.prev(); }
+    function goNext() { if (rendition) rendition.next(); }
+
+    // 키보드 ←/→
+    window.addEventListener("keydown", (e) => {
+      // 입력창 등 포커스일 때는 방해하지 않기(추후 UI 추가 대비)
+      const t = e.target;
+      const isTyping = t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable);
+      if (isTyping) return;
+
+      if (e.key === "ArrowLeft") { e.preventDefault(); goPrev(); }
+      if (e.key === "ArrowRight") { e.preventDefault(); goNext(); }
+    });
+
+    // ====== 좌/우 100px 오버레이: 가까워지면 표시, 벗어나면 즉시 숨김 ======
+    const shell = document.getElementById("shell");
+    const navLeft = document.getElementById("navLeft");
+    const navRight = document.getElementById("navRight");
+
+    function bindEdgeOverlayForContents(contents) {
+      const doc = contents.document;
+      const iframeEl = contents.iframe; // epub.js가 제공
+      const EDGE = 100;
+
+      //if (doc.__edgeBound) return;  // 중복 방지
+      //doc.__edgeBound = true;
+
+      function onMove(e) {
+        const scale = getScaleFromRect(stage);
+        const shellRect = shell.getBoundingClientRect();
+        const iframeRect = iframeEl.getBoundingClientRect();
+
+        // iframe 내부 좌표(e.clientX/Y)를 부모 뷰포트 기준으로 변환
+        const clientX = (e.clientX * scale) + iframeRect.left;
+        const clientY = (e.clientY * scale) + iframeRect.top;
+
+        const inside =
+          clientX >= shellRect.left && clientX <= shellRect.right &&
+          clientY >= shellRect.top  && clientY <= shellRect.bottom;
+
+        if (!inside) {
+          navLeft.classList.remove("show");
+          navRight.classList.remove("show");
+          return;
+        }
+
+        const x = clientX - shellRect.left;
+
+        const inLeft  = x >= 0 && x < (EDGE * scale);
+        const inRight = x <= shellRect.width && x > shellRect.width - (EDGE * scale);
+
+        navLeft.classList.toggle("show", inLeft);
+        navRight.classList.toggle("show", inRight);
+
+        if (!inLeft && !inRight) {
+          //navLeft.classList.remove("show");
+          //navRight.classList.remove("show");
+        }
+      }
+
+      doc.addEventListener("mousemove", onMove, { passive: true });
+      doc.addEventListener("mouseleave", () => {
+        //navLeft.classList.remove("show");
+        //navRight.classList.remove("show");
+      });
+    }
+
+    function getScaleFromRect(el) {
+      const rect = el.getBoundingClientRect();
+      return rect.width / el.offsetWidth; // transform scale 반영됨
+    }
+
+
+    // 오버레이 영역 전체 클릭 → 페이지 이동
+    navLeft.addEventListener("click", (e) => { e.preventDefault(); goPrev(); });
+    navRight.addEventListener("click", (e) => { e.preventDefault(); goNext(); });
+
+    // (선택) epub 영역 클릭 시 키 입력 포커스 유지
+    shell.addEventListener("click", () => {
+      viewerEl.focus();
+    });
+</script>
+</body>
+</html>

@@ -110,9 +110,10 @@
             </if>
 
             <!-- 전자책 필터 -->
-            <if test="cond.ebookYn != null and cond.ebookYn != '' and cond.ebookYn != 'ALL'">
+            <if test="cond.ebookYn != null and cond.ebookYn.trim() != '' and cond.ebookYn.trim() != 'ALL'">
                 AND b.EBOOK_YN = #{cond.ebookYn}
             </if>
+
         </where>
 
         <!-- 정렬 -->
@@ -216,9 +217,11 @@
                 </choose>
             </if>
 
-            <if test="cond.ebookYn != null and cond.ebookYn != '' and cond.ebookYn != 'ALL'">
+            <!-- 전자책 필터 -->
+            <if test="cond.ebookYn != null and cond.ebookYn.trim() != '' and cond.ebookYn.trim() != 'ALL'">
                 AND b.EBOOK_YN = #{cond.ebookYn}
             </if>
+
 
         </where>
     </select>

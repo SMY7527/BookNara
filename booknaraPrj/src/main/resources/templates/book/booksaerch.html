@@ -474,9 +474,10 @@
 
                     await loadForeignParentsAsChildren(); // ✅ 핵심
                 } else {
-                    state.mall = "All";
+                    state.mall = "국내도서";   // ✅ 여기 핵심
                     state.parentGenreId = parseInt(g.genreId, 10);
                     state.genreId = null;
+                    state.page = 1;
 
                     await loadChildGenres(state.parentGenreId);
                 }

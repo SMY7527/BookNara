@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>도서 대여 시스템 - 설정변경</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+        /* [1] 공통 테마 설정 */
+        :root { --main-color: #DCA244; --hover-color: #C8903A; }
+        .bg-main { background-color: var(--main-color); }
+        .text-main { color: var(--main-color); }
+
+        /* [2] 사이드바 네비게이션 스타일 (기억된 구성 적용) */
+        .nav-item { display: flex; align-items: center; gap: 12px; padding: 16px 24px; cursor: pointer; transition: all 0.2s; color: rgba(255,255,255,0.7); font-weight: 500; }
+        .nav-item:hover { background-color: rgba(255,255,255,0.1); color: white; }
+        .active-tab { background-color: rgba(255, 255, 255, 0.15); border-left: 4px solid white; color: white; font-weight: 700; }
+
+        /* [3] 설정 섹션 스타일 */
+        .settings-section { background: white; border-radius: 24px; border: 1px solid #E5E7EB; overflow: hidden; margin-bottom: 32px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .section-header { padding: 24px 32px; border-bottom: 1px solid #F3F4F6; background-color: #F9FAFB; display: flex; justify-content: space-between; align-items: center; }
+        .section-title { font-weight: 800; color: #1F2937; display: flex; align-items: center; gap: 10px; font-size: 16px; }
+        .section-content { padding: 32px; }
+
+        .input-group { margin-bottom: 4px; }
+        .input-label { display: block; font-size: 13px; font-weight: 800; color: #4B5563; margin-bottom: 10px; }
+        .input-control {
+            width: 100%; border-radius: 12px; border: 1px solid #E5E7EB;
+            font-weight: 500; outline: none; transition: all 0.2s; background-color: #F9FAFB;
+        }
+        .input-control:focus { background-color: white; border-color: var(--main-color); box-shadow: 0 0 0 4px rgba(220, 162, 68, 0.1); }
+        .input-hint { font-size: 11px; color: #9CA3AF; margin-top: 8px; font-weight: 500; }
+
+        /* 토글 스위치 */
+        .toggle-wrapper { position: relative; display: inline-block; width: 48px; height: 26px; }
+        .toggle-input { opacity: 0; width: 0; height: 0; }
+        .toggle-slider {
+            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #E5E7EB; transition: .3s; border-radius: 24px;
+        }
+        .toggle-slider:before {
+            position: absolute; content: ""; height: 20px; width: 20px; left: 3px; bottom: 3px;
+            background-color: white; transition: .3s; border-radius: 50%;
+        }
+        .toggle-input:checked + .toggle-slider { background-color: var(--main-color); }
+        .toggle-input:checked + .toggle-slider:before { transform: translateX(22px); }
+
+        .notification-item {
+            display: flex; align-items: center; justify-content: space-between; padding: 20px;
+            border: 1px solid #F3F4F6; border-radius: 16px; transition: all 0.2s;
+        }
+
+        .btn-update { background-color: var(--main-color); color: white; padding: 10px 24px; border-radius: 12px; font-weight: bold; transition: all 0.2s; border: none; cursor: pointer; }
+        .btn-update:hover { background-color: var(--hover-color); transform: translateY(-1px); }
+    </style>
+</head>
+<body class="bg-gray-50 flex h-screen overflow-hidden">
+
+<nav class="w-64 bg-main text-white flex flex-col shadow-xl z-50">
+    <div class="p-8 text-2xl font-black border-b border-white/10 flex items-center gap-3">
+        <i class="fas fa-book-reader"></i>
+        <span>ADMIN</span>
+    </div>
+
+    <div class="flex-1 overflow-y-auto py-4">
+        <div class="px-6 mb-2 text-[10px] font-bold text-white/40 uppercase tracking-widest">Main Menu</div>
+        <ul class="space-y-1">
+            <li><a href="/admin/Statistics" class="nav-item"><i class="fas fa-chart-pie w-5 text-center"></i> 대시보드</a></li>
+            <li><a href="/admin/BookManageMent" class="nav-item"><i class="fas fa-book w-5 text-center"></i> 도서관리</a></li>
+            <li><a href="/admin/UserManageMent" class="nav-item"><i class="fas fa-users w-5 text-center"></i> 회원관리</a></li>
+        </ul>
+
+        <div class="px-6 mt-8 mb-2 text-[10px] font-bold text-white/40 uppercase tracking-widest">Support & Service</div>
+        <ul class="space-y-1">
+            <li><a href="/admin/Inquiries" class="nav-item"><i class="fas fa-question-circle w-5 text-center"></i> 문의관리</a></li>
+            <li><a href="/admin/Notifications" class="nav-item flex justify-between">
+                <div class="flex items-center gap-3">
+                    <i class="fas fa-bell w-5 text-center"></i> 알림관리
+                </div>
+                <span class="bg-red-500 text-[10px] px-1.5 py-0.5 rounded-full font-bold text-white">2</span>
+            </a></li>
+        </ul>
+
+        <div class="px-6 mt-8 mb-2 text-[10px] font-bold text-white/40 uppercase tracking-widest">System</div>
+        <ul class="space-y-1">
+            <li><a href="/admin/Settings" class="nav-item active-tab"><i class="fas fa-cog w-5 text-center"></i> 시스템 설정</a></li>
+        </ul>
+    </div>
+
+    <div class="p-6 bg-black/10">
+        <div class="flex items-center justify-between group">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center font-bold text-sm border border-white/10">
+                    AD
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-bold truncate">관리자 님</p>
+                    <p class="text-[10px] text-white/50 uppercase tracking-tighter font-medium">Master Account</p>
+                </div>
+            </div>
+
+            <form th:action="@{/logout}" method="post">
+                <button type="submit" class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-red-500/20 hover:text-red-300 transition-all text-white/50" title="로그아웃">
+                    <i class="fas fa-sign-out-alt text-sm"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+</nav>
+
+<main class="flex-1 overflow-y-auto p-10 bg-[#FBFBFD]">
+    <div class="mb-10">
+        <h2 class="text-3xl font-extrabold text-gray-800 tracking-tight">시스템 설정</h2>
+        <p class="text-gray-400 mt-2 font-medium">라이브러리 운영 정책 및 시스템 환경을 구성합니다.</p>
+    </div>
+
+    <form th:action="@{/admin/updateSettings}" method="post" class="max-w-5xl">
+        <section class="settings-section">
+            <div class="section-header">
+                <h3 class="section-title">
+                    <i class="fas fa-file-contract text-main"></i> 도서 대여 정책 관리
+                </h3>
+                <button type="submit" class="btn-update shadow-md shadow-[#DCA244]/20">정책 업데이트</button>
+            </div>
+            <div class="section-content">
+                <div class="grid grid-cols-2 gap-x-12 gap-y-8">
+                    <div class="input-group">
+                        <label class="input-label">최대 대여 가능 권수 (MAX_LEND_COUNT)</label>
+                        <div class="relative">
+                            <input type="number" name="maxLendCount" th:value="${settings?.maxLendCount}" class="input-control px-4 py-3">
+                            <span class="absolute right-4 top-3.5 text-gray-400 font-bold text-xs">권</span>
+                        </div>
+                        <p class="input-hint">한 회원이 동시에 대여할 수 있는 최대 수량입니다.</p>
+                    </div>
+
+                    <div class="input-group">
+                        <label class="input-label">기본 대여 기간 (DEFAULT_LEND_DAYS)</label>
+                        <div class="relative">
+                            <input type="number" name="defaultLendDays" th:value="${settings?.defaultLendDays}" class="input-control px-4 py-3">
+                            <span class="absolute right-4 top-3.5 text-gray-400 font-bold text-xs">일</span>
+                        </div>
+                        <p class="input-hint">도서 대여 시 적용되는 기본 반납 기한입니다.</p>
+                    </div>
+
+                    <div class="input-group">
+                        <label class="input-label">추가 대여 기간 (DEFAULT_EXTEND_DAYS)</label>
+                        <div class="relative">
+                            <input type="number" name="defaultExtendDays" th:value="${settings?.defaultExtendDays}" class="input-control px-4 py-3">
+                            <span class="absolute right-4 top-3.5 text-gray-400 font-bold text-xs">일</span>
+                        </div>
+                        <p class="input-hint">1회 연장 시 추가로 부여되는 기간입니다.</p>
+                    </div>
+
+                    <div class="input-group">
+                        <label class="input-label">일일 연체료 (LATE_FEE_PER_DAY)</label>
+                        <div class="relative">
+                            <input type="number" name="lateFeePerDay" th:value="${settings?.lateFeePerDay}" class="input-control px-4 py-3">
+                            <span class="absolute right-4 top-3.5 text-gray-400 font-bold text-xs">원</span>
+                        </div>
+                        <p class="input-hint">연체 발생 시 1일당 부과되는 과금액입니다.</p>
+                    </div>
+
+                    <div class="input-group">
+                        <label class="input-label">연체 페널티 기간 (LATE_PENALTY_DAYS)</label>
+                        <div class="relative">
+                            <input type="number" name="latePenaltyDays" th:value="${settings?.latePenaltyDays}" class="input-control px-4 py-3">
+                            <span class="absolute right-4 top-3.5 text-gray-400 font-bold text-xs">일</span>
+                        </div>
+                        <p class="input-hint">연체 해소 후 대여 금지가 유지되는 기간입니다.</p>
+                    </div>
+
+                    <div class="input-group">
+                        <label class="input-label">DB 업데이트 주기 (DB_UPDATE_CYCLE_DAYS)</label>
+                        <div class="relative">
+                            <input type="number" name="dbUpdateCycleDays" th:value="${settings?.dbUpdateCycleDays}" class="input-control px-4 py-3">
+                            <span class="absolute right-4 top-3.5 text-gray-400 font-bold text-xs">일</span>
+                        </div>
+                        <p class="input-hint">시스템 통계 및 데이터 갱신 주기입니다.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="settings-section">
+            <div class="section-header">
+                <h3 class="section-title">
+                    <i class="fas fa-user-shield text-main"></i> 시스템 관리 정보
+                </h3>
+                <button type="submit" class="btn-update shadow-md shadow-[#DCA244]/20">정보 업데이트</button>
+            </div>
+            <div class="section-content">
+                <div class="grid grid-cols-2 gap-x-12">
+                    <div class="input-group">
+                        <label class="input-label">관리자 대표 이메일 (ADMIN_EMAIL)</label>
+                        <input type="email" name="adminEmail" th:value="${settings?.adminEmail}" class="input-control px-4 py-3" placeholder="admin@booknara.com">
+                        <p class="input-hint">시스템 알림 및 문의 수신용 공식 메일입니다.</p>
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">관리자 연락처 (ADMIN_PHONE)</label>
+                        <input type="text" name="adminPhone" th:value="${settings?.adminPhone}" class="input-control px-4 py-3" placeholder="010-0000-0000">
+                        <p class="input-hint">고객 지원 및 긴급 연락을 위한 대표 번호입니다.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </form>
+</main>
+
+</body>
+</html>

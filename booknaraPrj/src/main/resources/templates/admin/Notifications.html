@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>도서 대여 시스템 - 알림 센터</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+        /* [1] 공통 테마 설정 */
+        :root { --main-color: #DCA244; --hover-color: #C8903A; }
+        .bg-main { background-color: var(--main-color); }
+        .text-main { color: var(--main-color); }
+
+        /* [2] 사이드바 네비게이션 스타일 (기억된 구성 적용) */
+        .nav-item { display: flex; align-items: center; gap: 12px; padding: 16px 24px; cursor: pointer; transition: all 0.2s; color: rgba(255,255,255,0.7); font-weight: 500; }
+        .nav-item:hover { background-color: rgba(255,255,255,0.1); color: white; }
+        .active-tab { background-color: rgba(255, 255, 255, 0.15); border-left: 4px solid white; color: white; font-weight: 700; }
+
+        /* [3] 필터 버튼 시스템 */
+        .filter-group { display: flex; gap: 10px; padding: 6px; background: white; border-radius: 18px; border: 1px solid #E5E7EB; box-shadow: 0 1px 2px rgba(0,0,0,0.05); width: fit-content; }
+        .filter-btn {
+            padding: 10px 24px; border-radius: 14px; font-size: 14px; font-weight: 700; color: #6B7280;
+            transition: all 0.2s; display: flex; align-items: center; gap: 8px; white-space: nowrap;
+        }
+        .filter-btn:hover { background-color: #F9FAFB; color: #374151; }
+        .filter-btn.active { background-color: var(--main-color); color: white; box-shadow: 0 4px 12px rgba(220, 162, 68, 0.2); }
+
+        /* [4] 알림 아이템 스타일 */
+        .noti-item {
+            background: white; padding: 24px; border-radius: 24px; border: 1px solid #E5E7EB;
+            display: flex; gap: 20px; transition: all 0.2s ease; border-left: 6px solid #E5E7EB;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .noti-item:hover { transform: translateX(8px); border-left-width: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
+
+        .noti-overdue { border-left-color: #EF4444; }
+        .noti-join { border-left-color: #3B82F6; }
+        .noti-rental { border-left-color: #10B981; }
+        .noti-system { border-left-color: #F59E0B; }
+
+        .icon-box { width: 52px; height: 52px; border-radius: 16px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+
+        /* [5] 검색창 및 버튼 */
+        .search-container { background: white; padding: 16px; border-radius: 20px; border: 1px solid #E5E7EB; display: flex; gap: 12px; margin-bottom: 32px; }
+        .btn-dark { background-color: #1F2937; color: white; padding: 10px 32px; border-radius: 12px; font-weight: bold; transition: all 0.2s; }
+        .btn-dark:hover { background-color: #111827; }
+    </style>
+</head>
+<body class="bg-gray-50 flex h-screen overflow-hidden">
+
+<nav class="w-64 bg-main text-white flex flex-col shadow-xl z-50">
+    <div class="p-8 text-2xl font-black border-b border-white/10 flex items-center gap-3">
+        <i class="fas fa-book-reader"></i>
+        <span>ADMIN</span>
+    </div>
+
+    <div class="flex-1 overflow-y-auto py-4">
+        <div class="px-6 mb-2 text-[10px] font-bold text-white/40 uppercase tracking-widest">Main Menu</div>
+        <ul class="space-y-1">
+            <li><a href="/admin/Statistics" class="nav-item"><i class="fas fa-chart-pie w-5 text-center"></i> 대시보드</a></li>
+            <li><a href="/admin/BookManageMent" class="nav-item"><i class="fas fa-book w-5 text-center"></i> 도서관리</a></li>
+            <li><a href="/admin/UserManageMent" class="nav-item"><i class="fas fa-users w-5 text-center"></i> 회원관리</a></li>
+        </ul>
+
+        <div class="px-6 mt-8 mb-2 text-[10px] font-bold text-white/40 uppercase tracking-widest">Support & Service</div>
+        <ul class="space-y-1">
+            <li><a href="/admin/Inquiries" class="nav-item"><i class="fas fa-question-circle w-5 text-center"></i> 문의관리</a></li>
+            <li><a href="/admin/Notifications" class="nav-item active-tab flex justify-between">
+                <div class="flex items-center gap-3">
+                    <i class="fas fa-bell w-5 text-center"></i> 알림관리
+                </div>
+                <span class="bg-red-500 text-[10px] px-1.5 py-0.5 rounded-full font-bold text-white">2</span>
+            </a></li>
+        </ul>
+
+        <div class="px-6 mt-8 mb-2 text-[10px] font-bold text-white/40 uppercase tracking-widest">System</div>
+        <ul class="space-y-1">
+            <li><a href="/admin/Settings" class="nav-item"><i class="fas fa-cog w-5 text-center"></i> 시스템 설정</a></li>
+        </ul>
+    </div>
+
+    <div class="p-6 bg-black/10">
+        <div class="flex items-center justify-between group">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center font-bold text-sm border border-white/10">
+                    AD
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-bold truncate">관리자 님</p>
+                    <p class="text-[10px] text-white/50 uppercase tracking-tighter font-medium">Master Account</p>
+                </div>
+            </div>
+
+            <form th:action="@{/logout}" method="post">
+                <button type="submit" class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-red-500/20 hover:text-red-300 transition-all text-white/50" title="로그아웃">
+                    <i class="fas fa-sign-out-alt text-sm"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+</nav>
+
+<main class="flex-1 overflow-y-auto p-10 bg-[#FBFBFD]">
+    <div class="mb-10 flex justify-between items-end">
+        <div>
+            <h2 class="text-3xl font-extrabold text-gray-800 tracking-tight">알림 센터</h2>
+            <p class="text-gray-400 mt-2 font-medium">시스템의 주요 이벤트와 회원 활동을 실시간으로 확인하세요.</p>
+        </div>
+        <button class="text-sm font-bold text-main hover:underline mb-2">
+            <i class="fas fa-check-double mr-1"></i> 모두 읽음 처리
+        </button>
+    </div>
+
+    <div class="flex items-center mb-8">
+        <div class="filter-group">
+            <button class="filter-btn active">전체</button>
+            <button class="filter-btn"><i class="fas fa-user-plus text-blue-400"></i> 회원가입</button>
+            <button class="filter-btn"><i class="fas fa-exclamation-circle text-red-400"></i> 도서연체</button>
+            <button class="filter-btn"><i class="fas fa-exchange-alt text-green-400"></i> 대여/반납</button>
+            <button class="filter-btn"><i class="fas fa-info-circle text-orange-400"></i> 시스템</button>
+        </div>
+    </div>
+
+    <form class="search-container shadow-sm">
+        <div class="relative flex-1">
+            <i class="fas fa-search absolute left-5 top-1/2 -translate-y-1/2 text-gray-400"></i>
+            <input type="text" placeholder="알림 내용 또는 회원명 검색..."
+                   class="w-full pl-14 pr-4 py-3 bg-gray-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-[#DCA244]/20 focus:bg-white outline-none transition-all font-medium">
+        </div>
+        <button class="btn-dark">검색</button>
+    </form>
+
+    <div class="max-w-5xl space-y-5">
+        <div class="noti-item noti-overdue">
+            <div class="icon-box bg-red-50 text-red-500"><i class="fas fa-clock text-xl"></i></div>
+            <div class="flex-1">
+                <div class="flex justify-between items-start">
+                    <span class="text-[10px] font-black text-red-500 uppercase tracking-widest">Overdue</span>
+                    <span class="text-[11px] font-bold text-gray-400 font-mono">JUST NOW</span>
+                </div>
+                <h4 class="font-bold text-gray-800 mt-1 text-lg">도서 연체 발생</h4>
+                <p class="text-sm text-gray-600 mt-2 leading-relaxed">
+                    <span class="font-bold text-gray-900 underline underline-offset-4 decoration-red-200">[박준호]</span> 회원의 '클린 코드' 도서가 반납 기한을 <span class="text-red-500 font-bold">3일</span> 초과했습니다.
+                </p>
+            </div>
+        </div>
+
+        <div class="noti-item noti-join">
+            <div class="icon-box bg-blue-50 text-blue-500"><i class="fas fa-user-plus text-xl"></i></div>
+            <div class="flex-1">
+                <div class="flex justify-between items-start">
+                    <span class="text-[10px] font-black text-blue-500 uppercase tracking-widest">New Member</span>
+                    <span class="text-[11px] font-bold text-gray-400 font-mono">12 MIN AGO</span>
+                </div>
+                <h4 class="font-bold text-gray-800 mt-1 text-lg">신규 회원 가입 신청</h4>
+                <p class="text-sm text-gray-600 mt-2 leading-relaxed">
+                    <span class="font-bold text-gray-900">이지은</span>님이 신규 회원으로 가입했습니다. 관리자 승인이 필요합니다.
+                </p>
+            </div>
+        </div>
+
+        <div class="noti-item noti-rental">
+            <div class="icon-box bg-green-50 text-green-500"><i class="fas fa-undo-alt text-xl"></i></div>
+            <div class="flex-1">
+                <div class="flex justify-between items-start">
+                    <span class="text-[10px] font-black text-green-500 uppercase tracking-widest">Return Success</span>
+                    <span class="text-[11px] font-bold text-gray-400 font-mono">1 HOUR AGO</span>
+                </div>
+                <h4 class="font-bold text-gray-800 mt-1 text-lg">도서 반납 처리 완료</h4>
+                <p class="text-sm text-gray-600 mt-2 leading-relaxed">
+                    <span class="font-bold text-gray-900">김민수</span> 회원이 '토비의 스프링' 도서를 반납했습니다. 도서 상태를 점검해 주세요.
+                </p>
+            </div>
+        </div>
+    </div>
+</main>
+
+</body>
+</html>

@@ -86,6 +86,7 @@
                                 JOIN GENRE g2 ON g2.GENRE_ID = b2.GENRE_ID
                                 LEFT JOIN GENRE p2 ON p2.GENRE_ID = g2.PARENT_ID
                                 WHERE g2.MALL = '외국도서'
+                                AND b2.EBOOK_YN = 'N'
                                 GROUP BY COALESCE(p2.GENRE_ID, g2.GENRE_ID)
                                 ) x
                                 ORDER BY x.cnt DESC, x.parent_id ASC
@@ -146,11 +147,24 @@
             </if>
 
             <if test="cond.keyword != null and cond.keyword != ''">
-                AND (
-                b.BOOK_TITLE LIKE CONCAT('%', #{cond.keyword}, '%')
-                OR b.AUTHORS LIKE CONCAT('%', #{cond.keyword}, '%')
-                OR b.PUBLISHER LIKE CONCAT('%', #{cond.keyword}, '%')
-                )
+                <choose>
+                    <when test="cond.field == 'TITLE'">
+                        AND b.BOOK_TITLE LIKE CONCAT('%', #{cond.keyword}, '%')
+                    </when>
+                    <when test="cond.field == 'AUTHOR'">
+                        AND b.AUTHORS LIKE CONCAT('%', #{cond.keyword}, '%')
+                    </when>
+                    <when test="cond.field == 'PUBLISHER'">
+                        AND b.PUBLISHER LIKE CONCAT('%', #{cond.keyword}, '%')
+                    </when>
+                    <otherwise>
+                        AND (
+                        b.BOOK_TITLE LIKE CONCAT('%', #{cond.keyword}, '%')
+                        OR b.AUTHORS LIKE CONCAT('%', #{cond.keyword}, '%')
+                        OR b.PUBLISHER LIKE CONCAT('%', #{cond.keyword}, '%')
+                        )
+                    </otherwise>
+                </choose>
             </if>
 
             <!-- ✅ 소분류: 0/음수 방어 -->

@@ -15,7 +15,7 @@ public class BookSearchDTO {
 
     private String naverImage;
     private String aladinImageBig;
-    private String ebookYn;   // 'Y'/'N' //프로젝트상 현재 모든 도서를 Y로 관리.
+    private String ebookYn;   // 'Y'/'N'
 
     private Integer genreId;
     private String genreNm;

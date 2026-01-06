@@ -23,11 +23,6 @@ public class EBookController {
     private final GoogleDictionaryService dictService;
     private final EBookService service;
 
-    @GetMapping("/ebookviewer")
-    public String view() {
-        return "/ebook/ebook-viewer2";
-    }
-
     @GetMapping("/ebook")
     public String ebookView(HttpSession session,
                             Model model) throws IOException {
@@ -39,7 +34,7 @@ public class EBookController {
 
         model.addAttribute("myEbookList", e_list);
 
-        return "/ebook/ebook10";
+        return "/ebook/ebook";
     }
 
     @GetMapping("/ebook/{bookid}")
@@ -56,15 +51,18 @@ public class EBookController {
         else {
             // DB에서 도서 번호로 도서 isbn 가져와서 model에 저장
             String isbn = service.findIsbn(bookid);
-            SaveCfiRequest loc_info = service.findCfi(userId, isbn);
-            float pct = loc_info.getPct() != null ? Float.parseFloat(loc_info.getPct()) : 0;
-            System.out.println(loc_info.getCfi());
-            System.out.println(loc_info.getPct());
-            System.out.println(loc_info.getHref());
             model.addAttribute("isbn", isbn);
-            model.addAttribute("lastCfi", loc_info.getCfi());
-            model.addAttribute("lastPct", pct);
-            model.addAttribute("lastHref", loc_info.getHref());
+
+            SaveCfiRequest loc_info = service.findCfi(userId, isbn);
+            if(loc_info != null) {
+                float pct = loc_info.getPct() != null ? Float.parseFloat(loc_info.getPct()) : 0;
+                System.out.println(loc_info.getCfi());
+                System.out.println(loc_info.getPct());
+                System.out.println(loc_info.getHref());
+                model.addAttribute("lastCfi", loc_info.getCfi());
+                model.addAttribute("lastPct", pct);
+                model.addAttribute("lastHref", loc_info.getHref());
+            }
         }
 
         // DB에서 회원의 현재 대여중인 전자책 정보 가져오기
@@ -75,7 +73,7 @@ public class EBookController {
 
         model.addAttribute("myEbookList", e_list);
 
-        return "/ebook/ebook10";
+        return "/ebook/ebook";
     }
 
     @ResponseBody

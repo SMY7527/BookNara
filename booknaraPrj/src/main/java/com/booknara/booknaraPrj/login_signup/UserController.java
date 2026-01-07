@@ -32,37 +32,6 @@ public class UserController {
         return "login";
     }
 
-    @PostMapping("/login")
-    public String login(@RequestParam String userId,
-                        @RequestParam String password,
-                        HttpServletRequest request,
-                        RedirectAttributes ra) {
-        try {
-            // 1) 기존 검증 로직(있어도 되고 없어도 됨)
-            userService1.login(userId, password);
-
-            // 2) 스프링 시큐리티 인증 세팅
-            UsernamePasswordAuthenticationToken token =
-                    new UsernamePasswordAuthenticationToken(userId, password);
-
-            Authentication auth = authenticationManager.authenticate(token);
-            SecurityContextHolder.getContext().setAuthentication(auth);
-
-            request.getSession(true).setAttribute(
-                    HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
-                    SecurityContextHolder.getContext()
-            );
-
-            return "redirect:/main";
-
-        } catch (Exception e) {
-            ra.addFlashAttribute("errorMessage", "로그인 실패");
-            return "redirect:/users/login";
-        }
-    }
-
-
-
 
     //회원가입
     @GetMapping("/signup")

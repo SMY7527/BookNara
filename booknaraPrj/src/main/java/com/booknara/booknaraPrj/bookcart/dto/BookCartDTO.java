@@ -8,6 +8,7 @@ public class BookCartDTO {
     private String isbn13;
     private String bookTitle;
     private String authors;
+    private String naverImage;
     private String aladinImageBig;
     private String ebookYn;
 }

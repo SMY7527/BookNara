@@ -1,4 +1,4 @@
-package com.booknara.booknaraPrj.common.dto;
+package com.booknara.booknaraPrj.bookSearch.dto;
 
 import lombok.Getter;
 import java.util.List;

@@ -6,7 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <title>도서 검색</title>
 
-
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+    <link rel="stylesheet" th:href="@{/css/footer.css}">
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Gamja+Flower&display=swap');
@@ -17,15 +18,11 @@
             --gap: 24px;
             --radius: 10px;
 
-            /* ✅ 페이지 전체 배경 흰색 */
             --bg: #fff;
-
             --text: #111;
             --muted: #666;
 
-            /* ✅ 요청 색상 */
             --accent: #DCA244;
-
             --line: #e5e5e5;
         }
 
@@ -34,7 +31,6 @@
             font-family: Arial, sans-serif;
             background: #fff;
         }
-
 
         .wrap {
             max-width: var(--page-max);
@@ -157,7 +153,7 @@
         /* 중앙 */
         .center { flex:1; min-width: 0; }
 
-        /* 검색 영역(키워드/필드/검색)만 남김 */
+        /* 검색 영역 */
         .toolbar {
             background:#fff;
             border:1px solid var(--accent);
@@ -246,8 +242,6 @@
             gap: 10px;
             flex-wrap: wrap;
         }
-
-        /* ✅ page 정보 제거: 총 건수만 표시 */
         .crumb-right .meta {
             font-size: 13px;
             color: var(--muted);
@@ -264,7 +258,7 @@
             font-weight: 800;
         }
 
-        /* 카드 스타일 */
+        /* 카드 */
         .grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -303,48 +297,28 @@
             display: block;
         }
 
-        /* 썸네일 위에 태그 붙이기 위해 기준점 */
-        .thumb { position: relative; }
-
         /* 전자책 배지 */
-        /* 전자책 배지 - 원형 */
         .badge-ebook {
-            /* 위치: 책 위쪽에 살짝 걸친 느낌 */
             position: absolute;
-            right: 15px;      /* 오른쪽 여백 */
-            top: -4px;        /* 위쪽으로 살짝 튀어나오게 */
-
-            /* 모양: 세로로 긴 직사각형 */
-            width: 28px;      /* 너비는 좁게 */
-            height: 45px;     /* 높이는 길게 */
-
-            /* 하단만 둥글게 처리 (책갈피 모양) */
+            right: 15px;
+            top: -4px;
+            width: 28px;
+            height: 45px;
             border-radius: 2px 2px 10px 10px;
-
-            /* 정렬 및 색상 */
             display: flex;
             align-items: center;
             justify-content: center;
-
             background: #63BCD9;
-            color: #fff;      /* 글자색 흰색 추천 */
-
-            /* 텍스트 세로 쓰기 (선택사항) */
+            color: #fff;
             writing-mode: vertical-rl;
             text-orientation: upright;
-
             font-family: 'Gamja Flower', cursive;
             font-weight: bold;
             font-size: 26px;
             letter-spacing: 1px;
-
-            /* 입체감 그림자 */
             box-shadow: 0 3px 5px rgba(0,0,0,0.2);
         }
 
-
-
-        /* 카드 텍스트 영역: 280px로 고정하되, 카드가 더 작아지면 자동으로 줄어듦 */
         .info{
             width: 280px;
             max-width: 100%;
@@ -376,6 +350,15 @@
             overflow: hidden;
             text-overflow: ellipsis;
         }
+
+        .meta-line{
+            margin-top: 6px;
+            font-size: 13px;
+            color: #444;
+            font-weight: 800;
+        }
+        .meta-line .star { color: #DCA244; }
+        .meta-line .cnt  { color: #777; font-weight: 700; }
 
         /* Hover Overlay */
         .card .hover-layer {
@@ -410,7 +393,6 @@
             margin: 12px 0;
         }
 
-        /* ✅ 대여하기도 하이라이트 제거(3개 동일 스타일) */
         .hover-actions {
             display: flex;
             gap: 8px;
@@ -426,7 +408,6 @@
             cursor: pointer;
             font-weight: 900;
         }
-        /* primary 스타일 없애기(혹시 class가 남아도 동일하게 보이도록) */
         .hover-actions button.primary {
             background: transparent;
             border-color: #fff;
@@ -468,7 +449,6 @@
             font-weight: 900;
         }
 
-        /* 반응형 */
         @media (max-width: 1440px) {
             .wrap { padding: 20px 12px; }
             .wrap-inner { width: 100%; }
@@ -481,6 +461,8 @@
 </head>
 
 <body>
+<div th:replace="fragments/header :: header"></div>
+
 <div class="wrap">
     <div class="wrap-inner">
 
@@ -520,8 +502,9 @@
             </section>
         </aside>
 
+
         <main class="center">
-            <!-- 검색/필터 바 -->
+            <!-- 검색 바 -->
             <div class="toolbar">
                 <input id="keyword" type="text" placeholder="검색어를 입력하세요 (제목/저자/출판사)" />
 
@@ -535,7 +518,7 @@
                 <button id="btnSearch" type="button">검색</button>
             </div>
 
-            <!-- Breadcrumb + 우측(정렬/표시개수) -->
+            <!-- Breadcrumb + 우측 -->
             <div class="crumbbar">
                 <div class="crumb-left" id="breadcrumb"></div>
 
@@ -546,8 +529,8 @@
 
                     <select id="sort">
                         <option value="NEW">최신순</option>
-                        <option value="RATING">평점순(뼈대)</option>
-                        <option value="REVIEW">리뷰순(뼈대)</option>
+                        <option value="RATING">평점순</option>
+                        <option value="REVIEW">리뷰순</option>
                     </select>
 
                     <select id="size">
@@ -565,14 +548,18 @@
 
             <!-- 페이지네이션 -->
             <nav id="pager" class="pager"></nav>
+
+
         </main>
+
+
 
     </div>
 </div>
 
 <script>
     // ====== API ======
-    const API_URL = "/book/search/list";
+    const API_URL   = "/book/search/list";
     const GENRE_API = "/book/genres";
 
     // ====== 상태 ======
@@ -582,33 +569,28 @@
         keyword: null,
         field: "ALL",
         sort: "NEW",
-
         ebookYn: "N",
-
         genreId: null,
         parentGenreId: null,
         mall: "ALL",
-
         view: "PARENT",
-
         parentName: null,
         childName: null
     };
 
     // ====== DOM ======
-    const $keyword = document.getElementById("keyword");
-    const $field   = document.getElementById("field");
-    const $sort    = document.getElementById("sort");
-    const $size    = document.getElementById("size");
-    const $btn     = document.getElementById("btnSearch");
+    const $keyword  = document.getElementById("keyword");
+    const $field    = document.getElementById("field");
+    const $sort     = document.getElementById("sort");
+    const $size     = document.getElementById("size");
+    const $btnSearch= document.getElementById("btnSearch");
 
     const $grid     = document.getElementById("grid");
     const $pager    = document.getElementById("pager");
     const $total    = document.getElementById("total");
     const $loading  = document.getElementById("loading");
 
-    const $btnAll = document.getElementById("btnAll");
-
+    const $btnAll   = document.getElementById("btnAll");
     const $btnPaper = document.getElementById("btnPaper");
     const $btnEbook = document.getElementById("btnEbook");
 
@@ -619,13 +601,13 @@
     const $childList  = document.getElementById("childGenreList");
     const $childTitle = document.getElementById("childTitle");
     const $selectedParentName = document.getElementById("selectedParentName");
-    const $btnBackToParents = document.getElementById("btnBackToParents");
+    const $btnBackToParents   = document.getElementById("btnBackToParents");
 
     const $breadcrumb = document.getElementById("breadcrumb");
-    const $toolbar = document.querySelector(".toolbar");
+    const $toolbar    = document.querySelector(".toolbar");
 
-    // ====== 유틸 ======
-    function esc(s) {
+    // ====== 공용 유틸 ======
+    const esc = (s) => {
         if (s == null) return "";
         return String(s)
             .replaceAll("&","&amp;")
@@ -633,7 +615,7 @@
             .replaceAll(">","&gt;")
             .replaceAll('"',"&quot;")
             .replaceAll("'","&#39;");
-    }
+    };
 
     function buildQuery() {
         const p = new URLSearchParams();
@@ -641,35 +623,30 @@
         p.set("size", String(state.size));
 
         if (state.keyword) p.set("keyword", state.keyword);
-        if (state.field) p.set("field", state.field);
-        if (state.sort) p.set("sort", state.sort);
+        if (state.field)   p.set("field", state.field);
+        if (state.sort)    p.set("sort", state.sort);
         if (state.ebookYn) p.set("ebookYn", state.ebookYn);
 
-        if (state.genreId !== null && state.genreId !== undefined) {
-            p.set("genreId", String(state.genreId));
-        }
-        if (state.parentGenreId !== null && state.parentGenreId !== undefined) {
-            p.set("parentGenreId", String(state.parentGenreId));
-        }
-        if (state.mall !== null && state.mall !== undefined && state.mall !== "") {
-            p.set("mall", state.mall);
-        }
-        return p.toString();
-    }
+        if (state.genreId != null)       p.set("genreId", String(state.genreId));
+        if (state.parentGenreId != null) p.set("parentGenreId", String(state.parentGenreId));
+        if (state.mall)                  p.set("mall", state.mall);
 
-    function clearActive(listEl) {
-        listEl.querySelectorAll(".cat-item.active").forEach(el => el.classList.remove("active"));
+        return p.toString();
     }
 
     function setView(v) {
         state.view = v;
         if (v === "PARENT") {
             $parentView.style.display = "";
-            $childView.style.display = "none";
+            $childView.style.display  = "none";
         } else {
             $parentView.style.display = "none";
-            $childView.style.display = "";
+            $childView.style.display  = "";
         }
+    }
+
+    function clearActive(listEl) {
+        listEl.querySelectorAll(".cat-item.active").forEach(el => el.classList.remove("active"));
     }
 
     function scrollToTopOfResult() {
@@ -677,25 +654,44 @@
         window.scrollTo({ top: y, behavior: "auto" });
     }
 
-    // ✅ 핵심: 카테고리/브레드크럼 클릭 시 검색 입력을 확실히 초기화
     function resetSearchInputs({ resetField = false } = {}) {
         state.keyword = null;
         $keyword.value = "";
-
         if (resetField) {
             state.field = "ALL";
             $field.value = "ALL";
         }
     }
 
+    function goLoginReturnHere() {
+        const returnUrl = location.pathname + location.search + location.hash;
+        location.href = "/users/login?redirect=" + encodeURIComponent(returnUrl);
+    }
+
+    async function fetchJson(url, options = {}) {
+        const res = await fetch(url, {
+            headers: { "Accept": "application/json", ...(options.headers || {}) },
+            ...options
+        });
+
+        const ct = res.headers.get("content-type") || "";
+        if (res.status === 401 || res.status === 403 || ct.includes("text/html")) {
+            goLoginReturnHere();
+            return null;
+        }
+        if (!res.ok) throw new Error("HTTP " + res.status);
+
+        return await res.json();
+    }
+
     // ====== Breadcrumb ======
     function renderBreadcrumb() {
         const parts = [];
         parts.push(`
-          <a class="crumb-home" href="/book/search" title="홈으로">
-            <span aria-hidden="true">🏠</span><span>홈</span>
-          </a>
-        `);
+      <a class="crumb-home" href="/book/search" title="홈으로">
+        <span aria-hidden="true">🏠</span><span>홈</span>
+      </a>
+    `);
 
         if (state.parentName) {
             parts.push(`<span class="crumb-sep">&rsaquo;</span>`);
@@ -711,13 +707,11 @@
         $breadcrumb.querySelectorAll("[data-crumb]").forEach(btn => {
             btn.addEventListener("click", () => {
                 const t = btn.getAttribute("data-crumb");
-
-                // ✅ breadcrumb도 카테고리 이동이므로 검색어 초기화
-                resetSearchInputs({ resetField: false }); // 필요하면 true로
+                resetSearchInputs({ resetField: false });
 
                 if (t === "parent") {
                     state.page = 1;
-                    state.genreId = null;      // 소분류 해제
+                    state.genreId = null;
                     state.childName = null;
 
                     setView("CHILD");
@@ -737,22 +731,18 @@
 
     // ====== 카테고리 로드 ======
     async function loadParentGenres() {
-        const res = await fetch(`${GENRE_API}/parents`, { headers: { "Accept": "application/json" }});
-        if (!res.ok) throw new Error("Parent genre HTTP " + res.status);
-
-        const list = await res.json();
+        const list = await fetchJson(`${GENRE_API}/parents`);
+        if (!list) return;
 
         $parentList.innerHTML = "";
         (list || []).forEach(g => {
             const li = document.createElement("li");
             li.className = "cat-item";
             li.textContent = g.genreNm;
-
             if (g.genreNm === "외국도서") li.classList.add("foreign");
 
             li.addEventListener("click", async () => {
-                // ✅ 카테고리 이동 → 검색어 초기화
-                resetSearchInputs({ resetField: false }); // 원하면 true
+                resetSearchInputs({ resetField: false });
 
                 setView("CHILD");
                 $selectedParentName.textContent = g.genreNm;
@@ -767,13 +757,11 @@
                 if (g.genreNm === "외국도서") {
                     state.mall = "외국도서";
                     state.parentGenreId = null;
-
                     $childTitle.textContent = "외국도서";
                     await loadForeignParentsAsChildren();
                 } else {
                     state.mall = "국내도서";
                     state.parentGenreId = parseInt(g.genreId, 10);
-
                     $childTitle.textContent = "소분류";
                     await loadChildGenres(state.parentGenreId);
                 }
@@ -789,14 +777,10 @@
     async function loadChildGenres(parentGenreId) {
         $childList.innerHTML = `<li style="font-size:12px; color:#777; padding:6px 2px;">불러오는 중...</li>`;
 
-        const res = await fetch(
-            `${GENRE_API}/children?parentId=${encodeURIComponent(parentGenreId)}`,
-            { headers: { "Accept": "application/json" } }
-        );
-        if (!res.ok) throw new Error("Child genre HTTP " + res.status);
+        const list = await fetchJson(`${GENRE_API}/children?parentId=${encodeURIComponent(parentGenreId)}`);
+        if (!list) return;
 
-        const list = await res.json();
-        if (!list || list.length === 0) {
+        if (!list.length) {
             $childList.innerHTML = `<li style="font-size:12px; color:#777; padding:6px 2px;">소분류가 없습니다</li>`;
             return;
         }
@@ -808,7 +792,6 @@
             li.textContent = g.genreNm;
 
             li.addEventListener("click", () => {
-                // ✅ 소분류 이동 → 검색어 초기화
                 resetSearchInputs({ resetField: false });
 
                 clearActive($childList);
@@ -817,7 +800,6 @@
                 state.mall = "국내도서";
                 state.genreId = parseInt(g.genreId, 10);
                 state.page = 1;
-
                 state.childName = g.genreNm;
 
                 renderBreadcrumb();
@@ -831,13 +813,10 @@
     async function loadForeignParentsAsChildren() {
         $childList.innerHTML = `<li style="font-size:12px;color:#777;padding:6px 2px;">불러오는 중...</li>`;
 
-        const res = await fetch(`${GENRE_API}/foreign/parents?top=19`, {
-            headers: { "Accept": "application/json" }
-        });
-        if (!res.ok) throw new Error("Foreign parents HTTP " + res.status);
+        const list = await fetchJson(`${GENRE_API}/foreign/parents?top=19`);
+        if (!list) return;
 
-        const list = await res.json();
-        if (!list || list.length === 0) {
+        if (!list.length) {
             $childList.innerHTML = `<li style="font-size:12px;color:#777;padding:6px 2px;">외국도서 카테고리가 없습니다</li>`;
             return;
         }
@@ -849,7 +828,6 @@
             li.textContent = g.genreNm;
 
             li.addEventListener("click", () => {
-                // ✅ 외국도서 하위 선택 → 검색어 초기화
                 resetSearchInputs({ resetField: false });
 
                 clearActive($childList);
@@ -874,73 +852,105 @@
         });
     }
 
+    // ====== 별점/리뷰 렌더 ======
+    function formatRating(v) {
+        if (v == null || Number.isNaN(Number(v))) return "-";
+        return Number(v).toFixed(1);
+    }
+
+    function buildHoverMetaText(ratingAvg, reviewCnt) {
+        const r = formatRating(ratingAvg);
+        const c = (reviewCnt == null ? 0 : Number(reviewCnt));
+        return `⭐ ${r} (${c})`;
+    }
+
+    // ====== 결과 렌더 ======
     // ====== 결과 렌더 ======
     function renderGrid(items) {
         if (!items || items.length === 0) {
             $grid.innerHTML = `
-              <div style="grid-column:1/-1; text-align:center; color:#777; padding:30px;">
-                  검색 결과가 없습니다.
-              </div>`;
+      <div style="grid-column:1/-1; text-align:center; color:#777; padding:30px;">
+        검색 결과가 없습니다.
+      </div>`;
             return;
         }
 
         $grid.innerHTML = items.map(it => {
-            const img = it.naverImage || it.aladinImageBig || "";
-            const title = esc(it.bookTitle);
-            const authors = esc(it.authors);
+            const img       = it.naverImage || it.aladinImageBig || "";
+            const title     = esc(it.bookTitle);
+            const authors   = esc(it.authors);
             const publisher = esc(it.publisher);
-            const isEbook = (it.ebookYn === "Y");
-            const desc = esc(it.description || "도서 설명이 없습니다.");
+            const desc      = esc(it.description || "도서 설명이 없습니다.");
 
-            const rating = it.rating ?? "4.5";
+            const ratingAvg = it.ratingAvg ?? null;
             const reviewCnt = it.reviewCnt ?? 0;
 
+            // ✅ 여기서 bookmarked 정의 (백엔드 필드명에 맞춰 모두 대응)
+            const bookmarked =
+                (it.bookmarkedYn === "Y") ||
+                (it.bookmarked === true) ||
+                (it.bookmarked === "true") ||
+                (it.bookmarked === "Y");
+
+            const hoverMeta = buildHoverMetaText(ratingAvg, reviewCnt);
+
             return `
-              <article class="card" data-isbn="${esc(it.isbn13)}">
-                <div class="thumb">
-                  ${img ? `<img src="${esc(img)}" alt="${title}"/>` : ``}
-                  ${it.ebookYn === "Y" ? `<div class="badge-ebook">E</div>` : ``}
+      <article class="card" data-isbn="${esc(it.isbn13)}">
+        <div class="thumb">
+          ${img ? `<img src="${esc(img)}" alt="${title}"/>` : ``}
+          ${it.ebookYn === "Y" ? `<div class="badge-ebook">E</div>` : ``}
 
-                  <div class="hover-layer">
-                    <div>
-                      <div class="hover-desc">${desc}</div>
-                      <div class="hover-meta">⭐ ${rating} (${reviewCnt})</div>
-                    </div>
-                    <div class="hover-actions">
-                      <button type="button" class="btn-rent">대여하기</button>
-                      <button type="button" class="btn-cart">장바구니</button>
-                      <button type="button" class="btn-bookmark" data-bookmarked="false">북마크</button>
-                    </div>
-                  </div>
-                </div>
+          <div class="hover-layer">
+            <div>
+              <div class="hover-desc">${desc}</div>
+              <div class="hover-meta">${esc(hoverMeta)}</div>
+            </div>
 
-                <div class="info">
-                  <div class="title">${title}</div>
-                  <div class="sub">${authors.replace(/\^/g, ' · ')} ｜ ${publisher}</div>
-                </div>
-              </article>
-            `;
+            <div class="hover-actions">
+              ${buildRentButton(it)}
+              <button type="button" class="btn-cart">장바구니</button>
 
+              <button
+                type="button"
+                class="btn-bookmark"
+                data-bookmarked="${bookmarked ? "true" : "false"}"
+              >${bookmarked ? "북마크✓" : "북마크"}</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="info">
+          <div class="title">${title}</div>
+          <div class="sub">${authors.replace(/\^/g, " · ")} ｜ ${publisher}</div>
+        </div>
+      </article>
+    `;
         }).join("");
 
+        // ✅ 렌더 직후: 북마크 버튼 스타일/텍스트 확실히 동기화
+        $grid.querySelectorAll(".btn-bookmark").forEach(btn => {
+            const bookmarked = btn.dataset.bookmarked === "true";
+            setBookmarkUI(btn, bookmarked);
+        });
+
+        // 카드 클릭 → 상세 (버튼 클릭은 위임에서 막음)
         $grid.querySelectorAll(".card").forEach(card => {
             card.addEventListener("click", (e) => {
                 if (e.target.closest("button")) return;
-
                 const isbn = card.getAttribute("data-isbn");
                 location.href = `/book/detail/${encodeURIComponent(isbn)}`;
             });
         });
-
     }
+
 
     function renderPager(page, totalPages) {
         $pager.innerHTML = "";
         if (!totalPages || totalPages <= 1) return;
 
-        const groupSize = 10;
+        const groupSize  = 10;
         const groupStart = Math.floor((page - 1) / groupSize) * groupSize + 1;
-        const groupEnd = Math.min(groupStart + groupSize - 1, totalPages);
+        const groupEnd   = Math.min(groupStart + groupSize - 1, totalPages);
 
         const prevBtn = document.createElement("button");
         prevBtn.textContent = "◀";
@@ -972,138 +982,36 @@
         $pager.appendChild(nextBtn);
     }
 
+    // ====== 데이터 로드 ======
     async function load() {
         $loading.style.display = "block";
         $grid.innerHTML = "";
         $pager.innerHTML = "";
 
         try {
-            const qs = buildQuery();
-            const res = await fetch(`${API_URL}?${qs}`, { headers: { "Accept": "application/json" } });
-            if (!res.ok) throw new Error("HTTP " + res.status);
-
-            const data = await res.json();
+            const data = await fetchJson(`${API_URL}?${buildQuery()}`);
+            if (!data) return;
 
             $total.textContent = data.total ?? 0;
-
             renderGrid(data.items || []);
             renderPager(data.page || 1, data.totalPages || 1);
-
             scrollToTopOfResult();
+
         } catch (e) {
             console.error(e);
             $grid.innerHTML = `
-              <div style="grid-column:1/-1; text-align:center; color:#b00; padding:30px;">
-                  데이터를 불러오지 못했습니다. 콘솔/로그를 확인하세요.
-              </div>`;
+        <div style="grid-column:1/-1; text-align:center; color:#b00; padding:30px;">
+          데이터를 불러오지 못했습니다. 콘솔/로그를 확인하세요.
+        </div>`;
         } finally {
             $loading.style.display = "none";
         }
     }
 
-    // ====== 이벤트 ======
-    $btnPaper.addEventListener("click", () => {
-        $btnPaper.classList.add("active");
-        $btnEbook.classList.remove("active");
-        state.ebookYn = "N";
-        state.page = 1;
-        load();
-    });
-
-    $btnEbook.addEventListener("click", () => {
-        $btnEbook.classList.add("active");
-        $btnPaper.classList.remove("active");
-        state.ebookYn = "Y";
-        state.page = 1;
-        load();
-    });
-
-    $btnBackToParents.addEventListener("click", () => {
-        setView("PARENT");
-        state.childName = null;
-        state.parentName = null;    // ✅ 대분류로 돌아가면 breadcrumb도 홈만 남게
-        state.genreId = null;
-        state.parentGenreId = null;
-        state.mall = "ALL";
-
-        clearActive($childList);
-        renderBreadcrumb();
-        load(); // ✅ 화면만 바꾸지 말고 목록도 "전체"로 갱신
-    });
-
-    $btn.addEventListener("click", () => {
-        state.page = 1;
-        state.keyword = ($keyword.value || "").trim() || null;
-        state.field = $field.value;
-        load();
-    });
-
-    $keyword.addEventListener("keydown", (e) => {
-        if (e.key === "Enter") $btn.click();
-    });
-
-    $sort.addEventListener("change", () => {
-        state.page = 1;
-        state.sort = $sort.value;
-        load();
-    });
-
-    $size.addEventListener("change", () => {
-        state.page = 1;
-        state.size = parseInt($size.value, 10) || 20;
-        load();
-    });
-
-    $btnAll.addEventListener("click", () => {
-        // ✅ 전체는 “초기화”니까 검색어도 같이 비우는 게 UX 좋음
-        resetSearchInputs({ resetField: false }); // 원하면 true
-
-        state.mall = "ALL";
-        state.parentGenreId = null;
-        state.genreId = null;
-        state.page = 1;
-
-        state.parentName = null;
-        state.childName = null;
-
-        setView("PARENT");
-        $childList.innerHTML = "";
-
-        renderBreadcrumb();
-        load();
-    });
-
-    async function toggleBookmark(isbn13) {
-        try {
-            const res = await fetch(`/api/bookmarks/${encodeURIComponent(isbn13)}/toggle`, {
-                method: "POST",
-                headers: { "Accept": "application/json" }
-            });
-
-            // 로그인 필요(401/403) 또는 로그인 페이지로 리다이렉트(HTML)면 로그인으로
-            const ct = res.headers.get("content-type") || "";
-            if (res.status === 401 || res.status === 403 || ct.includes("text/html")) {
-                location.href = "/users/login";
-                return null;
-            }
-
-            if (!res.ok) throw new Error("HTTP " + res.status);
-            return await res.json();
-
-        } catch (e) {
-            // 네트워크/기타 오류도 그냥 로그인으로 보낼지 선택 가능
-            console.error(e);
-            alert("처리 중 오류가 발생했습니다.");
-            return null;
-        }
-    }
-
-
+    // ====== 북마크/장바구니 ======
     function setBookmarkUI(btn, bookmarked) {
         btn.dataset.bookmarked = bookmarked ? "true" : "false";
         btn.textContent = bookmarked ? "북마크✓" : "북마크";
-
-        // 원하면 스타일도 바꿀 수 있음 (간단 예시)
         if (bookmarked) {
             btn.style.background = "rgba(255,255,255,0.2)";
             btn.style.borderColor = "#ffd36a";
@@ -1113,45 +1021,305 @@
         }
     }
 
-    // ✅ 이벤트 위임: 그리드 전체에 한 번만
-    $grid.addEventListener("click", async (e) => {
-        const btn = e.target.closest(".btn-bookmark");
-        if (!btn) return;
-
-        const card = e.target.closest(".card");
-        const isbn13 = card?.getAttribute("data-isbn");
-        if (!isbn13) return;
-
-        // 중복 클릭 방지
-        if (btn.disabled) return;
-        btn.disabled = true;
-
+    async function toggleBookmark(isbn13) {
         try {
-            const data = await toggleBookmark(isbn13);
-            if (!data) return; // 401 처리로 리턴됨
-            setBookmarkUI(btn, !!data.bookmarked);
-        } catch (err) {
-            console.error(err);
-            alert("북마크 처리 실패");
-        } finally {
-            btn.disabled = false;
+            const res = await fetch(`/api/bookmarks/${encodeURIComponent(isbn13)}/toggle`, {
+                method: "POST",
+                headers: { "Accept": "application/json" }
+            });
+
+            const ct = res.headers.get("content-type") || "";
+            if (res.status === 401 || res.status === 403 || ct.includes("text/html")) {
+                goLoginReturnHere();
+                return null;
+            }
+            if (!res.ok) throw new Error("HTTP " + res.status);
+            return await res.json();
+        } catch (e) {
+            console.error(e);
+            alert("처리 중 오류가 발생했습니다.");
+            return null;
         }
-    });
+    }
+
+    async function addToCart(isbn13) {
+        try {
+            const res = await fetch("/book/cart/add", {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: "isbn13=" + encodeURIComponent(isbn13)
+            });
+
+            const ct = (res.headers.get("content-type") || "");
+            if (res.status === 401 || res.status === 403 || ct.includes("text/html")) {
+                goLoginReturnHere();
+                return { ok: false, needLogin: true };
+            }
+
+            if (!res.ok) throw new Error("HTTP " + res.status);
+
+            if (ct.includes("application/json")) {
+                const data = await res.json();
+                return { ok: true, data };
+            }
+            return { ok: true };
+        } catch (e) {
+            console.error(e);
+            alert("장바구니 처리 중 오류가 발생했습니다.");
+            return { ok: false, error: e };
+        }
+    }
+
+    function buildRentButton(it) {
+        // 1. 내가 대여중
+        if (it.myLendYn === "Y") {
+            if (it.myExtendYn === "Y") {
+                return `<button type="button" class="btn-rent btn-extend"
+                        data-lend-id="${it.myLendId}">연장하기</button>`;
+            }
+            return `<button type="button" class="btn-rent" disabled>대여중</button>`;
+        }
+
+        // 2. 대여 가능
+        if (it.availableCnt > 0) {
+            return `<button type="button" class="btn-rent btn-lend">대여하기</button>`;
+        }
+
+        // 3. 예약 관련
+        if (it.myRsvYn === "Y") {
+            return `<button type="button" class="btn-rent btn-rsv-cancel"
+                    data-rsv-id="${it.myRsvId}">예약취소</button>`;
+        }
+
+        // 4. 예약 불가 조건
+        if (it.userBlockedYn === "Y" || it.userOverdueYn === "Y" || it.rsvLimitYn === "Y") {
+            return `<button type="button" class="btn-rent" disabled>예약 불가</button>`;
+        }
+
+        // 5. 예약 가능
+        return `<button type="button" class="btn-rent btn-rsv">예약하기</button>`;
+    }
 
 
-    // ====== 최초 로드 ======
-    (async () => {
+    // ====== 이벤트 바인딩 ======
+    function bindEvents() {
+        $btnPaper.addEventListener("click", () => {
+            $btnPaper.classList.add("active");
+            $btnEbook.classList.remove("active");
+            state.ebookYn = "N";
+            state.page = 1;
+            load();
+        });
+
+        $btnEbook.addEventListener("click", () => {
+            $btnEbook.classList.add("active");
+            $btnPaper.classList.remove("active");
+            state.ebookYn = "Y";
+            state.page = 1;
+            load();
+        });
+
+        $btnBackToParents.addEventListener("click", () => {
+            setView("PARENT");
+            state.childName = null;
+            state.parentName = null;
+            state.genreId = null;
+            state.parentGenreId = null;
+            state.mall = "ALL";
+
+            clearActive($childList);
+            renderBreadcrumb();
+            load();
+        });
+
+        $btnSearch.addEventListener("click", () => {
+            state.page = 1;
+            state.keyword = ($keyword.value || "").trim() || null;
+            state.field = $field.value;
+            load();
+        });
+
+        $keyword.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") $btnSearch.click();
+        });
+
+        $sort.addEventListener("change", () => {
+            state.page = 1;
+            state.sort = $sort.value;
+            load();
+        });
+
+        $size.addEventListener("change", () => {
+            state.page = 1;
+            state.size = parseInt($size.value, 10) || 20;
+            load();
+        });
+
+        $btnAll.addEventListener("click", () => {
+            resetSearchInputs({ resetField: false });
+
+            state.mall = "ALL";
+            state.parentGenreId = null;
+            state.genreId = null;
+            state.page = 1;
+
+            state.parentName = null;
+            state.childName = null;
+
+            setView("PARENT");
+            $childList.innerHTML = "";
+
+            renderBreadcrumb();
+            load();
+        });
+
+        // ✅ 이벤트 위임: 대여하기 + 장바구니 + 북마크
+        $grid.addEventListener("click", async (e) => {
+            const card = e.target.closest(".card");
+            const isbn13 = card?.getAttribute("data-isbn");
+            if (!isbn13) return;
+
+            // ✅ 대여하기: 장바구니 담기 → 결제/대여 페이지 이동
+            const btnRent = e.target.closest(".btn-rent");
+            if (btnRent) {
+                e.preventDefault();
+                e.stopPropagation();
+                if (btnRent.disabled) return;
+                btnRent.disabled = true;
+
+                try {
+                    const result = await addToCart(isbn13);
+                    if (result?.needLogin) return;
+
+                    // 담기 성공(또는 이미 담겨있어도 IGNORE라 ok) 후 장바구니로 이동
+                    location.href = "/book/cart";
+                } finally {
+                    btnRent.disabled = false;
+                }
+                return;
+            }
+
+            // 장바구니(담기만)
+            const btnCart = e.target.closest(".btn-cart");
+            if (btnCart) {
+                e.preventDefault();
+                e.stopPropagation();
+                if (btnCart.disabled) return;
+                btnCart.disabled = true;
+
+                try {
+                    const result = await addToCart(isbn13);
+                    if (result?.ok) {
+                        btnCart.textContent = "담김✓";
+                        setTimeout(() => (btnCart.textContent = "장바구니"), 800);
+                    }
+                } finally {
+                    btnCart.disabled = false;
+                }
+                return;
+            }
+
+            // 북마크
+            const bmBtn = e.target.closest(".btn-bookmark");
+            if (bmBtn) {
+                e.preventDefault();
+                e.stopPropagation();
+                if (bmBtn.disabled) return;
+                bmBtn.disabled = true;
+
+                try {
+                    const data = await toggleBookmark(isbn13);
+                    if (!data) return;
+                    setBookmarkUI(bmBtn, !!data.bookmarked);
+                } finally {
+                    bmBtn.disabled = false;
+                }
+            }
+
+            // ===== 대여 / 예약 / 연장 =====
+            if (e.target.classList.contains("btn-lend")) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                const res = await fetch(`/book/circulation/lend`, {
+                    method: "POST",
+                    headers: {"Content-Type":"application/x-www-form-urlencoded"},
+                    body: `isbn13=${encodeURIComponent(isbn13)}`
+                });
+
+                if (res.ok) load();
+                return;
+            }
+
+            if (e.target.classList.contains("btn-rsv")) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                const res = await fetch(`/book/circulation/reserve`, {
+                    method: "POST",
+                    headers: {"Content-Type":"application/x-www-form-urlencoded"},
+                    body: `isbn13=${encodeURIComponent(isbn13)}`
+                });
+
+                if (res.ok) load();
+                return;
+            }
+
+            if (e.target.classList.contains("btn-rsv-cancel")) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                const rsvId = e.target.dataset.rsvId;
+                const res = await fetch(`/book/circulation/reserve/cancel`, {
+                    method: "POST",
+                    headers: {"Content-Type":"application/x-www-form-urlencoded"},
+                    body: `rsvId=${encodeURIComponent(rsvId)}`
+                });
+
+                if (res.ok) load();
+                return;
+            }
+
+            if (e.target.classList.contains("btn-extend")) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                const lendId = e.target.dataset.lendId;
+                const res = await fetch(`/book/circulation/extend`, {
+                    method: "POST",
+                    headers: {"Content-Type":"application/x-www-form-urlencoded"},
+                    body: `lendId=${encodeURIComponent(lendId)}`
+                });
+
+                if (res.ok) load();
+                return;
+            }
+
+        });
+
+    }
+
+    // ====== 초기화 ======
+    (async function init() {
+        bindEvents();
+
+        $sort.value = state.sort;
+        $size.value = String(state.size);
+        $field.value = state.field;
+
         try {
             await loadParentGenres();
         } catch (e) {
             console.error(e);
         }
+
         setView("PARENT");
         renderBreadcrumb();
         load();
     })();
+
 </script>
 
-
+<div th:replace="fragments/footer :: footer"></div>
 </body>
 </html>

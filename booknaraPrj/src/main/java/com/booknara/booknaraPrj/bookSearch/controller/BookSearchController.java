@@ -4,7 +4,7 @@ import com.booknara.booknaraPrj.bookSearch.dto.BookSearchConditionDTO;
 import com.booknara.booknaraPrj.bookSearch.dto.BookSearchDTO;
 import com.booknara.booknaraPrj.bookSearch.dto.PageInsertDTO;
 import com.booknara.booknaraPrj.bookSearch.service.BookSearchService;
-import com.booknara.booknaraPrj.common.dto.PageResultDTO;
+import com.booknara.booknaraPrj.bookSearch.dto.PageResultDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;

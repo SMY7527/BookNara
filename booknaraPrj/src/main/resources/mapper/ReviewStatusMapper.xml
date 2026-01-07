@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.booknara.booknaraPrj.reviewstatus.mapper.ReviewStatusMapper">
+
+    <!-- 단건 -->
+    <select id="selectByIsbn" resultType="com.booknara.booknaraPrj.reviewstatus.dto.ReviewStatusDTO">
+        SELECT
+            f.ISBN13                  AS isbn13,
+            COUNT(*)                  AS reviewCnt,
+            ROUND(AVG(rd.RATE), 1)    AS ratingAvg
+        FROM FEEDS f
+                 JOIN REVIEW_DETAIL rd ON rd.FEED_ID = f.FEED_ID
+        WHERE f.FEED_CATEGORY = 'REVIEW'
+          AND f.IS_DELETED = 'N'
+          AND f.IS_BLIND   = 'N'
+          AND f.ISBN13 = #{isbn13}
+        GROUP BY f.ISBN13
+    </select>
+
+    <!-- 여러 ISBN -->
+    <select id="selectByIsbns" resultType="com.booknara.booknaraPrj.reviewstatus.dto.ReviewStatusDTO">
+        SELECT
+        f.ISBN13                  AS isbn13,
+        COUNT(*)                  AS reviewCnt,
+        ROUND(AVG(rd.RATE), 1)    AS ratingAvg
+        FROM FEEDS f
+        JOIN REVIEW_DETAIL rd ON rd.FEED_ID = f.FEED_ID
+        WHERE f.FEED_CATEGORY = 'REVIEW'
+        AND f.IS_DELETED = 'N'
+        AND f.IS_BLIND   = 'N'
+        AND f.ISBN13 IN
+        <foreach collection="isbns" item="isbn" open="(" separator="," close=")">
+            #{isbn}
+        </foreach>
+        GROUP BY f.ISBN13
+    </select>
+
+</mapper>

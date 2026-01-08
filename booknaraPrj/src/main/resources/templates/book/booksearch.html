@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
-
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -269,7 +268,6 @@
             </section>
         </aside>
 
-
         <main class="center">
             <!-- 검색 바 -->
             <div class="toolbar">
@@ -448,10 +446,10 @@
     function renderBreadcrumb() {
         const parts = [];
         parts.push(`
-          <a class="crumb-home" href="/book/search" title="홈으로">
-            <span aria-hidden="true">🏠</span><span>홈</span>
-          </a>
-        `);
+      <a class="crumb-home" href="/book/search" title="홈으로">
+        <span aria-hidden="true">🏠</span><span>홈</span>
+      </a>
+    `);
 
         if (state.parentName) {
             parts.push(`<span class="crumb-sep">&rsaquo;</span>`);
@@ -623,9 +621,9 @@
     function renderGrid(items) {
         if (!items || items.length === 0) {
             $grid.innerHTML = `
-              <div style="grid-column:1/-1; text-align:center; color:#777; padding:30px;">
-                검색 결과가 없습니다.
-              </div>`;
+        <div style="grid-column:1/-1; text-align:center; color:#777; padding:30px;">
+          검색 결과가 없습니다.
+        </div>`;
             return;
         }
 
@@ -655,40 +653,40 @@
             const hoverMeta = buildHoverMetaText(ratingAvg, reviewCnt);
 
             return `
-              <article class="card" data-isbn="${esc(it.isbn13)}">
-                <div class="thumb">
-                  ${img ? `<img src="${esc(img)}" alt="${title}"/>` : ``}
-                  ${it.ebookYn === "Y" ? `<div class="badge-ebook">E</div>` : ``}
+        <article class="card" data-isbn="${esc(it.isbn13)}">
+          <div class="thumb">
+            ${img ? `<img src="${esc(img)}" alt="${title}"/>` : ``}
+            ${it.ebookYn === "Y" ? `<div class="badge-ebook">E</div>` : ``}
 
-                  <div class="hover-layer">
-                    <div>
-                      <div class="hover-desc">${desc}</div>
-                      <div class="hover-meta">${esc(hoverMeta)}</div>
-                    </div>
+            <div class="hover-layer">
+              <div>
+                <div class="hover-desc">${desc}</div>
+                <div class="hover-meta">${esc(hoverMeta)}</div>
+              </div>
 
-                    <div class="hover-actions">
-                      ${buildRentButton(it)}
+              <div class="hover-actions">
+                ${buildRentButton(it)}
 
-                      <!-- ✅ data-incart 반드시 넣기 -->
-                      <button type="button" class="btn-cart" data-incart="${inCart ? "true" : "false"}">
-                        ${inCart ? "담김✓" : "장바구니"}
-                      </button>
+                <!-- ✅ data-incart 반드시 넣기 -->
+                <button type="button" class="btn-cart" data-incart="${inCart ? "true" : "false"}">
+                  ${inCart ? "담김✓" : "장바구니"}
+                </button>
 
-                      <button
-                        type="button"
-                        class="btn-bookmark"
-                        data-bookmarked="${bookmarked ? "true" : "false"}"
-                      >${bookmarked ? "북마크✓" : "북마크"}</button>
-                    </div>
-                  </div>
-                </div>
+                <button
+                  type="button"
+                  class="btn-bookmark"
+                  data-bookmarked="${bookmarked ? "true" : "false"}"
+                >${bookmarked ? "북마크✓" : "북마크"}</button>
+              </div>
+            </div>
+          </div>
 
-                <div class="info">
-                  <div class="title">${title}</div>
-                  <div class="sub">${authors.replace(/\^/g, " · ")} ｜ ${publisher}</div>
-                </div>
-              </article>
-            `;
+          <div class="info">
+            <div class="title">${title}</div>
+            <div class="sub">${authors.replace(/\^/g, " · ")} ｜ ${publisher}</div>
+          </div>
+        </article>
+      `;
         }).join("");
 
         // ✅ 렌더 직후 UI 동기화
@@ -755,9 +753,9 @@
         } catch (e) {
             console.error(e);
             $grid.innerHTML = `
-              <div style="grid-column:1/-1; text-align:center; color:#b00; padding:30px;">
-                데이터를 불러오지 못했습니다. 콘솔/로그를 확인하세요.
-              </div>`;
+        <div style="grid-column:1/-1; text-align:center; color:#b00; padding:30px;">
+          데이터를 불러오지 못했습니다. 콘솔/로그를 확인하세요.
+        </div>`;
         } finally {
             $loading.style.display = "none";
         }
@@ -809,28 +807,6 @@
         }
     }
 
-    async function toggleCart(isbn13) {
-        try {
-            const res = await fetch(`/book/cart/${encodeURIComponent(isbn13)}/toggle`, {
-                method: "POST",
-                headers: { "Accept": "application/json" }
-            });
-
-            const ct = res.headers.get("content-type") || "";
-            if (res.status === 401 || res.status === 403 || ct.includes("text/html")) {
-                goLoginReturnHere();
-                return null;
-            }
-            if (!res.ok) throw new Error("HTTP " + res.status);
-
-            return await res.json(); // { inCart: true/false }
-        } catch (e) {
-            console.error(e);
-            alert("장바구니 처리 중 오류가 발생했습니다.");
-            return null;
-        }
-    }
-
     async function addToCart(isbn13) {
         try {
             const res = await fetch("/book/cart/add", {
@@ -861,6 +837,7 @@
 
     // ====== 대여 버튼 ======
     function buildRentButton(it) {
+        // ✅ 검색 리스트에서는 "대여하기" = 장바구니 담고 /book/cart로 이동 (btn-addcart로만 처리)
         if (it.myLendYn === "Y") {
             if (it.myExtendYn === "Y") {
                 return `<button type="button" class="btn-rent btn-extend" data-lend-id="${it.myLendId}">연장하기</button>`;
@@ -869,7 +846,7 @@
         }
 
         if (it.availableCnt > 0) {
-            return `<button type="button" class="btn-rent btn-lend">대여하기</button>`;
+            return `<button type="button" class="btn-rent btn-addcart">대여하기</button>`;
         }
 
         if (it.myRsvYn === "Y") {
@@ -961,25 +938,25 @@
             const isbn13 = card?.getAttribute("data-isbn");
             if (!isbn13) return;
 
-            // ✅ 대여하기: 장바구니 담기 후 이동
-            const btnRent = e.target.closest(".btn-rent");
-            if (btnRent) {
+            // ✅ 대여하기: 장바구니 담기 후 이동 (btn-addcart만)
+            const btnAddCart = e.target.closest(".btn-addcart");
+            if (btnAddCart) {
                 e.preventDefault();
                 e.stopPropagation();
-                if (btnRent.disabled) return;
-                btnRent.disabled = true;
+                if (btnAddCart.disabled) return;
+                btnAddCart.disabled = true;
 
                 try {
                     const result = await addToCart(isbn13);
                     if (result?.needLogin) return;
                     location.href = "/book/cart";
                 } finally {
-                    btnRent.disabled = false;
+                    btnAddCart.disabled = false;
                 }
                 return;
             }
 
-            // ✅ 장바구니 토글
+            // ✅ 장바구니 버튼: 없으면 담기, 있으면 장바구니로 이동 (서버에 remove/toggle 없을 때도 안전)
             const btnCart = e.target.closest(".btn-cart");
             if (btnCart) {
                 e.preventDefault();
@@ -988,9 +965,14 @@
                 btnCart.disabled = true;
 
                 try {
-                    const data = await toggleCart(isbn13);
-                    if (!data) return;
-                    setCartUI(btnCart, !!data.inCart);
+                    const inCart = (btnCart.dataset.incart === "true");
+                    if (!inCart) {
+                        const result = await addToCart(isbn13);
+                        if (result?.needLogin) return;
+                        setCartUI(btnCart, true);
+                    } else {
+                        location.href = "/book/cart";
+                    }
                 } finally {
                     btnCart.disabled = false;
                 }
@@ -1015,20 +997,7 @@
                 return;
             }
 
-            // ===== 대여 / 예약 / 연장 =====
-            if (e.target.classList.contains("btn-lend")) {
-                e.preventDefault();
-                e.stopPropagation();
-
-                const res = await fetch(`/book/circulation/lend`, {
-                    method: "POST",
-                    headers: {"Content-Type":"application/x-www-form-urlencoded"},
-                    body: `isbn13=${encodeURIComponent(isbn13)}`
-                });
-                if (res.ok) load();
-                return;
-            }
-
+            // ===== 예약 / 취소 / 연장 =====
             if (e.target.classList.contains("btn-rsv")) {
                 e.preventDefault();
                 e.stopPropagation();

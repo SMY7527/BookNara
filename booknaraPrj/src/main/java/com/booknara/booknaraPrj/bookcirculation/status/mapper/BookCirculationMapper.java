@@ -1,6 +1,6 @@
-package com.booknara.booknaraPrj.bookcirculation.mapper;
+package com.booknara.booknaraPrj.bookcirculation.status.mapper;
 
-import com.booknara.booknaraPrj.bookcirculation.dto.BookCirculationStatusDTO;
+import com.booknara.booknaraPrj.bookcirculation.status.dto.BookCirculationStatusDTO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 

@@ -1,7 +1,7 @@
-package com.booknara.booknaraPrj.bookcirculation.controller;
+package com.booknara.booknaraPrj.bookcirculation.status.controller;
 
-import com.booknara.booknaraPrj.bookcirculation.dto.BookCirculationStatusDTO;
-import com.booknara.booknaraPrj.bookcirculation.service.BookCirculationService;
+import com.booknara.booknaraPrj.bookcirculation.status.dto.BookCirculationStatusDTO;
+import com.booknara.booknaraPrj.bookcirculation.status.service.BookCirculationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;

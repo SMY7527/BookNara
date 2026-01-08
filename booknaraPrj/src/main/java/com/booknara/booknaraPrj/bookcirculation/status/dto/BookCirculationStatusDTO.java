@@ -1,4 +1,4 @@
-package com.booknara.booknaraPrj.bookcirculation.dto;
+package com.booknara.booknaraPrj.bookcirculation.status.dto;
 
 import lombok.Data;
 

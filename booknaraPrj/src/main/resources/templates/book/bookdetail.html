@@ -186,6 +186,34 @@
                         이용 가능: <b th:text="${view.inventory.availableCount}">0</b>
                     </div>
                 </details>
+                <section class="review-box">
+                    <div class="review-head">
+                        <div class="rating">
+                            <span th:text="${view.reviewSummary.ratingAvg}">0.0</span>
+                            <span> / 5.0</span>
+                        </div>
+                        <div class="count">
+                            리뷰 <span th:text="${view.reviewSummary.reviewCnt}">0</span>개
+                        </div>
+                    </div>
+
+                    <div class="review-list" th:if="${#lists.size(view.reviewPreview) > 0}">
+                        <div class="review-item" th:each="r : ${view.reviewPreview}">
+                            <div class="meta">
+                                <span class="user" th:text="${r.profileNm}">닉네임</span>
+                                <span class="rate" th:text="${r.rate}">5</span>
+                                <span class="date" th:text="${#temporals.format(r.createdAt,'yyyy-MM-dd')}">2026-01-09</span>
+                            </div>
+                            <div class="title" th:text="${r.title}">제목</div>
+                            <div class="content" th:text="${r.content}">내용</div>
+                        </div>
+                    </div>
+
+                    <div th:if="${#lists.isEmpty(view.reviewPreview)}">
+                        아직 리뷰가 없습니다.
+                    </div>
+                </section>
+
 
             </div>
         </div>

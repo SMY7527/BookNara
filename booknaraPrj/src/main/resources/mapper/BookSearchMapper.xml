@@ -234,15 +234,26 @@
                 <choose>
                     <when test="userId != null and userId != ''">
                         , CASE WHEN EXISTS(
-                        SELECT 1 FROM BOOKS_CART c
+                        SELECT 1
+                        FROM BOOKS_CART c
                         WHERE c.USER_ID = #{userId}
                         AND c.ISBN13  = b.ISBN13
                         ) THEN 'Y' ELSE 'N' END AS myCartYn
+                        , (
+                        SELECT c.CART_ID
+                        FROM BOOKS_CART c
+                        WHERE c.USER_ID = #{userId}
+                        AND c.ISBN13  = b.ISBN13
+                        ORDER BY c.CART_ID DESC
+                        LIMIT 1
+                        ) AS myCartId
                     </when>
                     <otherwise>
                         , 'N' AS myCartYn
+                        , NULL AS myCartId
                     </otherwise>
                 </choose>
+
 
 
 
@@ -446,11 +457,21 @@
                         WHERE c.USER_ID = #{userId}
                         AND c.ISBN13  = b.ISBN13
                         ) THEN 'Y' ELSE 'N' END AS myCartYn
+                        , (
+                        SELECT c.CART_ID
+                        FROM BOOKS_CART c
+                        WHERE c.USER_ID = #{userId}
+                        AND c.ISBN13  = b.ISBN13
+                        ORDER BY c.CART_ID DESC
+                        LIMIT 1
+                        ) AS myCartId
                     </when>
                     <otherwise>
                         , 'N' AS myCartYn
+                        , NULL AS myCartId
                     </otherwise>
                 </choose>
+
 
 
 

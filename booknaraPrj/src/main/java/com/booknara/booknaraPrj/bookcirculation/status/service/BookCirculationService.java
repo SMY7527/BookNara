@@ -1,7 +1,7 @@
-package com.booknara.booknaraPrj.bookcirculation.service;
+package com.booknara.booknaraPrj.bookcirculation.status.service;
 
-import com.booknara.booknaraPrj.bookcirculation.dto.BookCirculationStatusDTO;
-import com.booknara.booknaraPrj.bookcirculation.mapper.BookCirculationMapper;
+import com.booknara.booknaraPrj.bookcirculation.status.dto.BookCirculationStatusDTO;
+import com.booknara.booknaraPrj.bookcirculation.status.mapper.BookCirculationMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

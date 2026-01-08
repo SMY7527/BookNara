@@ -2,10 +2,9 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.booknara.booknaraPrj.bookcirculation.status.mapper.BookCirculationMapper">
 
-<mapper namespace="com.booknara.booknaraPrj.bookcirculation.mapper.BookCirculationMapper">
-
-    <select id="getStatus" resultType="com.booknara.booknaraPrj.bookcirculation.dto.BookCirculationStatusDTO">
+    <select id="getStatus" resultType="com.booknara.booknaraPrj.bookcirculation.status.dto.BookCirculationStatusDTO">
         WITH
         owned AS (
         SELECT b.ISBN13, COUNT(*) AS ownedCnt
@@ -25,10 +24,10 @@
         rsv AS (
         SELECT r.ISBN13,
         COUNT(*) AS rsvActiveCnt,
-        CASE WHEN COUNT(*) &gt;= 10 THEN 'Y' ELSE 'N' END AS rsvLimitYn
+        CASE WHEN COUNT(*) >= 10 THEN 'Y' ELSE 'N' END AS rsvLimitYn
         FROM RESERVATIONS r
         WHERE r.ISBN13 = #{isbn13}
-        AND r.RSV_STATUS = 'ACTIVE'
+        AND r.ACTIVE_FLAG = 1
         GROUP BY r.ISBN13
         )
 
@@ -57,7 +56,7 @@
             FROM RESERVATIONS r
             WHERE r.ISBN13 = #{isbn13}
             AND r.USER_ID = #{userId}
-            AND r.RSV_STATUS = 'ACTIVE'
+            AND r.ACTIVE_FLAG = 1
             GROUP BY r.ISBN13
             ),
             user_blocked AS (
@@ -67,7 +66,8 @@
             ),
             user_overdue AS (
             SELECT CASE WHEN EXISTS (
-            SELECT 1 FROM LENDS l
+            SELECT 1
+            FROM LENDS l
             WHERE l.USER_ID = #{userId}
             AND l.RETURN_DONE_AT IS NULL
             AND l.OVER_DUE = 'Y'
@@ -90,8 +90,8 @@
                 ,my_lend.myLendId AS myLendId
                 ,IFNULL(my_rsv.myRsvYn, 'N') AS myRsvYn
                 ,my_rsv.myRsvId AS myRsvId
-                ,(SELECT userBlockedYn FROM user_blocked) AS userBlockedYn
-                ,(SELECT userOverdueYn FROM user_overdue) AS userOverdueYn
+                ,IFNULL((SELECT userBlockedYn FROM user_blocked), 'N') AS userBlockedYn
+                ,IFNULL((SELECT userOverdueYn FROM user_overdue), 'N') AS userOverdueYn
             </when>
             <otherwise>
                 ,'N' AS myLendYn

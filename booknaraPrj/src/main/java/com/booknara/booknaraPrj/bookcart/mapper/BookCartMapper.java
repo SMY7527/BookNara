@@ -17,5 +17,9 @@ public interface BookCartMapper {
 
     int deleteAll(@Param("userId") String userId);
 
+    int deleteByIsbn(@Param("userId") String userId, @Param("isbn13") String isbn13);
+
     List<BookCartDTO> selectList(@Param("userId") String userId);
+
+
 }

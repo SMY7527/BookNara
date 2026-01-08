@@ -18,11 +18,22 @@
         </if>
     </sql>
 
+    <!-- ✅ 장바구니 조인 -->
+    <sql id="BaseCartJoin">
+        <if test="userId != null and userId != ''">
+            LEFT JOIN BOOKS_CART bc
+            ON bc.ISBN13 = b.ISBN13
+            AND bc.USER_ID = #{userId}
+        </if>
+    </sql>
+
+
     <sql id="BaseFrom">
         FROM BOOK_ISBN b
         JOIN GENRE g ON g.GENRE_ID = b.GENRE_ID
         LEFT JOIN GENRE p ON p.GENRE_ID = g.PARENT_ID
         <include refid="BaseBookmarkJoin"/>
+        <include refid="BaseCartJoin"/>
     </sql>
 
     <!-- ✅ REVIEW_STAT 조인 -->
@@ -220,6 +231,21 @@
                         , 'N' AS bookmarkedYn
                     </otherwise>
                 </choose>
+                <choose>
+                    <when test="userId != null and userId != ''">
+                        , CASE WHEN EXISTS(
+                        SELECT 1 FROM BOOKS_CART c
+                        WHERE c.USER_ID = #{userId}
+                        AND c.ISBN13  = b.ISBN13
+                        ) THEN 'Y' ELSE 'N' END AS myCartYn
+                    </when>
+                    <otherwise>
+                        , 'N' AS myCartYn
+                    </otherwise>
+                </choose>
+
+
+
 
                 FROM REVIEW_STAT rs
                 JOIN BOOK_ISBN b ON b.ISBN13 = rs.ISBN13
@@ -412,6 +438,21 @@
                         , 'N' AS bookmarkedYn
                     </otherwise>
                 </choose>
+                <choose>
+                    <when test="userId != null and userId != ''">
+                        , CASE WHEN EXISTS(
+                        SELECT 1
+                        FROM BOOKS_CART c
+                        WHERE c.USER_ID = #{userId}
+                        AND c.ISBN13  = b.ISBN13
+                        ) THEN 'Y' ELSE 'N' END AS myCartYn
+                    </when>
+                    <otherwise>
+                        , 'N' AS myCartYn
+                    </otherwise>
+                </choose>
+
+
 
                 FROM BOOK_ISBN b
                 JOIN GENRE g ON g.GENRE_ID = b.GENRE_ID
@@ -583,6 +624,16 @@
                     </when>
                     <otherwise>
                         , 'N' AS bookmarkedYn
+                    </otherwise>
+                </choose>
+                <choose>
+                    <when test="userId != null and userId != ''">
+                        , CASE WHEN bc.CART_ID IS NULL THEN 'N' ELSE 'Y' END AS myCartYn
+                        , bc.CART_ID AS myCartId
+                    </when>
+                    <otherwise>
+                        , 'N' AS myCartYn
+                        , NULL AS myCartId
                     </otherwise>
                 </choose>
 

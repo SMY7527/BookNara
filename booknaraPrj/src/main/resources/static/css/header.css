@@ -6,6 +6,7 @@
   font-family: "Noto Sans KR", sans-serif;
 }
 
+
 /* ===== 헤더 전체 ===== */
 .header {
   width: 100%;
@@ -46,6 +47,7 @@
 .nav span {
   color: #ccc;
 }
+
 
 /* ===== 우측 ===== */
 .right {

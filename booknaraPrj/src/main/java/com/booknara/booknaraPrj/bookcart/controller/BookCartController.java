@@ -26,6 +26,14 @@ public class BookCartController {
         return "bookcart/cart";
     }
 
+    @PostMapping("/{isbn13}/toggle")
+    @ResponseBody
+    public java.util.Map<String, Object> toggle(@PathVariable String isbn13, Authentication auth) {
+        boolean inCart = service.toggle(getUserId(auth), isbn13);
+        return java.util.Map.of("inCart", inCart);
+    }
+
+
     @PostMapping("/add")
     @ResponseBody
     public void add(@RequestParam String isbn13, Authentication auth) {

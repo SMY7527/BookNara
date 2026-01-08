@@ -17,12 +17,19 @@
         WHERE USER_ID = #{userId}
           AND CART_ID = #{cartId}
     </delete>
+    <!-- ISBN으로 삭제-->
+    <delete id="deleteByIsbn">
+        DELETE FROM BOOKS_CART
+        WHERE USER_ID = #{userId}
+          AND ISBN13 = #{isbn13}
+    </delete>
 
     <!-- 전체 비우기 -->
     <delete id="deleteAll">
         DELETE FROM BOOKS_CART
         WHERE USER_ID = #{userId}
     </delete>
+
 
     <!-- 장바구니 목록 -->
     <select id="selectList"

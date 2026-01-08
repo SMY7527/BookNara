@@ -20,6 +20,16 @@ public class BookSearchDTO {
     //평점
     private Double ratingAvg;
     private Integer reviewCnt;
+
+    //북마크 여부
+    private String bookmarkedYn;
+
+    //장바구니 담김 여부
+    //내 장바구니 담김 여부 (Y/N)
+    private String myCartYn;
+    //담긴 경우, 삭제용 cartId
+    private Long myCartId;
+
     // 대여_예약 현황
     private Integer ownedCnt;      // BOOKS(STATE='N') 권수
     private Integer lendingCnt;    // 현재 대여중(RETURN_DONE_AT IS NULL) 권수

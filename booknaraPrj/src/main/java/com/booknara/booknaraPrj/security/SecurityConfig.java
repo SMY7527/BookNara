@@ -30,6 +30,8 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
 
+
+
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/home",                 // 메인(비로그인 허용이면)

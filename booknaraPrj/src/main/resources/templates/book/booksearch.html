@@ -57,97 +57,47 @@
         .left h3 { margin: 0 0 10px; font-size: 16px; color: var(--text); }
 
         /* 종이책/전자책 토글 */
-        .ebook-toggle {
-            display:flex;
-            gap:8px;
-            margin: 6px 0 10px;
-        }
+        .ebook-toggle { display:flex; gap:8px; margin: 6px 0 10px; }
         .ebook-toggle button{
-            flex:1;
-            padding:9px 10px;
-            border-radius:999px;
-            border:1px solid var(--accent);
-            background:#fff;
-            cursor:pointer;
-            font-size: 12px;
-            font-weight: 800;
-            color: var(--text);
+            flex:1; padding:9px 10px; border-radius:999px;
+            border:1px solid var(--accent); background:#fff; cursor:pointer;
+            font-size: 12px; font-weight: 800; color: var(--text);
         }
         .ebook-toggle button.active{
-            background: var(--accent);
-            color:#fff;
-            border-color: var(--accent);
+            background: var(--accent); color:#fff; border-color: var(--accent);
             box-shadow: 0 2px 10px rgba(0,0,0,0.12);
         }
 
         .cat-actions { display:flex; gap:8px; margin-top: 10px; }
         .cat-actions button{
-            flex:1;
-            padding:9px 10px;
-            border-radius:8px;
-            border:1px solid var(--accent);
-            background:#fff;
-            cursor:pointer;
-            font-size: 12px;
-            font-weight: 800;
-            color: var(--text);
+            flex:1; padding:9px 10px; border-radius:8px;
+            border:1px solid var(--accent); background:#fff; cursor:pointer;
+            font-size: 12px; font-weight: 800; color: var(--text);
         }
-        .cat-actions button.primary{
-            background: var(--accent);
-            color:#fff;
-            border-color: var(--accent);
-        }
+        .cat-actions button.primary{ background: var(--accent); color:#fff; border-color: var(--accent); }
 
         .cat-box { margin-top: 10px; }
         .cat-title { font-size: 13px; font-weight: 900; margin: 10px 0 6px; color: var(--text); }
         .cat-list { list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:6px; }
 
         .cat-item {
-            padding: 9px 10px;
-            border: 1px solid #eee;
-            border-radius: 10px;
-            background:#fff;
-            cursor:pointer;
-            font-size: 13px;
-            color:#333;
-            line-height: 1.2;
-            user-select:none;
-            font-weight: 800;
+            padding: 9px 10px; border: 1px solid #eee; border-radius: 10px;
+            background:#fff; cursor:pointer; font-size: 13px; color:#333;
+            line-height: 1.2; user-select:none; font-weight: 800;
         }
         .cat-item:hover { background:#f7f7f7; }
-        .cat-item.active {
-            background: var(--accent);
-            color:#fff;
-            border-color: var(--accent);
-        }
+        .cat-item.active { background: var(--accent); color:#fff; border-color: var(--accent); }
         .cat-item.foreign { border-style: dashed; }
 
-        /* Drill-down 헤더(대분류명) */
-        .cat-head {
-            display:flex;
-            align-items:center;
-            justify-content: space-between;
-            gap: 10px;
-            margin: 10px 0 8px;
-        }
+        /* Drill-down 헤더 */
+        .cat-head { display:flex; align-items:center; justify-content: space-between; gap: 10px; margin: 10px 0 8px; }
         .cat-pill {
-            display:inline-flex;
-            align-items:center;
-            gap:8px;
-            border: 1px solid var(--accent);
-            border-radius: 999px;
-            padding: 8px 12px;
-            background:#fff;
-            cursor:pointer;
-            font-weight: 900;
-            color: var(--accent);
-            max-width: 100%;
+            display:inline-flex; align-items:center; gap:8px;
+            border: 1px solid var(--accent); border-radius: 999px;
+            padding: 8px 12px; background:#fff; cursor:pointer;
+            font-weight: 900; color: var(--accent); max-width: 100%;
         }
-        .cat-pill span {
-            overflow:hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
+        .cat-pill span { overflow:hidden; text-overflow: ellipsis; white-space: nowrap; }
         .cat-pill:hover { background:#fff7e6; }
 
         /* 중앙 */
@@ -155,299 +105,116 @@
 
         /* 검색 영역 */
         .toolbar {
-            background:#fff;
-            border:1px solid var(--accent);
-            border-radius: var(--radius);
-            padding:14px;
-            display:flex;
-            gap:10px;
-            align-items:center;
-            flex-wrap: wrap;
+            background:#fff; border:1px solid var(--accent); border-radius: var(--radius);
+            padding:14px; display:flex; gap:10px; align-items:center; flex-wrap: wrap;
         }
         .toolbar input[type="text"] {
-            flex:1;
-            min-width: 240px;
-            padding:10px 12px;
-            border:1px solid #ddd;
-            border-radius: 8px;
-            outline: none;
+            flex:1; min-width: 240px; padding:10px 12px;
+            border:1px solid #ddd; border-radius: 8px; outline: none;
         }
         .toolbar select, .toolbar button {
-            padding:10px 12px;
-            border:1px solid #ddd;
-            border-radius: 8px;
-            background:#fff;
-            cursor:pointer;
-            font-weight: 800;
+            padding:10px 12px; border:1px solid #ddd; border-radius: 8px;
+            background:#fff; cursor:pointer; font-weight: 800;
         }
-        .toolbar button {
-            background: var(--accent);
-            color:#fff;
-            border-color: var(--accent);
-        }
+        .toolbar button { background: var(--accent); color:#fff; border-color: var(--accent); }
 
         /* Breadcrumb + 우측 컨트롤 바 */
         .crumbbar {
-            margin: 12px 0 10px;
-            background:#fff;
-            border: 1px solid var(--accent);
-            border-radius: var(--radius);
-            padding: 10px 12px;
-            display:flex;
-            justify-content: space-between;
-            align-items:center;
-            gap: 12px;
-            flex-wrap: wrap;
+            margin: 12px 0 10px; background:#fff; border: 1px solid var(--accent);
+            border-radius: var(--radius); padding: 10px 12px;
+            display:flex; justify-content: space-between; align-items:center;
+            gap: 12px; flex-wrap: wrap;
         }
-        .crumb-left {
-            display:flex;
-            align-items:center;
-            gap: 8px;
-            flex-wrap: wrap;
-            min-width: 0;
-        }
+        .crumb-left { display:flex; align-items:center; gap: 8px; flex-wrap: wrap; min-width: 0; }
         .crumb-home {
-            display:inline-flex;
-            align-items:center;
-            gap:6px;
-            font-weight: 900;
-            color: var(--accent);
-            text-decoration: none;
-            cursor:pointer;
+            display:inline-flex; align-items:center; gap:6px;
+            font-weight: 900; color: var(--accent); text-decoration: none; cursor:pointer;
         }
-        .crumb-sep {
-            color: #bbb;
-            font-weight: 900;
-        }
+        .crumb-sep { color: #bbb; font-weight: 900; }
         .crumb-link {
-            border: none;
-            background: transparent;
-            padding: 0;
-            margin: 0;
-            cursor:pointer;
-            font-weight: 900;
-            font-size: 13px;
-            color: var(--accent);
-            max-width: 240px;
-            overflow:hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
+            border: none; background: transparent; padding: 0; margin: 0;
+            cursor:pointer; font-weight: 900; font-size: 13px; color: var(--accent);
+            max-width: 240px; overflow:hidden; text-overflow: ellipsis; white-space: nowrap;
         }
         .crumb-link:hover { text-decoration: underline; }
 
-        .crumb-right {
-            margin-left: auto;
-            display:flex;
-            align-items:center;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-        .crumb-right .meta {
-            font-size: 13px;
-            color: var(--muted);
-            font-weight: 800;
-        }
+        .crumb-right { margin-left: auto; display:flex; align-items:center; gap: 10px; flex-wrap: wrap; }
+        .crumb-right .meta { font-size: 13px; color: var(--muted); font-weight: 800; }
         .crumb-right .meta b { color: var(--text); }
-
         .crumb-right select {
-            padding:8px 10px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            background:#fff;
-            cursor:pointer;
-            font-weight: 800;
+            padding:8px 10px; border: 1px solid #ddd; border-radius: 8px;
+            background:#fff; cursor:pointer; font-weight: 800;
         }
 
         /* 카드 */
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 30px 24px;
-        }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 30px 24px; }
         .card {
-            background: transparent;
-            border: none;
-            border-radius: 0;
-            overflow: visible;
-            cursor: pointer;
-            position: relative;
-            transition: transform .2s ease;
+            background: transparent; border: none; border-radius: 0; overflow: visible;
+            cursor: pointer; position: relative; transition: transform .2s ease;
         }
         .card:hover { transform: translateY(-5px); }
 
         .thumb {
-            width: 100%;
-            height: 300px;
-            background: #f3f3f3;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: box-shadow .2s ease;
-            position: relative;
+            width: 100%; height: 300px; background: #f3f3f3; border-radius: 12px;
+            overflow: hidden; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+            display: flex; align-items: center; justify-content: center;
+            transition: box-shadow .2s ease; position: relative;
         }
         .card:hover .thumb { box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2); }
 
-        .thumb img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: block;
-        }
+        .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
         /* 전자책 배지 */
         .badge-ebook {
-            position: absolute;
-            right: 15px;
-            top: -4px;
-            width: 28px;
-            height: 45px;
-            border-radius: 2px 2px 10px 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #63BCD9;
-            color: #fff;
-            writing-mode: vertical-rl;
-            text-orientation: upright;
-            font-family: 'Gamja Flower', cursive;
-            font-weight: bold;
-            font-size: 26px;
-            letter-spacing: 1px;
-            box-shadow: 0 3px 5px rgba(0,0,0,0.2);
+            position: absolute; right: 15px; top: -4px; width: 28px; height: 45px;
+            border-radius: 2px 2px 10px 10px; display: flex; align-items: center; justify-content: center;
+            background: #63BCD9; color: #fff; writing-mode: vertical-rl; text-orientation: upright;
+            font-family: 'Gamja Flower', cursive; font-weight: bold; font-size: 26px;
+            letter-spacing: 1px; box-shadow: 0 3px 5px rgba(0,0,0,0.2);
         }
 
-        .info{
-            width: 280px;
-            max-width: 100%;
-            margin: 12px auto 0;
-            text-align: left;
-            box-sizing: border-box;
-        }
-
+        .info{ width: 280px; max-width: 100%; margin: 12px auto 0; text-align: left; box-sizing: border-box; }
         .title {
-            font-size: 15px;
-            font-weight: 700;
-            color: #111;
-            line-height: 1.4;
-            height: auto;
-            max-height: 42px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
+            font-size: 15px; font-weight: 700; color: #111; line-height: 1.4;
+            max-height: 42px; overflow: hidden; text-overflow: ellipsis;
+            display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
             margin-bottom: 4px;
         }
-        .sub {
-            font-size: 13px;
-            color: #646263;
-            margin-top: 0;
-            height: auto;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .meta-line{
-            margin-top: 6px;
-            font-size: 13px;
-            color: #444;
-            font-weight: 800;
-        }
-        .meta-line .star { color: #DCA244; }
-        .meta-line .cnt  { color: #777; font-weight: 700; }
+        .sub { font-size: 13px; color: #646263; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
         /* Hover Overlay */
         .card .hover-layer {
-            position: absolute;
-            inset: 0;
-            border-radius: 12px;
-            background: rgba(0,0,0,0.75);
-            color: #fff;
-            padding: 16px;
-            opacity: 0;
-            transition: opacity .2s ease;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
+            position: absolute; inset: 0; border-radius: 12px;
+            background: rgba(0,0,0,0.75); color: #fff; padding: 16px;
+            opacity: 0; transition: opacity .2s ease;
+            display: flex; flex-direction: column; justify-content: space-between;
         }
         .card:hover .hover-layer { opacity: 1; }
 
-        .hover-meta {
-            text-align: right;
-            font-size: 13px;
-            color: #ffd36a;
-            font-weight: 900;
-        }
+        .hover-meta { text-align: right; font-size: 13px; color: #ffd36a; font-weight: 900; }
         .hover-desc {
-            font-size: 13px;
-            line-height: 1.45;
-            color: #eee;
-            overflow: hidden;
-            display: -webkit-box;
-            -webkit-line-clamp: 6;
-            -webkit-box-orient: vertical;
+            font-size: 13px; line-height: 1.45; color: #eee;
+            overflow: hidden; display: -webkit-box; -webkit-line-clamp: 6; -webkit-box-orient: vertical;
             margin: 12px 0;
         }
 
-        .hover-actions {
-            display: flex;
-            gap: 8px;
-        }
+        .hover-actions { display: flex; gap: 8px; }
         .hover-actions button {
-            flex: 1;
-            padding: 8px 0;
-            font-size: 12px;
-            border-radius: 8px;
-            border: 1px solid #fff;
-            background: transparent;
-            color: #fff;
-            cursor: pointer;
-            font-weight: 900;
-        }
-        .hover-actions button.primary {
-            background: transparent;
-            border-color: #fff;
-            color: #fff;
+            flex: 1; padding: 8px 0; font-size: 12px;
+            border-radius: 8px; border: 1px solid #fff;
+            background: transparent; color: #fff; cursor: pointer; font-weight: 900;
         }
 
         /* 페이지네이션 */
-        .pager {
-            margin: 18px 0 8px;
-            display:flex;
-            justify-content:center;
-            gap:6px;
-            flex-wrap: wrap;
-        }
+        .pager { margin: 18px 0 8px; display:flex; justify-content:center; gap:6px; flex-wrap: wrap; }
         .pager button {
-            min-width: 36px;
-            padding: 8px 10px;
-            border: 1px solid #ddd;
-            background:#fff;
-            border-radius: 8px;
-            cursor:pointer;
-            font-weight: 900;
+            min-width: 36px; padding: 8px 10px; border: 1px solid #ddd;
+            background:#fff; border-radius: 8px; cursor:pointer; font-weight: 900;
         }
-        .pager button.active {
-            background: var(--accent);
-            color:#fff;
-            border-color: var(--accent);
-        }
-        .pager button:disabled {
-            opacity: .5;
-            cursor:not-allowed;
-        }
+        .pager button.active { background: var(--accent); color:#fff; border-color: var(--accent); }
+        .pager button:disabled { opacity: .5; cursor:not-allowed; }
 
-        .loading {
-            margin: 18px 0;
-            text-align:center;
-            color: var(--muted);
-            font-size: 14px;
-            font-weight: 900;
-        }
+        .loading { margin: 18px 0; text-align:center; color: var(--muted); font-size: 14px; font-weight: 900; }
 
         @media (max-width: 1440px) {
             .wrap { padding: 20px 12px; }
@@ -479,7 +246,7 @@
                 <button id="btnAll" class="primary" type="button">전체</button>
             </div>
 
-            <!-- 대분류 화면 -->
+            <!-- 대분류 -->
             <section id="parentView">
                 <div class="cat-box">
                     <div class="cat-title">대분류</div>
@@ -487,7 +254,7 @@
                 </div>
             </section>
 
-            <!-- 소분류 화면(드릴다운) -->
+            <!-- 소분류 -->
             <section id="childView" style="display:none;">
                 <div class="cat-head">
                     <button id="btnBackToParents" class="cat-pill" type="button" title="대분류 목록으로">
@@ -543,16 +310,9 @@
 
             <div id="loading" class="loading" style="display:none;">불러오는 중...</div>
 
-            <!-- 카드 그리드 -->
             <section id="grid" class="grid"></section>
-
-            <!-- 페이지네이션 -->
             <nav id="pager" class="pager"></nav>
-
-
         </main>
-
-
 
     </div>
 </div>
@@ -606,7 +366,7 @@
     const $breadcrumb = document.getElementById("breadcrumb");
     const $toolbar    = document.querySelector(".toolbar");
 
-    // ====== 공용 유틸 ======
+    // ====== 유틸 ======
     const esc = (s) => {
         if (s == null) return "";
         return String(s)
@@ -688,10 +448,10 @@
     function renderBreadcrumb() {
         const parts = [];
         parts.push(`
-      <a class="crumb-home" href="/book/search" title="홈으로">
-        <span aria-hidden="true">🏠</span><span>홈</span>
-      </a>
-    `);
+          <a class="crumb-home" href="/book/search" title="홈으로">
+            <span aria-hidden="true">🏠</span><span>홈</span>
+          </a>
+        `);
 
         if (state.parentName) {
             parts.push(`<span class="crumb-sep">&rsaquo;</span>`);
@@ -713,10 +473,8 @@
                     state.page = 1;
                     state.genreId = null;
                     state.childName = null;
-
                     setView("CHILD");
                     clearActive($childList);
-
                     renderBreadcrumb();
                     load();
                 }
@@ -776,7 +534,6 @@
 
     async function loadChildGenres(parentGenreId) {
         $childList.innerHTML = `<li style="font-size:12px; color:#777; padding:6px 2px;">불러오는 중...</li>`;
-
         const list = await fetchJson(`${GENRE_API}/children?parentId=${encodeURIComponent(parentGenreId)}`);
         if (!list) return;
 
@@ -812,7 +569,6 @@
 
     async function loadForeignParentsAsChildren() {
         $childList.innerHTML = `<li style="font-size:12px;color:#777;padding:6px 2px;">불러오는 중...</li>`;
-
         const list = await fetchJson(`${GENRE_API}/foreign/parents?top=19`);
         if (!list) return;
 
@@ -852,12 +608,11 @@
         });
     }
 
-    // ====== 별점/리뷰 렌더 ======
+    // ====== 별점/리뷰 ======
     function formatRating(v) {
         if (v == null || Number.isNaN(Number(v))) return "-";
         return Number(v).toFixed(1);
     }
-
     function buildHoverMetaText(ratingAvg, reviewCnt) {
         const r = formatRating(ratingAvg);
         const c = (reviewCnt == null ? 0 : Number(reviewCnt));
@@ -865,13 +620,12 @@
     }
 
     // ====== 결과 렌더 ======
-    // ====== 결과 렌더 ======
     function renderGrid(items) {
         if (!items || items.length === 0) {
             $grid.innerHTML = `
-      <div style="grid-column:1/-1; text-align:center; color:#777; padding:30px;">
-        검색 결과가 없습니다.
-      </div>`;
+              <div style="grid-column:1/-1; text-align:center; color:#777; padding:30px;">
+                검색 결과가 없습니다.
+              </div>`;
             return;
         }
 
@@ -885,55 +639,67 @@
             const ratingAvg = it.ratingAvg ?? null;
             const reviewCnt = it.reviewCnt ?? 0;
 
-            // ✅ 여기서 bookmarked 정의 (백엔드 필드명에 맞춰 모두 대응)
             const bookmarked =
                 (it.bookmarkedYn === "Y") ||
                 (it.bookmarked === true) ||
                 (it.bookmarked === "true") ||
                 (it.bookmarked === "Y");
 
+            // ✅ 장바구니 여부 (백엔드 필드명들 커버)
+            const inCart =
+                (it.myCartYn === "Y") ||
+                (it.inCart === true) ||
+                (it.inCart === "true") ||
+                (it.inCart === "Y");
+
             const hoverMeta = buildHoverMetaText(ratingAvg, reviewCnt);
 
             return `
-      <article class="card" data-isbn="${esc(it.isbn13)}">
-        <div class="thumb">
-          ${img ? `<img src="${esc(img)}" alt="${title}"/>` : ``}
-          ${it.ebookYn === "Y" ? `<div class="badge-ebook">E</div>` : ``}
+              <article class="card" data-isbn="${esc(it.isbn13)}">
+                <div class="thumb">
+                  ${img ? `<img src="${esc(img)}" alt="${title}"/>` : ``}
+                  ${it.ebookYn === "Y" ? `<div class="badge-ebook">E</div>` : ``}
 
-          <div class="hover-layer">
-            <div>
-              <div class="hover-desc">${desc}</div>
-              <div class="hover-meta">${esc(hoverMeta)}</div>
-            </div>
+                  <div class="hover-layer">
+                    <div>
+                      <div class="hover-desc">${desc}</div>
+                      <div class="hover-meta">${esc(hoverMeta)}</div>
+                    </div>
 
-            <div class="hover-actions">
-              ${buildRentButton(it)}
-              <button type="button" class="btn-cart">장바구니</button>
+                    <div class="hover-actions">
+                      ${buildRentButton(it)}
 
-              <button
-                type="button"
-                class="btn-bookmark"
-                data-bookmarked="${bookmarked ? "true" : "false"}"
-              >${bookmarked ? "북마크✓" : "북마크"}</button>
-            </div>
-          </div>
-        </div>
+                      <!-- ✅ data-incart 반드시 넣기 -->
+                      <button type="button" class="btn-cart" data-incart="${inCart ? "true" : "false"}">
+                        ${inCart ? "담김✓" : "장바구니"}
+                      </button>
 
-        <div class="info">
-          <div class="title">${title}</div>
-          <div class="sub">${authors.replace(/\^/g, " · ")} ｜ ${publisher}</div>
-        </div>
-      </article>
-    `;
+                      <button
+                        type="button"
+                        class="btn-bookmark"
+                        data-bookmarked="${bookmarked ? "true" : "false"}"
+                      >${bookmarked ? "북마크✓" : "북마크"}</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="info">
+                  <div class="title">${title}</div>
+                  <div class="sub">${authors.replace(/\^/g, " · ")} ｜ ${publisher}</div>
+                </div>
+              </article>
+            `;
         }).join("");
 
-        // ✅ 렌더 직후: 북마크 버튼 스타일/텍스트 확실히 동기화
+        // ✅ 렌더 직후 UI 동기화
         $grid.querySelectorAll(".btn-bookmark").forEach(btn => {
-            const bookmarked = btn.dataset.bookmarked === "true";
-            setBookmarkUI(btn, bookmarked);
+            setBookmarkUI(btn, btn.dataset.bookmarked === "true");
+        });
+        $grid.querySelectorAll(".btn-cart").forEach(btn => {
+            setCartUI(btn, btn.dataset.incart === "true");
         });
 
-        // 카드 클릭 → 상세 (버튼 클릭은 위임에서 막음)
+        // 카드 클릭 → 상세
         $grid.querySelectorAll(".card").forEach(card => {
             card.addEventListener("click", (e) => {
                 if (e.target.closest("button")) return;
@@ -942,7 +708,6 @@
             });
         });
     }
-
 
     function renderPager(page, totalPages) {
         $pager.innerHTML = "";
@@ -955,30 +720,21 @@
         const prevBtn = document.createElement("button");
         prevBtn.textContent = "◀";
         prevBtn.disabled = groupStart === 1;
-        prevBtn.onclick = () => {
-            state.page = groupStart - 1;
-            load();
-        };
+        prevBtn.onclick = () => { state.page = groupStart - 1; load(); };
         $pager.appendChild(prevBtn);
 
         for (let p = groupStart; p <= groupEnd; p++) {
             const btn = document.createElement("button");
             btn.textContent = String(p);
             if (p === page) btn.classList.add("active");
-            btn.onclick = () => {
-                state.page = p;
-                load();
-            };
+            btn.onclick = () => { state.page = p; load(); };
             $pager.appendChild(btn);
         }
 
         const nextBtn = document.createElement("button");
         nextBtn.textContent = "▶";
         nextBtn.disabled = groupEnd === totalPages;
-        nextBtn.onclick = () => {
-            state.page = groupEnd + 1;
-            load();
-        };
+        nextBtn.onclick = () => { state.page = groupEnd + 1; load(); };
         $pager.appendChild(nextBtn);
     }
 
@@ -996,19 +752,18 @@
             renderGrid(data.items || []);
             renderPager(data.page || 1, data.totalPages || 1);
             scrollToTopOfResult();
-
         } catch (e) {
             console.error(e);
             $grid.innerHTML = `
-        <div style="grid-column:1/-1; text-align:center; color:#b00; padding:30px;">
-          데이터를 불러오지 못했습니다. 콘솔/로그를 확인하세요.
-        </div>`;
+              <div style="grid-column:1/-1; text-align:center; color:#b00; padding:30px;">
+                데이터를 불러오지 못했습니다. 콘솔/로그를 확인하세요.
+              </div>`;
         } finally {
             $loading.style.display = "none";
         }
     }
 
-    // ====== 북마크/장바구니 ======
+    // ====== 북마크/장바구니 UI ======
     function setBookmarkUI(btn, bookmarked) {
         btn.dataset.bookmarked = bookmarked ? "true" : "false";
         btn.textContent = bookmarked ? "북마크✓" : "북마크";
@@ -1034,10 +789,44 @@
                 return null;
             }
             if (!res.ok) throw new Error("HTTP " + res.status);
-            return await res.json();
+            return await res.json(); // { bookmarked: true/false }
         } catch (e) {
             console.error(e);
             alert("처리 중 오류가 발생했습니다.");
+            return null;
+        }
+    }
+
+    function setCartUI(btn, inCart) {
+        btn.dataset.incart = inCart ? "true" : "false";
+        btn.textContent = inCart ? "담김✓" : "장바구니";
+        if (inCart) {
+            btn.style.background = "rgba(255,255,255,0.2)";
+            btn.style.borderColor = "#ffd36a";
+        } else {
+            btn.style.background = "transparent";
+            btn.style.borderColor = "#fff";
+        }
+    }
+
+    async function toggleCart(isbn13) {
+        try {
+            const res = await fetch(`/book/cart/${encodeURIComponent(isbn13)}/toggle`, {
+                method: "POST",
+                headers: { "Accept": "application/json" }
+            });
+
+            const ct = res.headers.get("content-type") || "";
+            if (res.status === 401 || res.status === 403 || ct.includes("text/html")) {
+                goLoginReturnHere();
+                return null;
+            }
+            if (!res.ok) throw new Error("HTTP " + res.status);
+
+            return await res.json(); // { inCart: true/false }
+        } catch (e) {
+            console.error(e);
+            alert("장바구니 처리 중 오류가 발생했습니다.");
             return null;
         }
     }
@@ -1070,38 +859,31 @@
         }
     }
 
+    // ====== 대여 버튼 ======
     function buildRentButton(it) {
-        // 1. 내가 대여중
         if (it.myLendYn === "Y") {
             if (it.myExtendYn === "Y") {
-                return `<button type="button" class="btn-rent btn-extend"
-                        data-lend-id="${it.myLendId}">연장하기</button>`;
+                return `<button type="button" class="btn-rent btn-extend" data-lend-id="${it.myLendId}">연장하기</button>`;
             }
             return `<button type="button" class="btn-rent" disabled>대여중</button>`;
         }
 
-        // 2. 대여 가능
         if (it.availableCnt > 0) {
             return `<button type="button" class="btn-rent btn-lend">대여하기</button>`;
         }
 
-        // 3. 예약 관련
         if (it.myRsvYn === "Y") {
-            return `<button type="button" class="btn-rent btn-rsv-cancel"
-                    data-rsv-id="${it.myRsvId}">예약취소</button>`;
+            return `<button type="button" class="btn-rent btn-rsv-cancel" data-rsv-id="${it.myRsvId}">예약취소</button>`;
         }
 
-        // 4. 예약 불가 조건
         if (it.userBlockedYn === "Y" || it.userOverdueYn === "Y" || it.rsvLimitYn === "Y") {
             return `<button type="button" class="btn-rent" disabled>예약 불가</button>`;
         }
 
-        // 5. 예약 가능
         return `<button type="button" class="btn-rent btn-rsv">예약하기</button>`;
     }
 
-
-    // ====== 이벤트 바인딩 ======
+    // ====== 이벤트 ======
     function bindEvents() {
         $btnPaper.addEventListener("click", () => {
             $btnPaper.classList.add("active");
@@ -1173,13 +955,13 @@
             load();
         });
 
-        // ✅ 이벤트 위임: 대여하기 + 장바구니 + 북마크
+        // ✅ 이벤트 위임
         $grid.addEventListener("click", async (e) => {
             const card = e.target.closest(".card");
             const isbn13 = card?.getAttribute("data-isbn");
             if (!isbn13) return;
 
-            // ✅ 대여하기: 장바구니 담기 → 결제/대여 페이지 이동
+            // ✅ 대여하기: 장바구니 담기 후 이동
             const btnRent = e.target.closest(".btn-rent");
             if (btnRent) {
                 e.preventDefault();
@@ -1190,8 +972,6 @@
                 try {
                     const result = await addToCart(isbn13);
                     if (result?.needLogin) return;
-
-                    // 담기 성공(또는 이미 담겨있어도 IGNORE라 ok) 후 장바구니로 이동
                     location.href = "/book/cart";
                 } finally {
                     btnRent.disabled = false;
@@ -1199,7 +979,7 @@
                 return;
             }
 
-            // 장바구니(담기만)
+            // ✅ 장바구니 토글
             const btnCart = e.target.closest(".btn-cart");
             if (btnCart) {
                 e.preventDefault();
@@ -1208,18 +988,16 @@
                 btnCart.disabled = true;
 
                 try {
-                    const result = await addToCart(isbn13);
-                    if (result?.ok) {
-                        btnCart.textContent = "담김✓";
-                        setTimeout(() => (btnCart.textContent = "장바구니"), 800);
-                    }
+                    const data = await toggleCart(isbn13);
+                    if (!data) return;
+                    setCartUI(btnCart, !!data.inCart);
                 } finally {
                     btnCart.disabled = false;
                 }
                 return;
             }
 
-            // 북마크
+            // ✅ 북마크 토글
             const bmBtn = e.target.closest(".btn-bookmark");
             if (bmBtn) {
                 e.preventDefault();
@@ -1234,6 +1012,7 @@
                 } finally {
                     bmBtn.disabled = false;
                 }
+                return;
             }
 
             // ===== 대여 / 예약 / 연장 =====
@@ -1246,7 +1025,6 @@
                     headers: {"Content-Type":"application/x-www-form-urlencoded"},
                     body: `isbn13=${encodeURIComponent(isbn13)}`
                 });
-
                 if (res.ok) load();
                 return;
             }
@@ -1260,7 +1038,6 @@
                     headers: {"Content-Type":"application/x-www-form-urlencoded"},
                     body: `isbn13=${encodeURIComponent(isbn13)}`
                 });
-
                 if (res.ok) load();
                 return;
             }
@@ -1275,7 +1052,6 @@
                     headers: {"Content-Type":"application/x-www-form-urlencoded"},
                     body: `rsvId=${encodeURIComponent(rsvId)}`
                 });
-
                 if (res.ok) load();
                 return;
             }
@@ -1290,13 +1066,10 @@
                     headers: {"Content-Type":"application/x-www-form-urlencoded"},
                     body: `lendId=${encodeURIComponent(lendId)}`
                 });
-
                 if (res.ok) load();
                 return;
             }
-
         });
-
     }
 
     // ====== 초기화 ======
@@ -1307,17 +1080,12 @@
         $size.value = String(state.size);
         $field.value = state.field;
 
-        try {
-            await loadParentGenres();
-        } catch (e) {
-            console.error(e);
-        }
+        try { await loadParentGenres(); } catch (e) { console.error(e); }
 
         setView("PARENT");
         renderBreadcrumb();
         load();
     })();
-
 </script>
 
 <div th:replace="fragments/footer :: footer"></div>

@@ -5,11 +5,11 @@ import com.booknara.booknaraPrj.ebook.dto.MyEBookItemDTO;
 import com.booknara.booknaraPrj.ebook.dto.SaveCfiRequest;
 import com.booknara.booknaraPrj.ebook.service.EBookService;
 import com.booknara.booknaraPrj.ebook.service.GoogleDictionaryService;
-import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -24,12 +24,11 @@ public class EBookController {
     private final EBookService service;
 
     @GetMapping("/ebook")
-    public String ebookView(HttpSession session,
+    public String ebookView(Authentication auth,
                             Model model) throws IOException {
         // DB에서 회원의 현재 대여중인 전자책 정보 가져오기
-        //String user = (String) session.getAttribute("user_id");
-        //List<MyEBookItemDTO> e_list = service.findEBookList(user);
-        List<MyEBookItemDTO> e_list = service.findEBookList("SMY_TEST");
+        String userId = auth.getName();
+        List<MyEBookItemDTO> e_list = service.findEBookList(userId);
         e_list.forEach(System.out::println);
 
         model.addAttribute("myEbookList", e_list);
@@ -39,9 +38,9 @@ public class EBookController {
 
     @GetMapping("/ebook/{bookid}")
     public String ebookView(@PathVariable("bookid") long bookid,
-                            HttpSession session,
+                            Authentication auth,
                             Model model) throws IOException {
-        String userId = "SMY_TEST";
+        String userId = auth.getName();
         // 검증
         boolean hasAccess = service.canReadBook(userId, bookid);
         if (!hasAccess) {
@@ -96,10 +95,10 @@ public class EBookController {
     @ResponseBody
     @PutMapping("/ebook/history/{isbn}")
     public ResponseEntity<Void> saveCfi(@PathVariable("isbn") String isbn,
-                          @RequestBody @Valid SaveCfiRequest req,
-                          HttpSession session) {
+                                        @RequestBody @Valid SaveCfiRequest req,
+                                        Authentication auth) {
         // 세션에서 유저 정보 받아오기
-        String userId = "SMY_TEST";
+        String userId = auth.getName();
 
         boolean hasAccess = service.canReadBook(userId, isbn);
         if(hasAccess) {

@@ -5,7 +5,9 @@ import com.booknara.booknaraPrj.login_signup.User;
 import com.booknara.booknaraPrj.mypage.mylibrary.MyLendDto;
 import com.booknara.booknaraPrj.mypage.mylibrary.MyLibraryService;
 import com.booknara.booknaraPrj.security.CustomUserDetails;
+import com.booknara.booknaraPrj.security.CustomUserDetailsService;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,11 +18,13 @@ import java.util.*;
 @Controller
 public class MyPageController {
 
-    private final UserService userService;
+//    private final UserService userService;
+    private final CustomUserDetailsService customUserDetailsService;
     private final MyLibraryService myLibraryService;
 
-    public MyPageController(UserService userService, MyLibraryService myLibraryService) {
-        this.userService = userService;
+    public MyPageController(UserService userService, CustomUserDetailsService customUserDetailsService, MyLibraryService myLibraryService) {
+        this.customUserDetailsService = customUserDetailsService;
+//        this.userService = userService;
         this.myLibraryService = myLibraryService;
     }
 
@@ -32,7 +36,7 @@ public class MyPageController {
         String userId = principal.getUserId();
 
         // 1) 유저 기본 정보
-        User user = userService.getUserById(userId);
+        UserDetails user = customUserDetailsService.loadUserByUsername(userId);
         model.addAttribute("user", user);
 
         // 2) 프로필

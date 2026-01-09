@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-@Repository
+
 public interface AdminBookIsbnRepository extends JpaRepository<AdminBookIsbn, String> {
     // 기본 save, findById 등을 제공하므로 추가 메서드 없이도 등록이 가능합니다.
 

@@ -1,7 +1,7 @@
 package com.booknara.booknaraPrj.security;
 
 import com.booknara.booknaraPrj.login_signup.User;
-import com.booknara.booknaraPrj.login_signup.UserMapper;
+import com.booknara.booknaraPrj.login_signup.mapper.UserMapper;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;

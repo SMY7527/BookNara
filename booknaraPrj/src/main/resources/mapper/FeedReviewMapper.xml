@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.booknara.booknaraPrj.feed.review.mapper.FeedReviewMapper">
+
+    <!-- 요약: 평균/개수 -->
+    <select id="selectSummaryByIsbn"
+            resultType="com.booknara.booknaraPrj.feed.review.dto.ReviewSummaryDTO">
+        SELECT
+            f.ISBN13               AS isbn13,
+            COUNT(*)               AS reviewCnt,
+            ROUND(AVG(rd.RATE), 1) AS ratingAvg
+        FROM FEEDS f
+                 JOIN REVIEW_DETAIL rd ON rd.FEED_ID = f.FEED_ID
+        WHERE f.FEED_CATEGORY = 'REVIEW'
+          AND f.IS_DELETED = 'N'
+          AND f.IS_BLIND   = 'N'
+          AND f.ISBN13 = #{isbn13}
+        GROUP BY f.ISBN13
+    </select>
+
+    <select id="countByIsbn" resultType="long">
+        SELECT COUNT(*)
+        FROM FEEDS f
+                 JOIN REVIEW_DETAIL rd ON rd.FEED_ID = f.FEED_ID
+        WHERE f.FEED_CATEGORY = 'REVIEW'
+          AND f.IS_DELETED = 'N'
+          AND f.IS_BLIND   = 'N'
+          AND f.ISBN13 = #{isbn13}
+    </select>
+
+    <!-- 목록: 작성자 정보까지(USERS 조인) -->
+    <select id="selectPageByIsbn"
+            resultType="com.booknara.booknaraPrj.feed.review.dto.ReviewItemDTO">
+        SELECT
+            f.FEED_ID       AS feedId,
+            f.ISBN13        AS isbn13,
+            f.USER_ID       AS userId,
+            u.PROFILE_NM    AS profileNm,
+            u.PROFILE_IMG   AS profileImg,
+            u.USE_IMG       AS useImg,
+            rd.RATE         AS rate,
+            f.FEED_TITLE    AS title,
+            f.CONTENT       AS content,
+            f.CREATED_AT    AS createdAt
+        FROM FEEDS f
+                 JOIN REVIEW_DETAIL rd ON rd.FEED_ID = f.FEED_ID
+                 JOIN USERS u ON u.USER_ID = f.USER_ID
+        WHERE f.FEED_CATEGORY = 'REVIEW'
+          AND f.IS_DELETED = 'N'
+          AND f.IS_BLIND   = 'N'
+          AND f.ISBN13 = #{isbn13}
+        ORDER BY f.CREATED_AT DESC
+            LIMIT #{offset}, #{size}
+    </select>
+
+</mapper>

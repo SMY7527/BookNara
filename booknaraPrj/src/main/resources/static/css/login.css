@@ -170,3 +170,42 @@ body {
             color: #555;
             font-weight: 600;
         }
+
+        /* 카카오 풀버튼 */
+        .kakao-full-btn {
+          width: 100%;
+          height: 52px;
+
+          background: #FEE500;
+          border-radius: 12px;
+
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 12px;
+
+          text-decoration: none;
+          cursor: pointer;
+        }
+
+        /* 카카오 말풍선 아이콘 */
+        .kakao-icon {
+          width: 22px;
+          height: 22px;
+          background-image: url("/images/kakao_icon.png");
+          background-size: contain;
+          background-repeat: no-repeat;
+          background-position: center;
+        }
+
+        /* 버튼 텍스트 */
+        .kakao-text {
+          font-size: 16px;
+          font-weight: 600;
+          color: #000;
+        }
+
+        /* hover */
+        .kakao-full-btn:hover {
+          background: #f7dc00;
+        }

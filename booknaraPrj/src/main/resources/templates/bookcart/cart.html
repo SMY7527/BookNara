@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>장바구니</title>
+    <style>
+        .wrap{max-width:1100px;margin:24px auto;padding:0 16px;display:flex;gap:24px;}
+        .left{flex:1;}
+        .right{width:320px;border:1px solid #e5e5e5;border-radius:10px;padding:16px;height:fit-content;}
+        .row{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid #eee;align-items:center;}
+        .thumb{width:70px;height:100px;object-fit:cover;border-radius:8px;background:#f3f3f3;}
+        .title{font-weight:700;}
+        .meta{color:#666;font-size:13px;margin-top:4px;}
+        .badge{display:inline-block;font-size:12px;padding:2px 8px;border:1px solid #ddd;border-radius:999px;margin-top:6px;}
+        button{cursor:pointer;}
+    </style>
+</head>
+<body>
+
+<div class="wrap">
+    <div class="left">
+        <h2>장바구니</h2>
+
+        <div style="margin:12px 0;">
+            <button onclick="clearAll()">전체 비우기</button>
+        </div>
+
+        <div th:if="${#lists.isEmpty(items)}" style="color:#666;">
+            장바구니가 비어있습니다.
+        </div>
+
+        <div th:each="it : ${items}" class="row">
+            <!-- 네이버 우선 / 없으면 알라딘 -->
+            <img class="thumb"
+                 th:src="${#strings.isEmpty(it.naverImage) ? it.aladinImageBig : it.naverImage}"
+                 alt="cover"/>
+
+            <div style="flex:1;">
+                <div class="title" th:text="${it.bookTitle}">제목</div>
+                <div class="meta" th:text="${it.authors}">저자</div>
+                <div class="badge" th:text="${it.ebookYn == 'Y' ? '전자책' : '종이책'}">구분</div>
+            </div>
+
+            <div>
+                <button th:attr="data-id=${it.cartId}" onclick="removeItem(this)">삭제</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="right">
+        <h3>요약</h3>
+        <div style="margin-top:8px;color:#333;">대여기간: <b>14일</b></div>
+        <div style="margin-top:8px;color:#666;font-size:13px;">
+            * 배송비/결제는 다음 단계에서 계산
+        </div>
+    </div>
+</div>
+
+<script>
+    function removeItem(btn){
+        fetch('/book/cart/remove', {
+            method:'POST',
+            headers:{'Content-Type':'application/x-www-form-urlencoded'},
+            body:'cartId=' + encodeURIComponent(btn.dataset.id)
+        }).then(()=>location.reload());
+    }
+
+    function clearAll(){
+        fetch('/book/cart/clear', { method:'POST' })
+            .then(()=>location.reload());
+    }
+</script>
+
+</body>
+</html>

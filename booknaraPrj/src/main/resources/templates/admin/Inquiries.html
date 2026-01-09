@@ -2,50 +2,43 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>도서 대여 시스템 - 문의/신고 관리</title>
+    <title>도서 대여 시스템 - 통합 문의/신고 관리</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
     <style>
-        /* [1] 공통 테마 설정 */
         :root { --main-color: #DCA244; --hover-color: #C8903A; }
         .bg-main { background-color: var(--main-color); }
         .text-main { color: var(--main-color); }
 
-        /* [2] 사이드바 네비게이션 스타일 */
         .nav-item { display: flex; align-items: center; gap: 12px; padding: 16px 24px; cursor: pointer; transition: all 0.2s; color: rgba(255,255,255,0.7); font-weight: 500; }
         .nav-item:hover { background-color: rgba(255,255,255,0.1); color: white; }
         .active-tab { background-color: rgba(255, 255, 255, 0.15); border-left: 4px solid white; color: white; font-weight: 700; }
 
-        /* [3] 필터 버튼 시스템 */
-        .filter-group { display: flex; gap: 10px; padding: 6px; background: white; border-radius: 18px; border: 1px solid #E5E7EB; box-shadow: 0 1px 2px rgba(0,0,0,0.05); width: fit-content; }
-        .filter-btn { padding: 10px 24px; border-radius: 14px; font-size: 14px; font-weight: 700; color: #6B7280; transition: all 0.2s; display: flex; align-items: center; gap: 8px; white-space: nowrap; }
-        .filter-btn:hover { background-color: #F9FAFB; color: #374151; }
-        .filter-btn.active { background-color: var(--main-color); color: white; box-shadow: 0 4px 12px rgba(220, 162, 68, 0.2); }
-
-        /* [4] 검색 및 테이블 영역 */
-        .search-container { background: white; padding: 16px; border-radius: 20px; border: 1px solid #E5E7EB; display: flex; gap: 12px; margin-bottom: 24px; }
         .table-container { background: white; border-radius: 24px; border: 1px solid #E5E7EB; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.05); min-height: 400px; }
-        .th-style { padding: 18px 24px; font-size: 12px; font-weight: 800; color: #9CA3AF; text-transform: uppercase; background: #F9FAFB; border-bottom: 1px solid #E5E7EB; }
+        .th-style { padding: 18px 24px; font-size: 12px; font-weight: 800; color: #9CA3AF; text-transform: uppercase; background: #F9FAFB; border-bottom: 1px solid #E5E7EB; transition: background 0.2s; }
         .td-style { padding: 16px 24px; border-bottom: 1px solid #F3F4F6; }
 
-        /* [5] 요약 카드 */
-        .summary-card { padding: 20px 24px; border-radius: 20px; border: 1px solid #E5E7EB; display: flex; align-items: center; justify-content: space-between; background: white; transition: all 0.2s; }
+        .summary-card { padding: 20px 24px; border-radius: 20px; border: 1px solid #E5E7EB; display: flex; align-items: center; justify-content: space-between; background: white; transition: all 0.2s; cursor: pointer; border-bottom: 4px solid transparent; }
         .summary-card:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
+        .active-card { border-bottom: 4px solid var(--main-color) !important; background-color: #FDFBF7 !important; }
 
         .badge-custom { padding: 5px 14px; border-radius: 9999px; font-size: 11px; font-weight: 800; }
         .badge-waiting { background-color: #FFEDD5; color: #EA580C; }
         .badge-done { background-color: #DCFCE7; color: #166534; }
 
         .btn-main { background-color: var(--main-color); color: white; padding: 10px 28px; border-radius: 12px; font-weight: bold; transition: all 0.2s; border: none; cursor: pointer; }
-        .action-btn { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 8px; color: #9CA3AF; transition: all 0.2s; }
+        .action-btn { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 8px; color: #9CA3AF; transition: all 0.2s; background: none; border: none; cursor: pointer; }
         .action-btn:hover { background-color: #F3F4F6; color: var(--main-color); }
 
-        /* [6] 페이지네이션 스타일 보완 */
-        .pagination-btn { width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; border-radius: 10px; font-size: 13px; font-weight: 700; color: #9CA3AF; transition: all 0.2s; cursor: pointer; border: none; background: transparent; }
-        .pagination-btn:hover:not(:disabled) { background-color: #F3F4F6; color: #374151; }
+        .pagination-btn { width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; border-radius: 10px; font-size: 13px; font-weight: 700; color: #9CA3AF; transition: all 0.2s; cursor: pointer; border: none; background: transparent; text-decoration: none; }
+        .pagination-btn:hover:not(.disabled) { background-color: #F3F4F6; color: #374151; }
         .pagination-btn.active { background-color: var(--main-color); color: white; box-shadow: 0 4px 10px rgba(220, 162, 68, 0.2); }
-        .pagination-btn:disabled { opacity: 0.2; cursor: not-allowed; }
+        .pagination-btn.disabled { opacity: 0.3; cursor: not-allowed; pointer-events: none; }
+
+        .sort-link { display: inline-flex; flex-direction: column; vertical-align: middle; margin-left: 6px; line-height: 0.7; }
+        .sort-link i { font-size: 10px; color: #D1D5DB; }
+        .sort-link i.active { color: var(--main-color); }
     </style>
 </head>
 <body class="bg-gray-50 flex h-screen overflow-hidden">
@@ -75,46 +68,68 @@
 
 <main class="flex-1 overflow-y-auto p-10 bg-[#FBFBFD]" id="mainContent">
     <div class="mb-8">
-        <h2 class="text-3xl font-extrabold text-gray-800 tracking-tight">문의 및 신고 관리</h2>
-        <p class="text-gray-400 mt-2 font-medium">사용자들의 민원 및 시스템 신고 사항을 신속하게 처리하세요.</p>
+        <h2 class="text-3xl font-extrabold text-gray-800 tracking-tight">통합 문의 및 신고 관리</h2>
+        <p class="text-gray-400 mt-2 font-medium">문의와 신고 내역을 통합 관리합니다. 카드를 클릭하여 상태별 필터링이 가능합니다.</p>
     </div>
 
-    <div class="grid grid-cols-3 gap-6 mb-8">
-        <a th:href="@{/admin/Inquiries(filter='pending')}"
-           class="summary-card shadow-sm border-l-4 border-l-orange-400 hover:bg-orange-50 transition-colors">
+    <div class="grid grid-cols-4 gap-4 mb-8">
+        <div class="summary-card shadow-sm border-l-4 border-l-blue-400"
+             th:with="nextType=${currentType == 'INQUIRY' ? 'ALL' : 'INQUIRY'}"
+             th:onclick="|location.href='@{/admin/Inquiries(type=${nextType}, status=${currentStatus}, sortField=${sortField}, sortDir=${sortDir}, keyword=${keyword})}'|"
+             th:classappend="${currentType == 'INQUIRY'} ? 'active-card' : ''">
             <div>
-                <p class="text-gray-400 text-[10px] font-bold mb-1 uppercase tracking-tighter">Pending</p>
-                <p class="text-orange-600 font-black text-2xl" th:text="${stats.pendingCount}">0</p>
+                <p class="text-gray-400 text-[10px] font-bold mb-1 uppercase tracking-tighter">일반 문의</p>
+                <p class="text-blue-600 font-black text-2xl" th:text="${totalInquiryCount}">0</p>
             </div>
-            <div class="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center text-orange-400"><i class="fas fa-envelope-open-text"></i></div>
-        </a>
-
-        <a th:href="@{/admin/Inquiries(filter='resolved')}"
-           class="summary-card shadow-sm border-l-4 border-l-green-400 hover:bg-green-50 transition-colors">
+            <div class="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center text-blue-400"><i class="fas fa-question-circle"></i></div>
+        </div>
+        <div class="summary-card shadow-sm border-l-4 border-l-red-400"
+             th:with="nextType=${currentType == 'REPORT' ? 'ALL' : 'REPORT'}"
+             th:onclick="|location.href='@{/admin/Inquiries(type=${nextType}, status=${currentStatus}, sortField=${sortField}, sortDir=${sortDir}, keyword=${keyword})}'|"
+             th:classappend="${currentType == 'REPORT'} ? 'active-card' : ''">
             <div>
-                <p class="text-gray-400 text-[10px] font-bold mb-1 uppercase tracking-tighter">Resolved</p>
-                <p class="text-green-600 font-black text-2xl" th:text="${stats.resolvedCount}">0</p>
+                <p class="text-gray-400 text-[10px] font-bold mb-1 uppercase tracking-tighter">콘텐츠 신고</p>
+                <p class="text-red-600 font-black text-2xl" th:text="${totalReportCount}">0</p>
+            </div>
+            <div class="w-10 h-10 bg-red-50 rounded-xl flex items-center justify-center text-red-400"><i class="fas fa-exclamation-triangle"></i></div>
+        </div>
+        <div class="summary-card shadow-sm border-l-4 border-l-orange-400"
+             th:with="nextStatus=${currentStatus == 'N' ? 'ALL' : 'N'}"
+             th:onclick="|location.href='@{/admin/Inquiries(type=${currentType}, status=${nextStatus}, sortField=${sortField}, sortDir=${sortDir}, keyword=${keyword})}'|"
+             th:classappend="${currentStatus == 'N'} ? 'active-card' : ''">
+            <div>
+                <p class="text-gray-400 text-[10px] font-bold mb-1 uppercase tracking-tighter">전체 대기</p>
+                <p class="text-orange-600 font-black text-2xl" th:text="${totalPendingCount}">0</p>
+            </div>
+            <div class="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center text-orange-400"><i class="fas fa-clock"></i></div>
+        </div>
+        <div class="summary-card shadow-sm border-l-4 border-l-green-400"
+             th:with="nextStatus=${currentStatus == 'Y' ? 'ALL' : 'Y'}"
+             th:onclick="|location.href='@{/admin/Inquiries(type=${currentType}, status=${nextStatus}, sortField=${sortField}, sortDir=${sortDir}, keyword=${keyword})}'|"
+             th:classappend="${currentStatus == 'Y'} ? 'active-card' : ''">
+            <div>
+                <p class="text-gray-400 text-[10px] font-bold mb-1 uppercase tracking-tighter">전체 완료</p>
+                <p class="text-green-600 font-black text-2xl" th:text="${totalResolvedCount}">0</p>
             </div>
             <div class="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center text-green-400"><i class="fas fa-check-double"></i></div>
-        </a>
-    </div>
-
-    <div class="mb-4" th:if="${currentFilter != null}">
-        <a th:href="@{/admin/Inquiries}" class="text-sm text-blue-500 hover:underline">
-            <i class="fas fa-sync-alt"></i> 필터 해제 (전체 보기)
-        </a>
-    </div>
-
-
-    <div class="flex items-center justify-between mb-6">
-        <div class="filter-group">
-            <button class="filter-btn active">전체 보기</button>
-            <button class="filter-btn">일반 문의</button>
-            <button class="filter-btn">도서 신고</button>
         </div>
-        <form class="flex gap-3">
-            <input type="text" placeholder="검색어 입력..." class="px-5 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#DCA244]/20 outline-none w-64 transition-all">
-            <button type="button" class="btn-main text-sm py-2 px-6">검색</button>
+    </div>
+
+    <div class="mb-6 flex justify-end">
+        <form th:action="@{/admin/Inquiries}" method="get" class="relative w-full max-w-md flex gap-2">
+            <input type="hidden" name="type" th:value="${currentType}">
+            <input type="hidden" name="status" th:value="${currentStatus}">
+            <input type="hidden" name="sortField" th:value="${sortField}">
+            <input type="hidden" name="sortDir" th:value="${sortDir}">
+            <div class="relative flex-1">
+                <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-gray-400">
+                    <i class="fas fa-search text-sm"></i>
+                </span>
+                <input type="text" name="keyword" th:value="${keyword}"
+                       class="w-full bg-white border border-gray-200 rounded-2xl py-3 pl-11 pr-4 text-sm focus:ring-2 focus:ring-[#DCA244]/20 focus:border-main outline-none transition-all shadow-sm"
+                       placeholder="작성자 아이디로 검색...">
+            </div>
+            <button type="submit" class="btn-main shadow-md shadow-[#DCA244]/20">검색</button>
         </form>
     </div>
 
@@ -122,95 +137,133 @@
         <table class="w-full text-left">
             <thead>
             <tr>
-                <th class="th-style w-24 text-center">ID</th>
+                <th class="th-style w-24 text-center">통합 ID</th>
                 <th class="th-style">유형 / 제목</th>
-                <th class="th-style w-40">작성자</th>
-                <th class="th-style w-32 text-center">상태</th>
-                <th class="th-style w-40 text-center">등록일</th>
+                <th class="th-style w-32">작성자</th>
+                <th class="th-style w-28 text-center">상태</th>
+                <th class="th-style w-40 text-center cursor-pointer hover:bg-gray-100"
+                    th:with="nextDir=${sortField == 'regDate' && sortDir == 'asc' ? 'desc' : 'asc'}"
+                    th:onclick="|location.href='@{/admin/Inquiries(type=${currentType}, status=${currentStatus}, keyword=${keyword}, sortField='regDate', sortDir=${nextDir})}'|">
+                    <div class="flex items-center justify-center gap-1">
+                        등록일
+                        <span class="sort-link">
+                            <i class="fas fa-caret-up" th:classappend="${sortField == 'regDate' && sortDir == 'asc'} ? 'active' : ''"></i>
+                            <i class="fas fa-caret-down" th:classappend="${sortField == 'regDate' && sortDir == 'desc'} ? 'active' : ''"></i>
+                        </span>
+                    </div>
+                </th>
+                <th class="th-style w-40 text-center cursor-pointer hover:bg-gray-100"
+                    th:with="nextDir=${sortField == 'resolvedAt' && sortDir == 'asc' ? 'desc' : 'asc'}"
+                    th:onclick="|location.href='@{/admin/Inquiries(type=${currentType}, status=${currentStatus}, keyword=${keyword}, sortField='resolvedAt', sortDir=${nextDir})}'|">
+                    <div class="flex items-center justify-center gap-1">
+                        완료일
+                        <span class="sort-link">
+                            <i class="fas fa-caret-up" th:classappend="${sortField == 'resolvedAt' && sortDir == 'asc'} ? 'active' : ''"></i>
+                            <i class="fas fa-caret-down" th:classappend="${sortField == 'resolvedAt' && sortDir == 'desc'} ? 'active' : ''"></i>
+                        </span>
+                    </div>
+                </th>
                 <th class="th-style w-20 text-center">관리</th>
             </tr>
             </thead>
-            <tbody id="inquiryListBody" class="divide-y divide-gray-100 text-sm">
-            <tr th:each="inq : ${inquiries}" class="hover:bg-gray-50 transition-colors inquiry-row">
-                <td class="td-style font-mono text-xs text-center text-gray-400" th:text="${inq.inqId}">ID</td>
+            <tbody class="divide-y divide-gray-100 text-sm">
+            <tr th:each="item : ${combinedList}" class="hover:bg-gray-50 transition-colors">
+                <td class="td-style font-mono text-[10px] text-center text-gray-400" th:text="${item.totalId}">ID</td>
                 <td class="td-style">
-                    <span class="px-2 py-0.5 rounded-md bg-gray-100 text-gray-500 text-[10px] font-bold" th:text="${inq.inqTypeName}">유형</span>
-                    <div class="font-bold text-gray-800 mt-1 truncate w-64" th:text="${inq.inqTitle}">제목</div>
+                    <span th:if="${item.type == 'INQUIRY'}" class="px-2 py-0.5 rounded-md bg-blue-100 text-blue-600 text-[10px] font-bold">문의</span>
+                    <span th:if="${item.type == 'REPORT'}" class="px-2 py-0.5 rounded-md bg-red-100 text-red-600 text-[10px] font-bold">신고</span>
+                    <div class="font-bold text-gray-800 mt-1 truncate w-48" th:text="${item.title}">제목</div>
                 </td>
-                <td class="td-style font-medium text-gray-600" th:text="${inq.user?.userId}">user001</td>
+                <td class="td-style font-medium text-gray-600" th:text="${item.userId}">작성자</td>
                 <td class="td-style text-center">
-                    <span th:if="${inq.respState == 'Y'}" class="badge-custom badge-done">답변완료</span>
-                    <span th:if="${inq.respState == 'N'}" class="badge-custom badge-waiting">답변대기</span>
+                    <span th:if="${item.state == 'Y'}" class="badge-custom badge-done">완료</span>
+                    <span th:if="${item.state == 'N'}" class="badge-custom badge-waiting">대기</span>
                 </td>
-                <td class="td-style text-gray-400 text-[11px] text-center" th:text="${#temporals.format(inq.createdAt, 'yyyy-MM-dd HH:mm')}">날짜</td>
-                <td class="td-style">
+                <td class="td-style text-gray-400 text-[11px] text-center" th:text="${#temporals.format(item.regDate, 'yyyy-MM-dd HH:mm')}">등록일</td>
+                <td class="td-style text-center font-bold text-[11px]" th:classappend="${item.resolvedAt != null ? 'text-blue-500' : 'text-gray-300'}">
+                    <span th:text="${item.resolvedAt != null ? #temporals.format(item.resolvedAt, 'yyyy-MM-dd HH:mm') : '-'}">-</span>
+                </td>
+                <td class="td-style text-center">
                     <button type="button" class="action-btn mx-auto"
-                            th:data-id="${inq.inqId}"
-                            th:data-title="${inq.inqTitle}"
-                            th:data-type="${inq.inqTypeName}"
-                            th:data-user="${inq.user?.userId}"
-                            th:data-date="${#temporals.format(inq.createdAt, 'yyyy-MM-dd HH:mm')}"
-                            th:data-content="${inq.inqContent}"
-                            th:data-state="${inq.respState}"
-                            th:data-answer="${inq.respContent}"
-                            onclick="openInquiryDetail(this)">
-                        <i class="fas fa-search text-xs"></i>
+                            th:data-id="${item.originalId}" th:data-title="${item.title}" th:data-type="${item.type}"
+                            th:data-sub-type="${item.subType}" th:data-user="${item.userId}"
+                            th:data-date="${#temporals.format(item.regDate, 'yyyy-MM-dd HH:mm')}"
+                            th:data-content="${item.content}" th:data-state="${item.state}"
+                            th:data-answer="${item.answer}"
+                            th:data-files="${item.getFilesJson()}"
+                            onclick="openDetailModal(this)">
+                        <i th:class="${item.type == 'REPORT' ? 'fas fa-gavel' : 'fas fa-search'} + ' text-xs'"></i>
                     </button>
                 </td>
+            </tr>
+            <tr th:if="${combinedList.isEmpty()}">
+                <td colspan="7" class="py-20 text-center text-gray-400">내역이 없습니다.</td>
             </tr>
             </tbody>
         </table>
     </div>
 
-    <div class="flex items-center justify-between bg-white p-4 rounded-2xl border border-gray-100 shadow-sm">
-        <p class="text-xs font-bold text-gray-400">Total <span class="text-main" id="totalCount">0</span> items</p>
-        <div class="flex items-center gap-1" id="pagination"></div>
-        <div class="text-xs font-bold text-gray-400 uppercase tracking-tighter" id="pageInfo">Page 1 of 1</div>
+    <div class="flex items-center justify-between bg-white p-4 rounded-2xl border border-gray-100 shadow-sm" th:if="${totalPages > 0}">
+        <div class="text-xs font-bold text-gray-400 uppercase tracking-widest">
+            Page <span class="text-main" th:text="${currentPage + 1}">1</span> / <span th:text="${totalPages}">1</span>
+        </div>
+        <div class="flex items-center gap-1">
+            <a th:href="@{/admin/Inquiries(type=${currentType}, status=${currentStatus}, keyword=${keyword}, sortField=${sortField}, sortDir=${sortDir}, page=${currentPage - 1})}"
+               class="pagination-btn" th:classappend="${currentPage == 0} ? 'disabled' : ''">
+                <i class="fas fa-chevron-left text-[10px]"></i>
+            </a>
+            <th:block th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+                <a th:href="@{/admin/Inquiries(type=${currentType}, status=${currentStatus}, keyword=${keyword}, sortField=${sortField}, sortDir=${sortDir}, page=${i})}"
+                   th:text="${i + 1}"
+                   th:classappend="${i == currentPage} ? 'active' : ''"
+                   class="pagination-btn"></a>
+            </th:block>
+            <a th:href="@{/admin/Inquiries(type=${currentType}, status=${currentStatus}, keyword=${keyword}, sortField=${sortField}, sortDir=${sortDir}, page=${currentPage + 1})}"
+               class="pagination-btn" th:classappend="${currentPage + 1 >= totalPages} ? 'disabled' : ''">
+                <i class="fas fa-chevron-right text-[10px]"></i>
+            </a>
+        </div>
+        <div class="text-xs font-bold text-gray-400 uppercase tracking-tighter">
+            Total Items: [[${totalElements}]]
+        </div>
     </div>
 
-    <div id="inquiryModal" class="fixed inset-0 bg-black/50 z-[60] hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+    <div id="detailModal" class="fixed inset-0 bg-black/50 z-[60] hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-2xl overflow-hidden">
             <div class="px-8 py-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
                 <div>
-                    <span id="modalInqType" class="px-2 py-1 rounded-md bg-main/10 text-main text-[10px] font-bold">유형</span>
-                    <h3 id="modalInqTitle" class="text-xl font-black text-gray-800 mt-1">문의 제목</h3>
+                    <span id="modalTypeBadge" class="px-2 py-1 rounded-md text-[10px] font-bold">유형</span>
+                    <h3 id="modalTitle" class="text-xl font-black text-gray-800 mt-1">제목</h3>
                 </div>
-                <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
-                    <i class="fas fa-times text-xl"></i>
-                </button>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times text-xl"></i></button>
             </div>
-
             <div class="p-8 max-h-[70vh] overflow-y-auto">
                 <div class="flex items-center justify-between mb-6 text-sm text-gray-500">
-                    <div class="flex items-center gap-2">
-                        <i class="fas fa-user-circle"></i> <span id="modalUser">작성자</span>
-                    </div>
-                    <div id="modalDate">2026-01-01</div>
+                    <div class="flex items-center gap-2"><i class="fas fa-user-circle"></i> <span id="modalUser">작성자</span></div>
+                    <div id="modalDate">날짜</div>
                 </div>
+                <div class="bg-gray-50 rounded-2xl p-6 mb-6 text-gray-700 whitespace-pre-wrap text-sm" id="modalContent"></div>
 
-                <div class="bg-gray-50 rounded-2xl p-6 mb-8 text-gray-700 leading-relaxed whitespace-pre-wrap text-sm" id="modalContent">
-                    문의 내용이 표시되는 곳입니다.
-                </div>
-
-                <div id="answerSection" class="border-t border-dashed border-gray-200 pt-8">
-                    <h4 class="font-bold text-gray-800 mb-4 flex items-center gap-2">
-                        <i class="fas fa-reply text-main"></i> 운영자 답변
+                <div id="fileSection" class="mb-8 hidden">
+                    <h4 class="font-bold text-gray-800 mb-3 flex items-center gap-2 text-sm">
+                        <i class="fas fa-paperclip text-gray-400"></i> 첨부 파일 (클릭 시 다운로드)
                     </h4>
+                    <div id="fileList" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+                </div>
 
-                    <div id="viewAnswer" class="hidden">
-                        <div class="bg-blue-50 text-blue-800 rounded-2xl p-6 whitespace-pre-wrap text-sm" id="modalAnswerText">
-                            등록된 답변 내용입니다.
-                        </div>
+                <div id="actionSection" class="border-t border-dashed border-gray-200 pt-8">
+                    <h4 id="actionTitle" class="font-bold text-gray-800 mb-4 flex items-center gap-2 text-sm"></h4>
+                    <div id="viewResult" class="hidden">
+                        <div class="bg-blue-50 text-blue-800 rounded-2xl p-6 text-sm" id="modalResultText"></div>
                     </div>
-
-                    <div id="editAnswer" class="hidden">
-                        <form action="/admin/Inquiries/answer" method="POST">
-                            <input type="hidden" name="inqId" id="hiddenInqId">
-                            <textarea name="respContent" id="answerInput" rows="5" required
-                                      class="w-full border border-gray-200 rounded-2xl p-4 text-sm focus:ring-2 focus:ring-[#DCA244]/20 outline-none transition-all placeholder:text-gray-300"
-                                      placeholder="사용자에게 전달할 답변을 입력하세요..."></textarea>
+                    <div id="editResult" class="hidden">
+                        <form id="modalForm" method="POST">
+                            <input type="hidden" name="id" id="hiddenId">
+                            <textarea name="content" id="resultInput" rows="5" required
+                                      class="w-full border border-gray-200 rounded-2xl p-4 text-sm focus:ring-2 focus:ring-[#DCA244]/20 outline-none"
+                                      placeholder="처리 내용을 입력하세요..."></textarea>
                             <div class="flex justify-end mt-4">
-                                <button type="submit" class="btn-main">답변 등록하기</button>
+                                <button type="submit" class="btn-main">처리 완료하기</button>
                             </div>
                         </form>
                     </div>
@@ -221,109 +274,134 @@
 </main>
 
 <script th:inline="javascript">
-    /* [1] 페이지네이션 로직 */
-    const rowsPerPage = 20;
-    const navStep = 5;
-    let currentPage = 1;
+    // [추가] 브라우저 차단을 우회하기 위한 안전한 다운로드 함수
+    async function downloadFileSafe(url, fileName) {
+        try {
+            console.log("최종 요청 URL:", url); // 브라우저 콘솔에서 확인 가능
+            const response = await fetch(url);
 
-    function initPaging() {
-        const rows = Array.from(document.querySelectorAll('.inquiry-row'));
-        const totalRows = rows.length;
-        const totalPages = Math.ceil(totalRows / rowsPerPage);
-        document.getElementById('totalCount').innerText = totalRows;
-
-        function displayPage(page) {
-            if (page < 1 || page > totalPages) return;
-            currentPage = page;
-            const start = (page - 1) * rowsPerPage;
-            const end = start + rowsPerPage;
-            rows.forEach((row, index) => {
-                row.style.display = (index >= start && index < end) ? '' : 'none';
-            });
-            renderPagination();
-            document.getElementById('pageInfo').innerText = `Page ${currentPage} of ${totalPages}`;
-            document.getElementById('mainContent').scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        function renderPagination() {
-            const container = document.getElementById('pagination');
-            container.innerHTML = '';
-            const startTab = Math.floor((currentPage - 1) / navStep) * navStep + 1;
-            const endTab = Math.min(startTab + navStep - 1, totalPages);
-
-            container.appendChild(createBtn('<i class="fas fa-angle-double-left"></i>', 1, currentPage === 1));
-            container.appendChild(createBtn('<i class="fas fa-angle-left"></i>', currentPage - 1, currentPage === 1));
-
-            for (let i = startTab; i <= endTab; i++) {
-                const btn = document.createElement('button');
-                btn.className = `pagination-btn ${i === currentPage ? 'active' : ''}`;
-                btn.innerText = i;
-                btn.onclick = () => displayPage(i);
-                container.appendChild(btn);
+            if (!response.ok) {
+                if(response.status === 404) throw new Error('파일을 찾을 수 없습니다. (경로 오류)');
+                throw new Error('서버 응답 에러');
             }
 
-            container.appendChild(createBtn('<i class="fas fa-angle-right"></i>', currentPage + 1, currentPage === totalPages));
-            container.appendChild(createBtn('<i class="fas fa-angle-double-right"></i>', totalPages, currentPage === totalPages));
-        }
+            const blob = await response.blob();
+            const blobUrl = window.URL.createObjectURL(blob);
 
-        function createBtn(html, targetPage, disabled) {
-            const btn = document.createElement('button');
-            btn.className = 'pagination-btn';
-            btn.innerHTML = html;
-            btn.disabled = disabled;
-            btn.onclick = () => displayPage(targetPage);
-            return btn;
-        }
+            const a = document.createElement('a');
+            a.href = blobUrl;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
 
-        if (totalRows > 0) displayPage(1);
+            window.URL.revokeObjectURL(blobUrl);
+            document.body.removeChild(a);
+        } catch (err) {
+            console.error('Download error:', err);
+            alert(err.message);
+        }
     }
 
-    /* [2] 상세 모달 제어 로직 (DB 실제 데이터 적용) */
-    function openInquiryDetail(button) {
-        // data-* 속성에서 실제 DB 값 읽기
-        const id = button.getAttribute('data-id');
-        const title = button.getAttribute('data-title');
-        const type = button.getAttribute('data-type');
-        const user = button.getAttribute('data-user') || '익명';
-        const date = button.getAttribute('data-date');
-        const content = button.getAttribute('data-content');
-        const state = button.getAttribute('data-state');
-        const answer = button.getAttribute('data-answer');
+    function openDetailModal(button) {
+        const d = button.dataset;
+        const badge = document.getElementById('modalTypeBadge');
+        const form = document.getElementById('modalForm');
 
-        // 모달 텍스트 매핑
-        document.getElementById('modalInqType').innerText = type;
-        document.getElementById('modalInqTitle').innerText = title;
-        document.getElementById('modalUser').innerText = user;
-        document.getElementById('modalDate').innerText = date;
-        document.getElementById('modalContent').innerText = content;
-
-        // 상태 분기 처리
-        if (state === 'Y') {
-            document.getElementById('viewAnswer').classList.remove('hidden');
-            document.getElementById('editAnswer').classList.add('hidden');
-            document.getElementById('modalAnswerText').innerText = answer || "등록된 답변이 없습니다.";
+        // 1. 유형 설정
+        if (d.type === 'REPORT') {
+            badge.innerText = `신고: ${d.subType}`;
+            badge.className = "px-2 py-1 rounded-md bg-red-100 text-red-600 text-[10px] font-bold";
+            document.getElementById('actionTitle').innerHTML = '<i class="fas fa-gavel text-red-500"></i> 신고 처리 결과';
+            form.action = '/admin/Reports/resolve';
         } else {
-            document.getElementById('viewAnswer').classList.add('hidden');
-            document.getElementById('editAnswer').classList.remove('hidden');
-            document.getElementById('answerInput').value = '';
-            document.getElementById('hiddenInqId').value = id; // Form 전송용 hidden ID 설정
+            badge.innerText = `문의: ${d.subType}`;
+            badge.className = "px-2 py-1 rounded-md bg-main/10 text-main text-[10px] font-bold";
+            document.getElementById('actionTitle').innerHTML = '<i class="fas fa-reply text-main"></i> 운영자 답변';
+            form.action = '/admin/Inquiries/answer';
         }
 
-        document.getElementById('inquiryModal').classList.remove('hidden');
+        // 2. 텍스트 정보
+        document.getElementById('modalTitle').innerText = d.title;
+        document.getElementById('modalUser').innerText = d.user || '익명';
+        document.getElementById('modalDate').innerText = d.date;
+        document.getElementById('modalContent').innerText = d.content;
+        document.getElementById('hiddenId').value = d.id;
+
+        // 3. 첨부 파일 렌더링 (경로 보정 핵심 부분)
+        const fileSection = document.getElementById('fileSection');
+        const fileList = document.getElementById('fileList');
+        fileList.innerHTML = '';
+
+        if (d.files && d.files !== '[]' && d.files !== 'null' && d.files.trim() !== '') {
+            try {
+                const files = JSON.parse(d.files);
+                if (Array.isArray(files) && files.length > 0) {
+                    fileSection.classList.remove('hidden');
+                    files.forEach(file => {
+                        if (file && file.url) {
+                            const name = file.name || '첨부파일';
+
+                            // [수정 핵심]: 클래스 레벨 /admin 경로 반영
+                            let downloadUrl = file.url;
+
+                            // 만약 file.url이 'download/파일명' 형태라면
+                            // 앞에 '/admin/'을 붙여서 절대 경로로 만듭니다.
+                            if (!downloadUrl.startsWith('http')) {
+                                // 기존 슬래시 중복 방지 처리
+                                const cleanUrl = downloadUrl.startsWith('/') ? downloadUrl.substring(1) : downloadUrl;
+                                // 만약 이미 admin으로 시작하지 않는다면 붙여줌
+                                if (!cleanUrl.startsWith('admin/')) {
+                                    downloadUrl = '/admin/' + cleanUrl;
+                                } else {
+                                    downloadUrl = '/' + cleanUrl;
+                                }
+                            }
+
+                            const fileItem = document.createElement('div');
+                            fileItem.className = "cursor-pointer flex items-center gap-3 p-3 bg-white border border-gray-100 rounded-xl hover:border-main hover:text-main transition-all group shadow-sm";
+                            fileItem.onclick = () => downloadFileSafe(downloadUrl, name);
+
+                            fileItem.innerHTML = `
+                                <div class="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center group-hover:bg-main/10">
+                                    <i class="fas fa-arrow-down text-gray-400 group-hover:text-main text-xs"></i>
+                                </div>
+                                <div class="flex flex-col flex-1 overflow-hidden">
+                                    <span class="text-[11px] font-bold truncate">${name}</span>
+                                    <span class="text-[9px] text-gray-400 uppercase font-medium">Download</span>
+                                </div>
+                                <i class="fas fa-download text-[10px] text-gray-300 group-hover:text-main"></i>
+                            `;
+                            fileList.appendChild(fileItem);
+                        }
+                    });
+                } else { fileSection.classList.add('hidden'); }
+            } catch (e) {
+                console.error("File parse error:", e);
+                fileSection.classList.add('hidden');
+            }
+        } else { fileSection.classList.add('hidden'); }
+
+        // 4. 상태 처리
+        if (d.state === 'Y') {
+            document.getElementById('viewResult').classList.remove('hidden');
+            document.getElementById('editResult').classList.add('hidden');
+            document.getElementById('modalResultText').innerText = d.answer || "처리가 완료되었습니다.";
+        } else {
+            document.getElementById('viewResult').classList.add('hidden');
+            document.getElementById('editResult').classList.remove('hidden');
+            document.getElementById('resultInput').value = '';
+        }
+
+        document.getElementById('detailModal').classList.remove('hidden');
     }
 
     function closeModal() {
-        document.getElementById('inquiryModal').classList.add('hidden');
+        document.getElementById('detailModal').classList.add('hidden');
     }
 
-    // 외부 클릭 시 닫기
-    window.onclick = function(event) {
-        const modal = document.getElementById('inquiryModal');
-        if (event.target == modal) closeModal();
+    window.onclick = e => {
+        if (e.target.id === 'detailModal') closeModal();
     }
-
-    document.addEventListener('DOMContentLoaded', initPaging);
 </script>
-
 </body>
 </html>

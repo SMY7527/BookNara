@@ -48,9 +48,9 @@
         .btn-edit:hover { background: #FEF3C7; }
 
         /* 페이징 버튼 */
-        .page-btn { width: 36px; height: 36px; border: 1px solid #E5E7EB; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; background: white; font-weight: 600; transition: all 0.2s; color: #4B5563; font-size: 13px; }
+        .page-btn { width: 36px; height: 36px; border: 1px solid #E5E7EB; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; background: white; font-weight: 600; transition: all 0.2s; color: #4B5563; font-size: 13px; text-decoration: none; }
         .page-btn:hover:not(.disabled) { border-color: var(--main-color); color: var(--main-color); }
-        .page-btn.active { background-color: var(--main-color); color: white; border-color: var(--main-color); }
+        .page-btn.active { background-color: var(--main-color); color: white; border-color: var(--main-color); pointer-events: none; }
         .page-btn.disabled { opacity: 0.3; cursor: not-allowed; background-color: #F9FAFB; pointer-events: none; }
 
         /* 모달 스타일 */
@@ -111,11 +111,18 @@
 <main id="mainContainer" class="flex-1 overflow-y-auto p-10 bg-[#FBFBFD]">
     <div class="mb-10">
         <h2 class="text-3xl font-extrabold text-gray-800 tracking-tight">회원관리</h2>
-        <p class="text-gray-400 mt-2 font-medium">회원 목록 및 상세 수신 동의 여부를 관리합니다.</p>
+        <p class="text-gray-400 mt-2 font-medium">
+            <span th:if="${keyword == '1'}" class="text-green-600 font-bold">[활동 회원]</span>
+            <span th:if="${keyword == '2'}" class="text-orange-600 font-bold">[휴면 회원]</span>
+            <span th:if="${keyword == '3'}" class="text-red-600 font-bold">[이용제한 회원]</span>
+            <span th:if="${keyword == '4'}" class="text-gray-600 font-bold">[탈퇴 회원]</span>
+            총 <span th:text="${totalElements}" class="text-main">0</span>명의 회원이 조회되었습니다.
+            <span class="text-[11px] text-gray-300 ml-2">(전체 회원수 통계는 탈퇴 회원을 제외한 수치입니다.)</span>
+        </p>
     </div>
 
-    <div class="grid grid-cols-4 gap-6 mb-10">
-        <div class="stats-card" onclick="filterByState('all')">
+    <div class="grid grid-cols-5 gap-4 mb-10">
+        <div class="stats-card" th:onclick="|location.href='/admin/UserManageMent?state=all'|">
             <div class="flex items-center justify-between mb-4">
                 <div class="stats-icon bg-blue-50 text-blue-600"><i class="fas fa-user-friends text-xl"></i></div>
                 <span class="stats-label bg-blue-50 text-blue-600">Total</span>
@@ -123,7 +130,8 @@
             <p class="text-xs text-gray-400 font-bold mb-1 uppercase tracking-wider">전체 회원수</p>
             <p class="text-2xl font-black text-gray-800"><span th:text="${stats.total}">0</span>명</p>
         </div>
-        <div class="stats-card" onclick="filterByState('정상')">
+
+        <div class="stats-card" th:onclick="|location.href='/admin/UserManageMent?state=1'|">
             <div class="flex items-center justify-between mb-4">
                 <div class="stats-icon bg-green-50 text-green-600"><i class="fas fa-check-circle text-xl"></i></div>
                 <span class="stats-label bg-green-50 text-green-600">Active</span>
@@ -131,7 +139,8 @@
             <p class="text-xs text-gray-400 font-bold mb-1 uppercase tracking-wider">활동 회원수</p>
             <p class="text-2xl font-black text-gray-800"><span th:text="${stats.active}">0</span>명</p>
         </div>
-        <div class="stats-card" onclick="filterByState('휴면')">
+
+        <div class="stats-card" th:onclick="|location.href='/admin/UserManageMent?state=2'|">
             <div class="flex items-center justify-between mb-4">
                 <div class="stats-icon bg-orange-50 text-orange-600"><i class="fas fa-moon text-xl"></i></div>
                 <span class="stats-label bg-orange-50 text-orange-600">Dormant</span>
@@ -139,13 +148,23 @@
             <p class="text-xs text-gray-400 font-bold mb-1 uppercase tracking-wider">휴면 회원수</p>
             <p class="text-2xl font-black text-gray-800"><span th:text="${stats.dormant}">0</span>명</p>
         </div>
-        <div class="stats-card" onclick="filterByState('제한')">
+
+        <div class="stats-card" th:onclick="|location.href='/admin/UserManageMent?state=3'|">
             <div class="flex items-center justify-between mb-4">
                 <div class="stats-icon bg-red-50 text-red-600"><i class="fas fa-ban text-xl"></i></div>
                 <span class="stats-label bg-red-50 text-red-600">Banned</span>
             </div>
             <p class="text-xs text-gray-400 font-bold mb-1 uppercase tracking-wider">정지 회원수</p>
             <p class="text-2xl font-black text-gray-800"><span th:text="${stats.banned}">0</span>명</p>
+        </div>
+
+        <div class="stats-card" th:onclick="|location.href='/admin/UserManageMent?state=4'|">
+            <div class="flex items-center justify-between mb-4">
+                <div class="stats-icon bg-gray-100 text-gray-500"><i class="fas fa-user-slash text-xl"></i></div>
+                <span class="stats-label bg-gray-100 text-gray-500">Out</span>
+            </div>
+            <p class="text-xs text-gray-400 font-bold mb-1 uppercase tracking-wider">탈퇴 회원수</p>
+            <p class="text-2xl font-black text-gray-800"><span th:text="${stats.withdrawn}">0</span>명</p>
         </div>
     </div>
 
@@ -154,7 +173,7 @@
             <i class="fas fa-search absolute left-5 text-gray-400"></i>
             <input type="text" name="keyword" id="keywordInput" th:value="${param.keyword}" placeholder="회원명, 아이디 또는 이메일로 검색..."
                    class="w-full pl-14 pr-12 py-3 bg-gray-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-[#DCA244]/20 focus:bg-white outline-none transition-all font-medium">
-            <button type="button" id="clearBtn" th:classappend="${#strings.isEmpty(param.keyword)} ? 'hidden' : ''" onclick="clearSearch()"
+            <button type="button" id="clearBtn" th:style="${#strings.isEmpty(param.keyword)} ? 'display:none' : 'display:flex'" onclick="clearSearch()"
                     class="absolute right-4 w-8 h-8 flex items-center justify-center bg-gray-200 hover:bg-gray-300 text-gray-500 rounded-full transition-all">
                 <i class="fas fa-times text-xs"></i>
             </button>
@@ -225,11 +244,31 @@
                     </div>
                 </td>
             </tr>
+            <tr th:if="${#lists.isEmpty(users)}">
+                <td colspan="7" class="td-style py-20 text-center text-gray-400 font-medium">데이터가 없습니다.</td>
+            </tr>
             </tbody>
         </table>
     </div>
 
-    <div id="pagination" class="mt-10 flex justify-center items-center gap-2"></div>
+    <div id="pagination" class="mt-10 flex justify-center items-center gap-2">
+        <a th:href="@{/admin/UserManageMent(page=0, keyword=${param.keyword})}"
+           class="page-btn" th:classappend="${currentPage == 0} ? 'disabled' : ''">
+            <i class="fas fa-angle-double-left"></i>
+        </a>
+
+        <th:block th:if="${totalPages > 0}" th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+            <a th:href="@{/admin/UserManageMent(page=${i}, keyword=${param.keyword})}"
+               th:text="${i + 1}"
+               class="page-btn"
+               th:classappend="${i == currentPage} ? 'active' : ''"></a>
+        </th:block>
+
+        <a th:href="@{/admin/UserManageMent(page=${totalPages - 1}, keyword=${param.keyword})}"
+           class="page-btn" th:classappend="${currentPage >= totalPages - 1} ? 'disabled' : ''">
+            <i class="fas fa-angle-double-right"></i>
+        </a>
+    </div>
 </main>
 
 <div id="detailModal" class="hidden fixed inset-0 bg-black/60 z-[80] flex items-center justify-center backdrop-blur-sm p-4">
@@ -254,7 +293,6 @@
 
 <div id="userManagementModal" class="hidden fixed inset-0 bg-black/60 z-[70] flex items-center justify-center backdrop-blur-sm">
     <div class="bg-white rounded-[32px] w-full max-w-md shadow-2xl overflow-hidden transform transition-all" id="mgmtModalContainer">
-
         <div class="p-8 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
             <div>
                 <h3 class="text-2xl font-black text-gray-800" id="managementTitle">회원 관리</h3>
@@ -262,7 +300,6 @@
             </div>
             <button type="button" onclick="closeManagementModal()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times text-xl"></i></button>
         </div>
-
         <div class="p-8">
             <div id="stepMenu" class="grid grid-cols-2 gap-4">
                 <button onclick="changeStep('nickname')" class="flex flex-col items-center gap-3 p-6 rounded-2xl border-2 border-gray-100 hover:border-main hover:bg-amber-50 transition-all group">
@@ -278,7 +315,6 @@
                     <span class="font-bold text-gray-700">상태 변경</span>
                 </button>
             </div>
-
             <form id="formNickname" action="/admin/UpdateUserNickname" method="post" class="hidden space-y-5">
                 <input type="hidden" name="userId" class="modal-user-id">
                 <div>
@@ -295,16 +331,40 @@
                     <button type="submit" class="flex-1 py-4 bg-main text-white rounded-2xl font-bold hover:shadow-lg hover:shadow-[#DCA244]/30 transition-all">수정완료</button>
                 </div>
             </form>
-
             <form id="formStatus" action="/admin/UpdateUserStatus" method="post" class="hidden space-y-5">
                 <input type="hidden" name="userId" class="modal-user-id">
                 <div class="space-y-3">
-                    <label class="block"><input type="radio" name="userState" value="1" class="hidden peer"><div class="status-option peer-checked:border-main peer-checked:bg-amber-50"><i class="fas fa-check-circle text-green-500"></i><span class="font-bold">정상 상태</span></div></label>
-                    <label class="block"><input type="radio" name="userState" value="2" class="hidden peer"><div class="status-option peer-checked:border-main peer-checked:bg-amber-50"><i class="fas fa-moon text-orange-400"></i><span class="font-bold">휴면 계정</span></div></label>
-                    <label class="block"><input type="radio" name="userState" value="3" class="hidden peer"><div class="status-option peer-checked:border-main peer-checked:bg-amber-50"><i class="fas fa-ban text-red-500"></i><span class="font-bold">이용 제한</span></div></label>
+                    <label class="block">
+                        <input type="radio" name="userState" value="1" class="hidden peer">
+                        <div class="status-option peer-checked:border-main peer-checked:bg-amber-50">
+                            <i class="fas fa-check-circle text-green-500 w-5 text-center"></i>
+                            <span class="font-bold text-gray-700">정상 상태</span>
+                        </div>
+                    </label>
+                    <label class="block">
+                        <input type="radio" name="userState" value="2" class="hidden peer">
+                        <div class="status-option peer-checked:border-main peer-checked:bg-amber-50">
+                            <i class="fas fa-moon text-orange-400 w-5 text-center"></i>
+                            <span class="font-bold text-gray-700">휴면 계정</span>
+                        </div>
+                    </label>
+                    <label class="block">
+                        <input type="radio" name="userState" value="3" class="hidden peer">
+                        <div class="status-option peer-checked:border-main peer-checked:bg-amber-50">
+                            <i class="fas fa-ban text-red-500 w-5 text-center"></i>
+                            <span class="font-bold text-gray-700">이용 제한</span>
+                        </div>
+                    </label>
+                    <label class="block">
+                        <input type="radio" name="userState" value="4" class="hidden peer">
+                        <div class="status-option peer-checked:border-main peer-checked:bg-amber-50">
+                            <i class="fas fa-user-slash text-gray-400 w-5 text-center"></i>
+                            <span class="font-bold text-gray-700">탈퇴 처리</span>
+                        </div>
+                    </label>
                 </div>
                 <div class="flex gap-3 pt-2">
-                    <button type="button" onclick="resetStep()" class="flex-1 py-4 bg-white border border-gray-200 text-gray-500 rounded-2xl font-bold">뒤로가기</button>
+                    <button type="button" onclick="resetStep()" class="flex-1 py-4 bg-white border border-gray-200 text-gray-500 rounded-2xl font-bold hover:bg-gray-50 transition-all">뒤로가기</button>
                     <button type="submit" class="flex-1 py-4 bg-main text-white rounded-2xl font-bold hover:shadow-lg hover:shadow-[#DCA244]/30 transition-all">상태저장</button>
                 </div>
             </form>
@@ -313,79 +373,23 @@
 </div>
 
 <script th:inline="javascript">
-    const rowsPerPage = 15;
-    const pageBlockSize = 5;
-    let currentPage = 1;
-    let initialAllRows = [];
-    let filteredRows = [];
-
-    // --- 초기화 및 필터 로직 ---
+    // --- 초기화 로직 ---
     function clearSearch() {
         const input = document.getElementById('keywordInput');
         input.value = '';
         window.location.href = '/admin/UserManageMent';
     }
 
-    function init() {
-        initialAllRows = Array.from(document.querySelectorAll('.user-row'));
-        filteredRows = [...initialAllRows];
+    document.addEventListener('DOMContentLoaded', () => {
         const input = document.getElementById('keywordInput');
         const clearBtn = document.getElementById('clearBtn');
         if(input) {
             input.addEventListener('input', () => {
-                if (input.value.trim().length > 0) clearBtn.classList.remove('hidden');
-                else clearBtn.classList.add('hidden');
+                if (input.value.trim().length > 0) clearBtn.style.display = 'flex';
+                else clearBtn.style.display = 'none';
             });
         }
-        updateUI(false);
-    }
-    document.addEventListener('DOMContentLoaded', init);
-
-    function updateUI(shouldScroll = true) {
-        renderPageData();
-        setupPagination();
-        if(shouldScroll) document.getElementById('mainContainer').scrollTop = 0;
-    }
-
-    function renderPageData() {
-        const tableBody = document.getElementById('userTableBody');
-        tableBody.innerHTML = '';
-        const start = (currentPage - 1) * rowsPerPage;
-        const pageData = filteredRows.slice(start, start + rowsPerPage);
-        if (pageData.length === 0) {
-            tableBody.innerHTML = `<tr><td colspan="7" class="td-style py-20 text-center text-gray-400 font-medium">데이터가 없습니다.</td></tr>`;
-        } else {
-            pageData.forEach(row => tableBody.appendChild(row));
-        }
-    }
-
-    function setupPagination() {
-        const paginationContainer = document.getElementById('pagination');
-        paginationContainer.innerHTML = '';
-        const totalPages = Math.ceil(filteredRows.length / rowsPerPage);
-        if (totalPages === 0) return;
-        const currentBlock = Math.ceil(currentPage / pageBlockSize);
-        const startPage = (currentBlock - 1) * pageBlockSize + 1;
-        const endPage = Math.min(startPage + pageBlockSize - 1, totalPages);
-        const addBtn = (content, target, isDis, isActive = false) => {
-            const btn = document.createElement('div');
-            btn.className = `page-btn ${isDis ? 'disabled' : ''} ${isActive ? 'active' : ''}`;
-            btn.innerHTML = content;
-            if (!isDis) btn.onclick = () => { currentPage = target; updateUI(true); };
-            paginationContainer.appendChild(btn);
-        };
-        addBtn('<i class="fas fa-angle-double-left"></i>', 1, currentPage === 1);
-        addBtn('<i class="fas fa-angle-left"></i>', Math.max(1, startPage - 1), currentPage === 1);
-        for (let i = startPage; i <= endPage; i++) addBtn(i, i, false, i === currentPage);
-        addBtn('<i class="fas fa-angle-right"></i>', Math.min(totalPages, endPage + 1), currentPage === totalPages);
-        addBtn('<i class="fas fa-angle-double-right"></i>', totalPages, currentPage === totalPages);
-    }
-
-    function filterByState(state) {
-        currentPage = 1;
-        filteredRows = (state === 'all') ? [...initialAllRows] : initialAllRows.filter(row => row.querySelector('.status-cell').innerText.trim().includes(state));
-        updateUI(true);
-    }
+    });
 
     // --- 상세 보기 모달 제어 ---
     function openUserDetail(user) {
@@ -408,16 +412,12 @@
     const mgmtTitle = document.getElementById('managementTitle');
 
     function openManagementModal(id, name, currentState) {
-        // 모든 유저 ID input 업데이트
         document.querySelectorAll('.modal-user-id').forEach(el => el.value = id);
         document.getElementById('targetUserNm').innerText = name;
         document.getElementById('displayCurrentNickname').value = name;
-
-        // 상태 라디오 버튼 미리 체크
         const radios = document.getElementsByName('userState');
         radios.forEach(r => { if(r.value == currentState) r.checked = true; });
-
-        resetStep(); // 초기 메뉴 상태로 세팅
+        resetStep();
         mgmtModal.classList.remove('hidden');
     }
 
@@ -439,11 +439,8 @@
         formStatus.classList.add('hidden');
     }
 
-    function closeManagementModal() {
-        mgmtModal.classList.add('hidden');
-    }
+    function closeManagementModal() { mgmtModal.classList.add('hidden'); }
 
-    // 배경 클릭 시 모달 닫기
     window.onclick = function(event) {
         if (event.target == mgmtModal) closeManagementModal();
         if (event.target == document.getElementById('detailModal')) closeDetailModal();

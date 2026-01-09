@@ -1,4 +1,5 @@
 <link rel="stylesheet" th:href="@{/css/footer.css}" xmlns:th="http://www.w3.org/1999/xhtml">
+
 <footer class="footer">
     <div class="footer-inner">
 
@@ -46,11 +47,22 @@
 
     </div>
 
+
     <!-- 하단 카피 -->
     <div class="footer-bottom">
         <p>
             ⓒ 2025 BookNara |  Team<br>
-            본 서비스는 포트폴리오용 프로젝트입니다.
         </p>
+        <div class="footer-admin">
+            <p>
+                관리자 이메일 :
+                <span th:text="${adminEmail}">admin@booknara.com</span>
+            </p>
+            <p>|</p>
+            <p>
+                관리자 전화번호 :
+                <span th:text="${adminPhone}">010-0000-0000</span>
+            </p>
+        </div>
     </div>
 </footer>

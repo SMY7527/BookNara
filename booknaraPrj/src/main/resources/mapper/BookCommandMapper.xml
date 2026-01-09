@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.booknara.booknaraPrj.bookcirculation.command.mapper.BookCirculationCommandMapper">
+
+    <!-- 유저 차단 여부 -->
+    <select id="selectUserBlockedYn" resultType="string">
+        SELECT CASE WHEN USER_STATE IN (3,4) THEN 'Y' ELSE 'N' END
+        FROM USERS
+        WHERE USER_ID = #{userId}
+    </select>
+
+    <!-- 유저 연체 여부 -->
+    <select id="selectUserOverdueYn" resultType="string">
+        SELECT CASE WHEN EXISTS (
+            SELECT 1
+            FROM LENDS
+            WHERE USER_ID = #{userId}
+              AND RETURN_DONE_AT IS NULL
+              AND OVER_DUE = 'Y'
+        ) THEN 'Y' ELSE 'N' END
+    </select>
+
+    <!-- 동일 ISBN 활성 대여 여부 -->
+    <select id="existsActiveLendByUserAndIsbn" resultType="int">
+        SELECT CASE WHEN EXISTS (
+            SELECT 1
+            FROM LENDS
+            WHERE USER_ID = #{userId}
+              AND ISBN13 = #{isbn13}
+              AND RETURN_DONE_AT IS NULL
+        ) THEN 1 ELSE 0 END
+    </select>
+
+    <!-- 대여 가능한 책 1권 선점 (동시성 핵심)
+         - BOOK_STATE='N' (정상)
+         - 해당 BOOK_ID가 현재 대여중이 아니어야 함
+         - FOR UPDATE 로 BOOKS row를 잠그고 가져감
+    -->
+    <select id="selectAvailableBookIdForUpdate" resultType="long">
+        SELECT b.BOOK_ID
+        FROM BOOKS b
+        WHERE b.ISBN13 = #{isbn13}
+          AND b.BOOK_STATE = 'N'
+          AND NOT EXISTS (
+            SELECT 1
+            FROM LENDS l
+            WHERE l.BOOK_ID = b.BOOK_ID
+              AND l.RETURN_DONE_AT IS NULL
+        )
+        ORDER BY b.BOOK_ID ASC
+            LIMIT 1
+        FOR UPDATE
+    </select>
+
+    <!-- 대여 생성
+         RETURN_DUE_DATE는 지금 SETTINGS가 있으니
+         일단 14일로 하드코딩(추후 SETTINGS join/조회로 대체)
+    -->
+    <insert id="insertLend">
+        INSERT INTO LENDS (
+            LEND_ID, BOOK_ID, USER_ID, ISBN13,
+            OVER_DUE, LEND_DATE, RETURN_DUE_DATE,
+            EXTEND_CNT, DELIVERY_STATUS,
+            CREATED_AT
+        ) VALUES (
+                     #{lendId}, #{bookId}, #{userId}, #{isbn13},
+                     'N', NOW(), (NOW() + INTERVAL 14 DAY),
+                     0, 'NONE',
+                     NOW()
+                 )
+    </insert>
+
+    <!-- 연장
+         - 본인 대여건
+         - RETURN_DONE_AT IS NULL
+         - EXTEND_CNT=0
+         - RETURN_DUE_DATE <= NOW()+7days
+         - 성공시 RETURN_DUE_DATE + 7days, EXTEND_CNT=1
+    -->
+    <update id="extendIfAllowed">
+        UPDATE LENDS
+        SET
+        RETURN_DUE_DATE = (RETURN_DUE_DATE + INTERVAL 7 DAY),
+        EXTEND_CNT = 1,
+        UPDATED_AT = NOW()
+        WHERE LEND_ID = #{lendId}
+        AND USER_ID = #{userId}
+        AND RETURN_DONE_AT IS NULL
+        AND EXTEND_CNT = 0
+        AND RETURN_DUE_DATE &lt;= (NOW() + INTERVAL 7 DAY)
+    </update>
+
+    <!-- 활성 예약 수: ACTIVE_FLAG=1 (ACTIVE/HOLD 모두 포함) -->
+    <select id="countActiveReservations" resultType="int">
+        SELECT COUNT(*)
+        FROM RESERVATIONS
+        WHERE ISBN13 = #{isbn13}
+          AND ACTIVE_FLAG = 1
+    </select>
+
+    <!-- 예약 생성: RSV_STATUS는 ACTIVE로 시작 -->
+    <insert id="insertReservation">
+        INSERT INTO RESERVATIONS (
+            RSV_ID, USER_ID, ISBN13,
+            RSV_DATE, RSV_STATUS,
+            CREATED_AT
+        ) VALUES (
+                     #{rsvId}, #{userId}, #{isbn13},
+                     NOW(), 'ACTIVE',
+                     NOW()
+                 )
+    </insert>
+
+    <!-- 예약 취소: ACTIVE/HOLD만 취소 가능 -->
+    <update id="cancelReservation">
+        UPDATE RESERVATIONS
+        SET
+            RSV_STATUS = 'CANCELLED',
+            CANCELLED_AT = NOW(),
+            UPDATED_AT = NOW()
+        WHERE RSV_ID = #{rsvId}
+          AND USER_ID = #{userId}
+          AND RSV_STATUS IN ('ACTIVE','HOLD')
+    </update>
+
+    <!-- 반납함 투입(선반납): 본인 대여 & 대여중일 때만 -->
+    <update id="markReturnBox">
+        UPDATE LENDS
+        SET
+            BOX_ID = #{boxId},
+            RETURN_BOX_AT = NOW(),
+            UPDATED_AT = NOW()
+        WHERE LEND_ID = #{lendId}
+          AND USER_ID = #{userId}
+          AND RETURN_DONE_AT IS NULL
+    </update>
+
+    <!-- 반납 확정: 본인 대여 & 대여중일 때만 -->
+    <update id="confirmReturn">
+        UPDATE LENDS
+        SET
+            RETURN_DONE_AT = NOW(),
+            OVER_DUE = 'N',
+            UPDATED_AT = NOW()
+        WHERE LEND_ID = #{lendId}
+          AND USER_ID = #{userId}
+          AND RETURN_DONE_AT IS NULL
+    </update>
+
+</mapper>

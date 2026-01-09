@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.booknara.booknaraPrj.bookcirculation.status.mapper.BookCirculationMapper">
+
+    <select id="getStatus" resultType="com.booknara.booknaraPrj.bookcirculation.status.dto.BookCirculationStatusDTO">
+        WITH
+        owned AS (
+        SELECT b.ISBN13, COUNT(*) AS ownedCnt
+        FROM BOOKS b
+        WHERE b.ISBN13 = #{isbn13}
+        AND b.BOOK_STATE = 'N'
+        GROUP BY b.ISBN13
+        ),
+        lending AS (
+        SELECT bx.ISBN13, COUNT(*) AS lendingCnt
+        FROM LENDS l
+        JOIN BOOKS bx ON bx.BOOK_ID = l.BOOK_ID
+        WHERE bx.ISBN13 = #{isbn13}
+        AND l.RETURN_DONE_AT IS NULL
+        GROUP BY bx.ISBN13
+        ),
+        rsv AS (
+        SELECT r.ISBN13,
+        COUNT(*) AS rsvActiveCnt,
+        CASE WHEN COUNT(*) >= 10 THEN 'Y' ELSE 'N' END AS rsvLimitYn
+        FROM RESERVATIONS r
+        WHERE r.ISBN13 = #{isbn13}
+        AND r.ACTIVE_FLAG = 1
+        GROUP BY r.ISBN13
+        )
+
+        <if test="userId != null and userId != ''">
+            ,
+            my_lend AS (
+            SELECT bx.ISBN13,
+            MAX(l.LEND_ID) AS myLendId,
+            'Y' AS myLendYn,
+            CASE
+            WHEN MAX(l.EXTEND_CNT) = 0
+            AND MAX(l.RETURN_DUE_DATE) &lt;= (NOW() + INTERVAL 7 DAY)
+            THEN 'Y' ELSE 'N'
+            END AS myExtendYn
+            FROM LENDS l
+            JOIN BOOKS bx ON bx.BOOK_ID = l.BOOK_ID
+            WHERE bx.ISBN13 = #{isbn13}
+            AND l.USER_ID = #{userId}
+            AND l.RETURN_DONE_AT IS NULL
+            GROUP BY bx.ISBN13
+            ),
+            my_rsv AS (
+            SELECT r.ISBN13,
+            MAX(r.RSV_ID) AS myRsvId,
+            'Y' AS myRsvYn
+            FROM RESERVATIONS r
+            WHERE r.ISBN13 = #{isbn13}
+            AND r.USER_ID = #{userId}
+            AND r.ACTIVE_FLAG = 1
+            GROUP BY r.ISBN13
+            ),
+            user_blocked AS (
+            SELECT CASE WHEN u.USER_STATE IN (3,4) THEN 'Y' ELSE 'N' END AS userBlockedYn
+            FROM USERS u
+            WHERE u.USER_ID = #{userId}
+            ),
+            user_overdue AS (
+            SELECT CASE WHEN EXISTS (
+            SELECT 1
+            FROM LENDS l
+            WHERE l.USER_ID = #{userId}
+            AND l.RETURN_DONE_AT IS NULL
+            AND l.OVER_DUE = 'Y'
+            ) THEN 'Y' ELSE 'N' END AS userOverdueYn
+            )
+        </if>
+
+        SELECT
+        #{isbn13} AS isbn13,
+        IFNULL(owned.ownedCnt, 0) AS ownedCnt,
+        IFNULL(lending.lendingCnt, 0) AS lendingCnt,
+        GREATEST(IFNULL(owned.ownedCnt,0) - IFNULL(lending.lendingCnt,0), 0) AS availableCnt,
+        IFNULL(rsv.rsvActiveCnt, 0) AS rsvActiveCnt,
+        IFNULL(rsv.rsvLimitYn, 'N') AS rsvLimitYn
+
+        <choose>
+            <when test="userId != null and userId != ''">
+                ,IFNULL(my_lend.myLendYn, 'N') AS myLendYn
+                ,IFNULL(my_lend.myExtendYn, 'N') AS myExtendYn
+                ,my_lend.myLendId AS myLendId
+                ,IFNULL(my_rsv.myRsvYn, 'N') AS myRsvYn
+                ,my_rsv.myRsvId AS myRsvId
+                ,IFNULL((SELECT userBlockedYn FROM user_blocked), 'N') AS userBlockedYn
+                ,IFNULL((SELECT userOverdueYn FROM user_overdue), 'N') AS userOverdueYn
+            </when>
+            <otherwise>
+                ,'N' AS myLendYn
+                ,'N' AS myExtendYn
+                ,NULL AS myLendId
+                ,'N' AS myRsvYn
+                ,NULL AS myRsvId
+                ,'N' AS userBlockedYn
+                ,'N' AS userOverdueYn
+            </otherwise>
+        </choose>
+
+        FROM (SELECT 1) x
+        LEFT JOIN owned ON owned.ISBN13 = #{isbn13}
+        LEFT JOIN lending ON lending.ISBN13 = #{isbn13}
+        LEFT JOIN rsv ON rsv.ISBN13 = #{isbn13}
+
+        <if test="userId != null and userId != ''">
+            LEFT JOIN my_lend ON my_lend.ISBN13 = #{isbn13}
+            LEFT JOIN my_rsv ON my_rsv.ISBN13 = #{isbn13}
+        </if>
+    </select>
+
+</mapper>

@@ -1,5 +1,7 @@
 package com.booknara.booknaraPrj.common;
 
+import com.booknara.booknaraPrj.admin.settings.AdminSettings;
+import com.booknara.booknaraPrj.admin.settings.AdminSettingsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -8,15 +10,15 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 @RequiredArgsConstructor
 public class GlobalSettingsAdvice {
 
-    private final SettingsService settingsService;
+    private final AdminSettings adminSettings;
 
     @ModelAttribute("adminEmail")
     public String adminEmail() {
-        return settingsService.getAdminEmail();
+        return adminSettings.getAdminEmail();
     }
 
     @ModelAttribute("adminPhone")
     public String adminPhone() {
-        return settingsService.getAdminPhone();
+        return adminSettings.getAdminPhone();
     }
 }

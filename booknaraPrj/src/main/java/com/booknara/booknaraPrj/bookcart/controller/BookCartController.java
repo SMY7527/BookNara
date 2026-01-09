@@ -2,10 +2,13 @@ package com.booknara.booknaraPrj.bookcart.controller;
 
 import com.booknara.booknaraPrj.bookcart.service.BookCartService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 @Controller
 @RequiredArgsConstructor
@@ -15,9 +18,12 @@ public class BookCartController {
     private final BookCartService service;
 
     private String getUserId(Authentication auth) {
-        // 너희 로그인 방식에 맞춰 userId 꺼내기
+        if (auth == null || auth instanceof AnonymousAuthenticationToken) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Login required");
+        }
         return auth.getName();
     }
+
 
     @GetMapping
     public String cartPage(Authentication auth, Model model) {

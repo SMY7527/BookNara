@@ -3,7 +3,10 @@ package com.booknara.booknaraPrj.bookDetail.service;
 import com.booknara.booknaraPrj.bookDetail.dto.*;
 import com.booknara.booknaraPrj.bookDetail.mapper.BookDetailMapper;
 import com.booknara.booknaraPrj.bookMark.service.BookmarkService;
+import com.booknara.booknaraPrj.feed.review.dto.ReviewSummaryDTO;
 import com.booknara.booknaraPrj.feed.review.service.FeedReviewService;
+import com.booknara.booknaraPrj.reviewstatus.dto.ReviewStatusDTO;
+import com.booknara.booknaraPrj.reviewstatus.service.ReviewStatusService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,7 +19,7 @@ public class BookDetailService {
 
     private final BookDetailMapper bookDetailMapper;
     private final FeedReviewService feedReviewService;
-    private final BookmarkService bookmarkService;
+    private final ReviewStatusService reviewStatusService;
 
     @Transactional(readOnly = true)
     public BookDetailViewDTO getBookDetailView(String isbn13, String userId) {
@@ -44,16 +47,14 @@ public class BookDetailService {
         view.setGenrePath(genrePath);
 
         // 5) 리뷰
-        view.setReviewSummary(feedReviewService.getSummary(isbn13));
-        view.setReviewPreview(feedReviewService.getTop(isbn13, 5));
+        ReviewStatusDTO rs = reviewStatusService.getByIsbn(isbn13);
+        ReviewSummaryDTO summary = new ReviewSummaryDTO();
+        summary.setReviewCnt(rs == null ? 0 : rs.getReviewCnt());
+        summary.setRatingAvg(rs == null ? 0.0 : rs.getRatingAvg());
+        view.setReviewSummary(summary);
 
-        // 6) 북마크
-        if (userId != null && !userId.isBlank()) {
-            view.setBookmarkedYn(bookmarkService.isBookmarked(isbn13, userId) ? "Y" : "N");
-        } else {
-            view.setBookmarkedYn("N");
-        }
-        view.setBookmarkCnt(bookmarkService.countByIsbn(isbn13));
+        // ✅ 미리보기: 기존대로 유지(원하면 이것도 REVIEW_STAT 기반으로는 못 함)
+        view.setReviewPreview(feedReviewService.getTop(isbn13, 5));
 
         return view;
     }

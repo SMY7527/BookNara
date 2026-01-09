@@ -43,6 +43,7 @@ public class SecurityConfig {
                                 "/users/social/**",
                                 "/book/search",
                                 "/book/search/list",
+                                "/api/bookmarks/**",
                                 "/book/detail/**",
                                 "/book/genres/**",
                                 "/book/reviewstatus/**",

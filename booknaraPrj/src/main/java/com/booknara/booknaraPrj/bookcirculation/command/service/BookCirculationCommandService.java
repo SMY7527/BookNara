@@ -31,13 +31,13 @@ public class BookCirculationCommandService {
     }
 
     private String newLendId() {
-        // 포맷  LEND_YYYYMMDD_xxxx
-        return "LEND_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"))
+        // 포맷  LEND_YYYYMMDD
+        return "LEND_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"))
                 + "_" + UUID.randomUUID().toString().substring(0, 6);
     }
 
     private String newRsvId() {
-        return "RSV_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"))
+        return "RSV_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"))
                 + "_" + UUID.randomUUID().toString().substring(0, 6);
     }
 

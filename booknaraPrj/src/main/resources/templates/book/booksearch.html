@@ -996,13 +996,26 @@
                 }
                 return;
             }
+            async function postFormJson(url, paramsObj) {
+                const body = new URLSearchParams();
+                Object.entries(paramsObj || {}).forEach(([k, v]) => body.set(k, v));
+
+                return await fetchJson(url, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                    body: body.toString()
+                });
+            }
+
+
+
 
             // ===== 예약 / 취소 / 연장 =====
             if (e.target.classList.contains("btn-rsv")) {
                 e.preventDefault();
                 e.stopPropagation();
 
-                const res = await fetch(`/book/circulation/reserve`, {
+                const res = await postFormJson(`/book/circulation/reserve`, {
                     method: "POST",
                     headers: {"Content-Type":"application/x-www-form-urlencoded"},
                     body: `isbn13=${encodeURIComponent(isbn13)}`
@@ -1016,7 +1029,7 @@
                 e.stopPropagation();
 
                 const rsvId = e.target.dataset.rsvId;
-                const res = await fetch(`/book/circulation/reserve/cancel`, {
+                const res = await postFormJson(`/book/circulation/reserve/cancel`, {
                     method: "POST",
                     headers: {"Content-Type":"application/x-www-form-urlencoded"},
                     body: `rsvId=${encodeURIComponent(rsvId)}`
@@ -1030,7 +1043,7 @@
                 e.stopPropagation();
 
                 const lendId = e.target.dataset.lendId;
-                const res = await fetch(`/book/circulation/extend`, {
+                const res = await postFormJson(`/book/circulation/extend`, {
                     method: "POST",
                     headers: {"Content-Type":"application/x-www-form-urlencoded"},
                     body: `lendId=${encodeURIComponent(lendId)}`

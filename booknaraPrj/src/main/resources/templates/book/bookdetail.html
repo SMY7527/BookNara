@@ -119,6 +119,18 @@
                         <span id="cartText">장바구니 담기</span>
                     </button>
 
+                    <!-- ✅ 도서 순환(대여/예약/연장/반납) -->
+                    <div class="row" id="circulationActions" style="gap:10px;">
+                        <button id="btnLend" class="btn btn-primary" type="button" style="display:none;">대여하기</button>
+                        <button id="btnExtend" class="btn" type="button" style="display:none;">연장하기</button>
+                        <button id="btnReserve" class="btn" type="button" style="display:none;">예약하기</button>
+                        <button id="btnReserveCancel" class="btn" type="button" style="display:none;">예약취소</button>
+                        <button id="btnReturnBox" class="btn" type="button" style="display:none;">반납함 반납</button>
+                        <button id="btnReturnConfirm" class="btn" type="button" style="display:none;">반납확정</button>
+
+                        <span id="circulationHint" class="chip" style="display:none;"></span>
+                    </div>
+
 
                     <!-- 재고 -->
                     <div class="kpi">
@@ -265,6 +277,215 @@
         }
     }
 
+    // ======================
+    // Circulation (status + actions)
+    // ======================
+    const $ca = document.getElementById("circulationActions");
+    const $hint = document.getElementById("circulationHint");
+
+    const $btnLend = document.getElementById("btnLend");
+    const $btnExtend = document.getElementById("btnExtend");
+    const $btnReserve = document.getElementById("btnReserve");
+    const $btnReserveCancel = document.getElementById("btnReserveCancel");
+    const $btnReturnBox = document.getElementById("btnReturnBox");
+    const $btnReturnConfirm = document.getElementById("btnReturnConfirm");
+
+    // fetchJson / postFormJson이 detail에 없으면 추가 (search.html에서 쓰던 패턴)
+    async function fetchJson(url, options = {}) {
+        const res = await fetch(url, {
+            headers: { "Accept": "application/json", ...(options.headers || {}) },
+            ...options
+        });
+
+        const ct = res.headers.get("content-type") || "";
+        if (res.status === 401 || res.status === 403 || ct.includes("text/html")) {
+            goLoginReturnHere();
+            return null;
+        }
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        return await res.json();
+    }
+
+    async function postFormJson(url, paramsObj) {
+        const body = new URLSearchParams();
+        Object.entries(paramsObj || {}).forEach(([k, v]) => body.set(k, v));
+        return await fetchJson(url, {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: body.toString()
+        });
+    }
+
+    function hideAllCirculationButtons() {
+        [$btnLend, $btnExtend, $btnReserve, $btnReserveCancel, $btnReturnBox, $btnReturnConfirm]
+            .forEach(b => { b.style.display = "none"; b.disabled = false; });
+
+        $hint.style.display = "none";
+        $hint.textContent = "";
+    }
+
+    function showHint(msg) {
+        $hint.textContent = msg;
+        $hint.style.display = "";
+    }
+
+    // status DTO 필드명이 프로젝트마다 조금 달라도 동작하도록 “유연 파싱”
+    function pick(dto, ...keys) {
+        for (const k of keys) {
+            if (dto && dto[k] !== undefined && dto[k] !== null) return dto[k];
+        }
+        return null;
+    }
+
+    function yn(v) {
+        if (v === true) return "Y";
+        if (v === false) return "N";
+        if (v == null) return "N";
+        return String(v).toUpperCase() === "Y" ? "Y" : "N";
+    }
+
+    function num(v, def = 0) {
+        const n = Number(v);
+        return Number.isFinite(n) ? n : def;
+    }
+
+    // ✅ “상태 → 버튼” 규칙(상태머신)
+    function renderCirculation(dto) {
+        hideAllCirculationButtons();
+        if (!dto) return;
+
+        // 재고/상태 후보 필드들 (너 DTO명 몰라도 최대한 커버)
+        const availableCnt = num(pick(dto, "availableCnt", "availCnt", "availableCount"), 0);
+
+        const myLendYn = yn(pick(dto, "myLendYn", "lentYn", "myBorrowYn"));
+        const myExtendYn = yn(pick(dto, "myExtendYn", "extendableYn", "canExtendYn"));
+        const myLendId = pick(dto, "myLendId", "lendId", "currentLendId");
+
+        const myRsvYn = yn(pick(dto, "myRsvYn", "reservedYn", "myReserveYn"));
+        const myRsvId = pick(dto, "myRsvId", "rsvId", "reserveId");
+
+        const userBlockedYn = yn(pick(dto, "userBlockedYn", "blockedYn"));
+        const userOverdueYn = yn(pick(dto, "userOverdueYn", "overdueYn"));
+        const rsvLimitYn = yn(pick(dto, "rsvLimitYn", "reserveLimitYn"));
+
+        // 반납 관련(있으면 쓰고 없으면 최소 동작만)
+        const canReturnBoxYn = yn(pick(dto, "canReturnBoxYn", "returnToBoxYn"));
+        const canReturnConfirmYn = yn(pick(dto, "canReturnConfirmYn", "returnConfirmYn"));
+
+        // 1) 내가 대여중이면: 연장/반납 버튼
+        if (myLendYn === "Y" || myLendId) {
+            showHint("현재 대여중입니다.");
+
+            // 연장 가능
+            if (myExtendYn === "Y") {
+                $btnExtend.style.display = "";
+                $btnExtend.dataset.lendId = String(myLendId || "");
+            }
+
+            // 반납함 반납(가능 플래그가 없으면 일단 노출해도 됨)
+            if (canReturnBoxYn === "Y" || canReturnBoxYn === "N") {
+                $btnReturnBox.style.display = "";
+                $btnReturnBox.dataset.lendId = String(myLendId || "");
+            }
+
+            // 반납 확정(사서/관리자용일 수 있으니 플래그 있을 때만)
+            if (canReturnConfirmYn === "Y") {
+                $btnReturnConfirm.style.display = "";
+                $btnReturnConfirm.dataset.lendId = String(myLendId || "");
+            }
+            return;
+        }
+
+        // 2) 대여중이 아니면: 대여 가능하면 “대여하기”
+        if (availableCnt > 0) {
+            showHint("대여 가능합니다.");
+            $btnLend.style.display = "";
+            return;
+        }
+
+        // 3) 재고 없으면: 내 예약이 있으면 취소 / 없으면 예약
+        if (myRsvYn === "Y" || myRsvId) {
+            showHint("예약중입니다.");
+            $btnReserveCancel.style.display = "";
+            $btnReserveCancel.dataset.rsvId = String(myRsvId || "");
+            return;
+        }
+
+        // 4) 예약 불가 조건
+        if (userBlockedYn === "Y" || userOverdueYn === "Y" || rsvLimitYn === "Y") {
+            $btnReserve.style.display = "";
+            $btnReserve.disabled = true;
+            showHint("예약할 수 없습니다(제한 상태).");
+            return;
+        }
+
+        // 5) 기본: 예약하기
+        showHint("재고가 없어 예약만 가능합니다.");
+        $btnReserve.style.display = "";
+    }
+
+    async function loadCirculationStatus() {
+        try {
+            const dto = await fetchJson(`/book/circulation/status?isbn13=${encodeURIComponent(isbn13)}`);
+            if (!dto) return;
+            renderCirculation(dto);
+        } catch (e) {
+            console.error("circulation status error:", e);
+        }
+    }
+
+    // ======================
+    // Actions
+    // ======================
+    async function doAction(btn, fn) {
+        if (btn.disabled) return;
+        btn.disabled = true;
+        try {
+            await fn();
+            await loadCirculationStatus(); // ✅ 상태 갱신
+        } finally {
+            btn.disabled = false;
+        }
+    }
+
+    $btnLend?.addEventListener("click", () => doAction($btnLend, async () => {
+        await postFormJson("/book/circulation/lend", { isbn13 });
+    }));
+
+    $btnExtend?.addEventListener("click", () => doAction($btnExtend, async () => {
+        const lendId = $btnExtend.dataset.lendId;
+        if (!lendId) return;
+        await postFormJson("/book/circulation/extend", { lendId });
+    }));
+
+    $btnReserve?.addEventListener("click", () => doAction($btnReserve, async () => {
+        await postFormJson("/book/circulation/reserve", { isbn13 });
+    }));
+
+    $btnReserveCancel?.addEventListener("click", () => doAction($btnReserveCancel, async () => {
+        const rsvId = $btnReserveCancel.dataset.rsvId;
+        if (!rsvId) return;
+        await postFormJson("/book/circulation/reserve/cancel", { rsvId });
+    }));
+
+    $btnReturnBox?.addEventListener("click", () => doAction($btnReturnBox, async () => {
+        const lendId = $btnReturnBox.dataset.lendId;
+        if (!lendId) return;
+
+        // ✅ 일단 prompt로 boxId 받기 (다음 단계에서 select로 개선 가능)
+        const boxId = prompt("반납함 ID를 입력하세요 (예: 1)");
+        if (!boxId) return;
+
+        await postFormJson("/book/circulation/return/box", { lendId, boxId });
+    }));
+
+    $btnReturnConfirm?.addEventListener("click", () => doAction($btnReturnConfirm, async () => {
+        const lendId = $btnReturnConfirm.dataset.lendId;
+        if (!lendId) return;
+        await postFormJson("/book/circulation/return/confirm", { lendId });
+    }));
+
+
     const btnCart = document.getElementById('btnCart');
     const cartIconEl = document.getElementById('cartIcon');
     const cartTextEl = document.getElementById('cartText');
@@ -360,7 +581,7 @@
             console.error('reviewstatus error:', e);
         }
         }
-
+    loadCirculationStatus();
     loadReviewStatus();
 </script>
 

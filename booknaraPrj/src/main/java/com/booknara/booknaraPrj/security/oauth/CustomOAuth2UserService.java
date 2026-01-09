@@ -1,6 +1,11 @@
 package com.booknara.booknaraPrj.security.oauth;
 
 import com.booknara.booknaraPrj.login_signup.*;
+import com.booknara.booknaraPrj.login_signup.dto.SocialAccount;
+import com.booknara.booknaraPrj.login_signup.mapper.SocialAccountMapper;
+import com.booknara.booknaraPrj.login_signup.mapper.UserMapper;
+import com.booknara.booknaraPrj.login_signup.service.NicknameGenerator;
+import com.booknara.booknaraPrj.login_signup.service.SocialUserIdGenerator;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;

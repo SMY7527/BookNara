@@ -36,109 +36,160 @@ document.addEventListener("DOMContentLoaded", () => {
 
 document.addEventListener("DOMContentLoaded", () => {
 
-  /* ===== 장르별 도서 데이터 (나중에 DB로 교체) ===== */
-  const bookData = {
-    warm: [
-      { title: "너를 생각하는 것이 나의 일생이었다", author: "정채봉", img: "./images/book1.jpg" },
-      { title: "오늘도 고마워", author: "김신지", img: "./images/book2.jpg" },
-      { title: "괜찮아, 잘 될 거야", author: "에세이", img: "./images/book3.jpg" }
-    ],
-    mystery: [
-      { title: "용의자 X의 헌신", author: "히가시노 게이고", img: "./images/book4.png" },
-      { title: "백야행", author: "히가시노 게이고", img: "./images/book5.png" },
-      { title: "셜록 홈즈", author: "아서 코난 도일", img: "./images/book6.png" }
-    ],
-    horror: [
-      { title: "사랑해도 혼나지 않는 꿈이었다", author: "시오엔", img: "./images/book7.png" },
-      { title: "기담", author: "공포 단편", img: "./images/book8.png" },
-      { title: "소름", author: "미스터리", img: "./images/book9.png" }
-    ]
-  };
+  /* ===============================
+     1️⃣ 내가 정한 해시태그 9개 (GENRE_ID + 텍스트)
+     =============================== */
+  const MALLANG_HASHTAGS = [
+    { genreId: 1,    label: "#이야기에빠지다" },
+    { genreId: 55889, label: "#마음이따뜻해지는" },
+    { genreId: 336,  label: "#나를키우는시간" },
+    { genreId: 656,  label: "#생각이깊어지는" },
+    { genreId: 74,   label: "#세상을읽다" },
+    { genreId: 170,  label: "#돈과인생이야기" },
+    { genreId: 987,  label: "#호기심폭발" },
+    { genreId: 517,  label: "#취향저격" },
+    { genreId: 1108, label: "#꿈이자라는" }
+  ];
 
-  /* ===== 기존 DOM 요소 ===== */
-  const hashtags = Array.from(document.querySelectorAll(".hashtag"));
-  const cards = document.querySelectorAll(".book-card");
+  const hashtagBox = document.getElementById("recommendHashtags");
+  const bookCards = document.querySelectorAll(".book-card");
 
-  /* ===== 해시태그 10개 중 랜덤 3개만 표시 ===== */
-  hashtags.sort(() => Math.random() - 0.5);
-
-  hashtags.forEach((tag, idx) => {
-    tag.style.display = idx < 3 ? "block" : "none";
-  });
-
-  /* 첫 번째 해시태그 자동 선택 */
-  const firstTag = hashtags.find(tag => tag.style.display === "block");
-  if (firstTag) {
-    firstTag.classList.add("active");
-    renderBooks(firstTag.dataset.genre);
+  /* ===============================
+     2️⃣ 배열 섞어서 랜덤 3개 뽑기
+     =============================== */
+  function pickRandom3(arr) {
+    return [...arr].sort(() => Math.random() - 0.5).slice(0, 3);
   }
 
-  /* ===== 해시태그 클릭 ===== */
-  hashtags.forEach(tag => {
-    tag.addEventListener("click", () => {
-      if (tag.style.display === "none") return;
+  /* ===============================
+     3️⃣ 해시태그 랜덤 3개 렌더링
+     =============================== */
+  function renderHashtags() {
+    const picked = pickRandom3(MALLANG_HASHTAGS);
+    hashtagBox.innerHTML = "";
 
-      hashtags.forEach(t => t.classList.remove("active"));
-      tag.classList.add("active");
+    picked.forEach((tag, idx) => {
+      const btn = document.createElement("button");
+      btn.className = "hashtag";
+      btn.innerText = tag.label;
+      btn.dataset.genreId = tag.genreId;
 
-      renderBooks(tag.dataset.genre);
-    });
-  });
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".hashtag").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        loadBooks(tag.genreId);
+      });
 
-  /* ===== 카드 내용만 교체 ===== */
-  function renderBooks(genre) {
-    const books = bookData[genre] || [];
+      hashtagBox.appendChild(btn);
 
-    cards.forEach((card, idx) => {
-      const book = books[idx];
-      if (!book) return;
-
-      card.querySelector("img").src = book.img;
-      card.querySelector("img").alt = book.title;
-      card.querySelector(".book-title").innerText = book.title;
-      card.querySelector(".book-author").innerText = book.author;
+      // 첫 해시태그 자동 선택
+      if (idx === 0) {
+        btn.classList.add("active");
+        loadBooks(tag.genreId);
+      }
     });
   }
+
+  /* ===============================
+     4️⃣ 해시태그 클릭 → DB에서 랜덤 3권
+     =============================== */
+  function loadBooks(genreId) {
+    fetch(`/api/main/mallang-pick/books?genreId=${genreId}`)
+      .then(res => res.json())
+      .then(books => {
+        bookCards.forEach((card, idx) => {
+          const book = books[idx];
+
+          if (!book) {
+            card.querySelector("img").src = "/images/placeholder_book.png";
+            card.querySelector(".book-title").innerText = "추천 도서 준비 중";
+            card.querySelector(".book-author").innerText = "";
+            return;
+          }
+
+          card.querySelector("img").src = book.bookImg;
+          card.querySelector("img").alt = book.bookTitle;
+          card.querySelector(".book-title").innerText = book.bookTitle;
+          card.querySelector(".book-author").innerText =
+            `${book.authors} · ${book.publisher}`;
+        });
+      });
+  }
+
+  /* ===============================
+     5️⃣ 시작
+     =============================== */
+  renderHashtags();
 
 });
 
 
-
-
+//사서추천
+// 사서 추천
 document.addEventListener("DOMContentLoaded", () => {
-  const track = document.querySelector(".new-books-track");
-  const wrapper = document.querySelector(".new-books-track-wrapper");
-  const prevBtn = document.querySelector(".new-books-slider .prev");
-  const nextBtn = document.querySelector(".new-books-slider .next");
 
-  const cardWidth = 180;
-  const gap = 34;
-  const step = cardWidth + gap;
+  const list = document.getElementById("librarianBookList"); // 컨테이너
 
-  let index = 0;
+  fetch("/api/main/librarian/books")
+    .then(res => res.json())
+    .then(books => {
+      list.innerHTML = ""; // 기존 더미 제거
 
-  function getMaxIndex() {
-    const trackWidth = track.scrollWidth;
-    const wrapperWidth = wrapper.clientWidth;
-    return Math.max(0, Math.ceil((trackWidth - wrapperWidth) / step));
-  }
+      books.forEach(book => {
+        const card = document.createElement("div");
+        card.className = "librarian-book-card";
 
-  function update() {
-    track.style.transform = `translateX(-${index * step}px)`;
-  }
+        card.innerHTML = `
+          <div class="book-cover">
+            <img src="${book.bookImg}" alt="${book.bookTitle}">
+          </div>
+          <div class="book-info">
+            <p class="book-title">${book.bookTitle}</p>
+            <p class="book-author">
+              ${book.authors} · ${book.publisher}
+            </p>
+          </div>
+        `;
 
-  nextBtn.addEventListener("click", () => {
-    const maxIndex = getMaxIndex();
-    if (index < maxIndex) {
-      index++;
-      update();
-    }
-  });
-
-  prevBtn.addEventListener("click", () => {
-    if (index > 0) {
-      index--;
-      update();
-    }
-  });
+        list.appendChild(card);
+      });
+    })
+    .catch(err => console.error("사서 추천 로딩 실패", err));
 });
+
+
+// 신간도서
+document.addEventListener("DOMContentLoaded", () => {
+
+  const list = document.getElementById("newBooksList");
+  if (!list) return;
+
+  fetch("/api/main/new-books")
+    .then(res => res.json())
+    .then(books => {
+      list.innerHTML = "";
+
+      books.forEach(book => {
+        const card = document.createElement("div");
+        card.className = "librarian-book-card";
+
+        card.innerHTML = `
+          <a href="/books/${book.isbn13}" class="new-book-link">
+            <div class="book-cover">
+              <img src="${book.bookImg}" alt="${book.bookTitle}">
+            </div>
+            <div class="book-info">
+              <p class="book-title">${book.bookTitle}</p>
+              <p class="book-author">
+                ${book.authors} · ${book.publisher}
+              </p>
+            </div>
+          </a>
+        `;
+
+        list.appendChild(card);
+      });
+    })
+    .catch(err => console.error("신간도서 로딩 실패", err));
+});
+

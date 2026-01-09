@@ -1,4 +1,4 @@
-package com.booknara.booknaraPrj.login_signup;
+package com.booknara.booknaraPrj.login_signup.dto;
 
 import lombok.Getter;
 import lombok.Setter;

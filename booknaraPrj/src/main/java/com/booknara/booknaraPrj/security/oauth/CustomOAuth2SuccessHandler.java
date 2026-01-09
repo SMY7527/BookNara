@@ -1,9 +1,9 @@
 package com.booknara.booknaraPrj.security.oauth;
 
-import com.booknara.booknaraPrj.login_signup.SocialAccount;
-import com.booknara.booknaraPrj.login_signup.SocialAccountMapper;
 import com.booknara.booknaraPrj.login_signup.User;
-import com.booknara.booknaraPrj.login_signup.UserMapper;
+import com.booknara.booknaraPrj.login_signup.dto.SocialAccount;
+import com.booknara.booknaraPrj.login_signup.mapper.SocialAccountMapper;
+import com.booknara.booknaraPrj.login_signup.mapper.UserMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;

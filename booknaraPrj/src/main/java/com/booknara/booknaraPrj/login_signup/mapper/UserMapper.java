@@ -1,5 +1,6 @@
-package com.booknara.booknaraPrj.login_signup;
+package com.booknara.booknaraPrj.login_signup.mapper;
 
+import com.booknara.booknaraPrj.login_signup.User;
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.data.repository.query.Param;
 
@@ -36,4 +37,19 @@ public interface UserMapper {
                        @Param("zipcode") String zipcode,
                        @Param("addr") String addr,
                        @Param("detailAddr") String detailAddr);
+
+    //아이디비밀번호 찾기
+    String findLocalUserIdByNameAndEmail(
+            @Param("name") String name,
+            @Param("email") String email
+    );
+
+    int countByUserIdAndEmail(@Param("userId") String userId,
+                              @Param("email") String email);
+
+
+    int updatePassword(@Param("userId") String userId,
+                       @Param("password") String password);
 }
+
+

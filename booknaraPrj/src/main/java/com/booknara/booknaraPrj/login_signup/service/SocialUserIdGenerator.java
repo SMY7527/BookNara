@@ -1,4 +1,4 @@
-package com.booknara.booknaraPrj.login_signup;
+package com.booknara.booknaraPrj.login_signup.service;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;

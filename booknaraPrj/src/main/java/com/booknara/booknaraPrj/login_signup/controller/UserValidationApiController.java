@@ -1,6 +1,7 @@
-package com.booknara.booknaraPrj.login_signup;
+package com.booknara.booknaraPrj.login_signup.controller;
 
 
+import com.booknara.booknaraPrj.login_signup.service.UserService1;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

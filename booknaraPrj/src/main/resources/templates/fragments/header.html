@@ -15,9 +15,7 @@
 
             <!-- 로그인 전 -->
             <div class="top-right before-login" sec:authorize="isAnonymous()">
-                <a th:href="@{/users/login}" class="login-link">로그인</a>
-                <span class="slash">/</span>
-                <a th:href="@{/users/signup}" class="signup-link">회원가입</a>
+                <a th:href="@{/users/login}" class="login-link">로그인/회원가입</a>
             </div>
 
             <!-- 로그인 후 -->
@@ -32,6 +30,11 @@
                         <a href="#">마이페이지</a>
                         <a href="#">내 서재</a>
                         <a href="#">북마크</a>
+                        <!-- ⭐ 관리자 전용 -->
+                        <a th:href="@{/admin/Statistics}"
+                           sec:authorize="hasRole('ADMIN')">
+                            관리자페이지
+                        </a>
                         <hr>
                         <form th:action="@{/logout}" method="post">
                             <button type="submit" class="logout-btn">로그아웃</button>
@@ -45,15 +48,17 @@
 
         <div class="header-inner">
             <div class="logo">
-                <img th:src="@{/images/logo.png}" alt="사이트 로고">
+                <a th:href="@{/home}">
+                    <img th:src="@{/images/logo.png}" alt="사이트 로고">
+                </a>
             </div>
 
             <nav class="nav">
-                <a>맞춤 추천</a><span>|</span>
-                <a>검색</a><span>|</span>
-                <a>피드</a><span>|</span>
-                <a>안내</a><span>|</span>
-                <a>이벤트</a>
+                <a th:href="@{/recommend}">맞춤 추천</a><span>|</span>
+                <a href="">검색</a><span>|</span>
+                <a href="">피드</a><span>|</span>
+                <a href="">안내</a><span>|</span>
+                <a href="">이벤트</a><span>|</span>
             </nav>
 
             <div class="right">

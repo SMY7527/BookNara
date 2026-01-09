@@ -1,5 +1,10 @@
-package com.booknara.booknaraPrj.login_signup;
+package com.booknara.booknaraPrj.login_signup.service;
 
+import com.booknara.booknaraPrj.login_signup.User;
+import com.booknara.booknaraPrj.login_signup.dto.SignupRequest;
+import com.booknara.booknaraPrj.login_signup.dto.SocialAccount;
+import com.booknara.booknaraPrj.login_signup.mapper.SocialAccountMapper;
+import com.booknara.booknaraPrj.login_signup.mapper.UserMapper;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -194,5 +199,35 @@ public class UserService1 {
         socialAccountMapper.insertSocialAccount(sa);
 
         return userId;
+    }
+
+
+
+    public String findUserId(String name, String email) {
+        return userMapper.findLocalUserIdByNameAndEmail(name, email);
+    }
+
+    public boolean checkUserForPasswordReset(String userId, String email) {
+        return userMapper.countByUserIdAndEmail(userId, email) == 1;
+    }
+
+    public String createVerifyCode() {
+        return String.valueOf((int)(Math.random() * 900000) + 100000);
+    }
+
+    public void resetPassword(String userId, String password) {
+
+        // 비밀번호 유효성 검사
+        String regex = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{8,16}$";
+        if (!password.matches(regex)) {
+            throw new IllegalArgumentException("비밀번호 형식 오류");
+        }
+
+        String encoded = passwordEncoder.encode(password);
+
+        int updated = userMapper.updatePassword(userId, encoded);
+        if (updated != 1) {
+            throw new IllegalStateException("비밀번호 변경 실패");
+        }
     }
 }

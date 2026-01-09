@@ -1,5 +1,7 @@
-package com.booknara.booknaraPrj.login_signup;
+package com.booknara.booknaraPrj.login_signup.service;
 
+import com.booknara.booknaraPrj.login_signup.dto.SocialAccount;
+import com.booknara.booknaraPrj.login_signup.mapper.SocialAccountMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

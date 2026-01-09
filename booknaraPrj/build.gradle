@@ -47,6 +47,8 @@ dependencies {
 	implementation 'com.google.auth:google-auth-library-oauth2-http:1.23.0'
 
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
+
 }
 
 tasks.named('test') {

@@ -1,5 +1,6 @@
-package com.booknara.booknaraPrj.login_signup;
+package com.booknara.booknaraPrj.login_signup.mapper;
 
+import com.booknara.booknaraPrj.login_signup.dto.SocialAccount;
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.data.repository.query.Param;
 

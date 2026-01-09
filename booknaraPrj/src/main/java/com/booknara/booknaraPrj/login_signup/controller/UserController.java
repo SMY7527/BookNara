@@ -1,10 +1,18 @@
-package com.booknara.booknaraPrj.login_signup;
+package com.booknara.booknaraPrj.login_signup.controller;
 
+import com.booknara.booknaraPrj.login_signup.User;
+import com.booknara.booknaraPrj.login_signup.dto.ExtraAddressRequest;
+import com.booknara.booknaraPrj.login_signup.dto.PreferGenreRequest;
+import com.booknara.booknaraPrj.login_signup.dto.SignupRequest;
+import com.booknara.booknaraPrj.login_signup.service.UserPreferGenreService;
+import com.booknara.booknaraPrj.login_signup.service.UserService1;
 import com.booknara.booknaraPrj.security.CustomUserDetails;
 import com.booknara.booknaraPrj.security.oauth.CustomOAuth2User;
 import com.booknara.booknaraPrj.security.oauth.SocialLinkSessionKey;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -14,16 +22,22 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.List;
+
 @Controller
 @RequestMapping("/users")
 public class UserController {
 
     private final UserService1 userService1;
     private final AuthenticationManager authenticationManager;
+    private final UserPreferGenreService userPreferGenreService;
 
-    public UserController(UserService1 userService1, AuthenticationManager authenticationManager) {
+    public UserController(UserService1 userService1,
+                          AuthenticationManager authenticationManager,
+                          UserPreferGenreService userPreferGenreService) {
         this.userService1 = userService1;
         this.authenticationManager = authenticationManager;
+        this.userPreferGenreService = userPreferGenreService;
     }
     //로그인
 
@@ -136,6 +150,7 @@ public class UserController {
 
 
 
+
     //주소,장르선택
     @GetMapping("/signup-extra")
     public String signupExtraPage() {
@@ -181,7 +196,7 @@ public class UserController {
             throw new IllegalStateException("알 수 없는 로그인 타입");
         }
 
-        // 1️⃣ 주소 저장
+        //  주소 저장
         userService1.updateAddress(
                 user.getUserId(),
                 req.getZipcode(),
@@ -189,14 +204,50 @@ public class UserController {
                 req.getDetailAddr()
         );
 
-        // 2️⃣ 추가정보 완료 처리
+        // 추가정보 완료 처리
         userService1.updateExtraInfoDone(user.getUserId());
 
-        // 3️⃣ 세션 객체 갱신
+        //  세션 객체 갱신
         user.setExtraInfoDone("Y");
         user.setZipcode(req.getZipcode());
         user.setAddr(req.getAddr());
         user.setDetailAddr(req.getDetailAddr());
     }
 
-}
+    //선호장르 저장
+
+
+
+
+    @PostMapping("/prefer-genres")
+    @ResponseBody
+    public ResponseEntity<Void> savePreferGenres(
+            @RequestBody PreferGenreRequest request,
+            Authentication auth
+    ) {
+        Object principal = auth.getPrincipal();
+        User user;
+
+        if (principal instanceof CustomOAuth2User oAuth2User) {
+            user = oAuth2User.getUser();
+        } else if (principal instanceof CustomUserDetails userDetails) {
+            user = userDetails.getUser();
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        List<Integer> genreIds = request.getGenreIds();
+        if (genreIds == null || genreIds.isEmpty() || genreIds.size() > 3) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        userPreferGenreService.save(user.getUserId(), genreIds);
+
+        userService1.updateExtraInfoDone(user.getUserId());
+        user.setExtraInfoDone("Y");
+
+        return ResponseEntity.ok().build();
+        }
+    }
+
+

@@ -5,6 +5,7 @@ import com.booknara.booknaraPrj.security.oauth.CustomOAuth2UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -35,6 +36,7 @@ public class SecurityConfig {
                                 "/home",                 // 메인(비로그인 허용이면)
                                 "/users/login",
                                 "/users/signup",
+                                "/users/find-account",
                                 "/users/signup-extra",
                                 "/users/check-id",
                                 "/users/check-profile",
@@ -42,12 +44,22 @@ public class SecurityConfig {
                                 "/oauth2/**",
                                 "/login/oauth2/**",
                                 "/api/users/**",
+                                "/users/reset-password-form",
+                                "/users/reset-password",
+                                "/recommend",
+                                "/api/main/**",
                                 "/css/**",
                                 "/js/**",
                                 "/images/**",
                                 "/favicon.ico",
                                 "/error/*",
                                 "/404"
+                        ).permitAll()
+                        .requestMatchers(HttpMethod.POST,
+                                "/users/find-id",
+                                "/users/find-password",
+                                "/users/verify-code",
+                                "/users/reset-password"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
@@ -68,6 +80,9 @@ public class SecurityConfig {
                         )
                         .successHandler(customOAuth2SuccessHandler)
                 )
+
+
+
 
 
                 .logout(logout -> logout

@@ -33,4 +33,14 @@ public class SettingsService {
 
         settingsRepository.save(existing);
     }
+
+    @Transactional(readOnly = true)
+    public String getAdminEmail() {
+        return getSettings().getAdminEmail();
+    }
+
+    @Transactional(readOnly = true)
+    public String getAdminPhone() {
+        return getSettings().getAdminPhone();
+    }
 }

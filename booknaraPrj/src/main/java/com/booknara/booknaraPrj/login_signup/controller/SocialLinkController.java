@@ -1,5 +1,6 @@
-package com.booknara.booknaraPrj.login_signup;
+package com.booknara.booknaraPrj.login_signup.controller;
 
+import com.booknara.booknaraPrj.login_signup.service.SocialLinkService;
 import com.booknara.booknaraPrj.security.oauth.SocialLinkSessionKey;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;

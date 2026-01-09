@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>내 서재</title>
+    <link rel="stylesheet" href="/css/mybooklist.css">
+</head>
+<body>
+
+<section class="library-wrap">
+
+    <!-- 🔹 탭 -->
+    <div class="mypage-tabs">
+        <a th:href="@{/my/booklist}" class="mypage-tab"
+           th:classappend="${activeTab=='rent'} ? ' active' : ''">대여</a>
+        <a th:href="@{/my/reserve}" class="mypage-tab"
+           th:classappend="${activeTab=='reserve'} ? ' active' : ''">예약</a>
+        <a th:href="@{/my/bookmark}" class="mypage-tab"
+           th:classappend="${activeTab=='bookmark'} ? ' active' : ''">북마크</a>
+    </div>
+
+    <!-- ================= 대여 ================= -->
+    <div class="tab-content active" id="lend">
+
+        <!-- ✅ 현재 대여 중 -->
+        <h3>현재 대여 중</h3>
+        <div class="book-list">
+            <div class="book-card"
+                 th:each="book : ${currentLends}">
+                <img th:src="${book.coverImg}">
+                <p th:text="${book.bookTitle}"></p>
+                <span>
+                    반납 예정 :
+                    <span th:text="${#temporals.format(book.returnDueDate,'yyyy-MM-dd')}"></span>
+                </span>
+            </div>
+        </div>
+
+        <!-- ✅ 대여 히스토리 -->
+        <h3>대여 기록</h3>
+        <div class="book-list">
+            <div class="book-card"
+                 th:each="book : ${lendHistory}">
+                <img th:src="${book.coverImg}">
+                <p th:text="${book.bookTitle}"></p>
+                <span>
+                    반납 완료 :
+                    <span th:text="${#temporals.format(book.returnDoneAt,'yyyy-MM-dd')}"></span>
+                </span>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ================= 예약 ================= -->
+    <div class="tab-content" id="reserve">
+        <div class="book-list">
+            <div class="book-card"
+                 th:each="book : ${reserveList}">
+                <img th:src="${book.coverImg}">
+                <p th:text="${book.bookTitle}"></p>
+                <span>
+                    예약일 :
+                    <span th:text="${#temporals.format(book.rsvDate,'yyyy-MM-dd')}"></span>
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= 북마크 ================= -->
+    <div class="tab-content" id="bookmark">
+        <div class="book-list">
+            <div class="book-card"
+                 th:each="book : ${bookmarkList}">
+                <img th:src="${book.coverImg}">
+                <p th:text="${book.bookTitle}"></p>
+            </div>
+        </div>
+    </div>
+
+</section>
+
+<!-- 🔹 탭 전환 JS -->
+<script>
+    document.querySelectorAll('.tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+            tab.classList.add('active');
+            document.getElementById(tab.dataset.tab).classList.add('active');
+        });
+    });
+</script>
+
+</body>
+</html>

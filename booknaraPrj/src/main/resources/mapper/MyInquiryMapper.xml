@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.booknara.booknaraPrj.mypage.myinquiry.MyInquiryMapper">
+
+    <!-- 내 문의 내역 조회 -->
+    <select id="selectMyInquiry"
+            parameterType="map"
+            resultType="com.booknara.booknaraPrj.mypage.myinquiry.MyInquiryHistoryDto">
+
+        SELECT
+        INQ_ID        AS inqId,
+        INQ_TITLE     AS inqTitle,
+        INQ_CONTENT   AS inqContent,
+        RESP_CONTENT  AS respContent,
+        CREATED_AT    AS createdAt
+        FROM INQUIRY
+        WHERE USER_ID = #{userId}
+        AND IS_DELETED = 'N'
+
+        <if test="keyword != null and keyword != ''">
+            AND (
+            INQ_TITLE LIKE CONCAT('%', #{keyword}, '%')
+            OR INQ_CONTENT LIKE CONCAT('%', #{keyword}, '%')
+            )
+        </if>
+
+        ORDER BY CREATED_AT DESC
+    </select>
+
+    <!-- 문의 작성 -->
+    <insert id="insertInquiry"
+            parameterType="com.booknara.booknaraPrj.mypage.myinquiry.MyInquiryWriteDto">
+
+        INSERT INTO INQUIRY (
+            INQ_ID,
+            USER_ID,
+            INQ_TITLE,
+            INQ_TYPE,
+            INQ_CONTENT,
+            CREATED_AT
+        ) VALUES (
+                     CONCAT('INQ_', DATE_FORMAT(NOW(), '%Y%m%d'), '_', LPAD(FLOOR(RAND()*1000), 3, '0')),
+                     #{userId},
+                     #{inqTitle},
+                     #{inqType},
+                     #{inqContent},
+                     NOW()
+                 )
+
+    </insert>
+
+</mapper>

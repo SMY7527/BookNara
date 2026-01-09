@@ -1,5 +1,7 @@
 package com.booknara.booknaraPrj.admin.users;
 
+import com.booknara.booknaraPrj.login_signup.User;
+import com.booknara.booknaraPrj.login_signup.UserMapper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -13,6 +15,7 @@ import java.util.Map;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final UserMapper userMapper;
 
     /**
      * 전체 유저 리스트 조회
@@ -62,4 +65,9 @@ public class UserService {
 
         // 3. @Transactional에 의해 메서드 종료 시 자동 flush(DB 반영)
     }
+
+    public User getUserById(String userId) {
+        return userMapper.findByUserId(userId);
+    }
+
 }

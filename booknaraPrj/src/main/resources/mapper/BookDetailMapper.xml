@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.booknara.booknaraPrj.bookDetail.mapper.BookDetailMapper">
+
+    <!-- 1) 도서 상세 메타 (BOOK_ISBN + GENRE(현재)) -->
+    <select id="selectBookDetail"
+            parameterType="string"
+            resultType="com.booknara.booknaraPrj.bookDetail.dto.BookDetailDTO">
+
+        SELECT
+            b.ISBN13           AS isbn13,
+            b.BOOK_TITLE       AS bookTitle,
+            b.AUTHORS          AS authors,
+            b.PUBLISHER        AS publisher,
+            b.PUBDATE          AS pubdate,
+            b.DESCRIPTION      AS description,
+            b.NAVER_IMAGE      AS naverImage,
+            b.ALADIN_IMAGE_BIG AS aladinImageBig,
+            b.EBOOK_YN         AS ebookYn,
+            b.EPUB             AS epub,
+            b.GENRE_ID         AS genreId,
+
+            g.GENRE_NM         AS genreNm
+        FROM BOOK_ISBN b
+                 JOIN GENRE g ON g.GENRE_ID = b.GENRE_ID
+        WHERE b.ISBN13 = #{isbn13}
+    </select>
+
+
+    <!-- 2) ISBN 기준 소장/가용/분실 집계 (BOOKS) -->
+    <select id="selectInventory"
+            parameterType="string"
+            resultType="com.booknara.booknaraPrj.bookDetail.dto.BookInventoryDTO">
+
+        SELECT
+            COUNT(*) AS totalCount,
+            SUM(CASE WHEN BOOK_STATE = 'N' THEN 1 ELSE 0 END) AS availableCount,
+            SUM(CASE WHEN BOOK_STATE = 'L' THEN 1 ELSE 0 END) AS lostCount
+        FROM BOOKS
+        WHERE ISBN13 = #{isbn13}
+    </select>
+
+
+    <!-- 3) breadcrumb 재료: 현재 장르 + 부모 1단 -->
+    <select id="selectGenreSelfAndParent"
+            parameterType="int"
+            resultType="map">
+
+        SELECT
+            g.MALL      AS mall,
+            g.GENRE_ID  AS genreId,
+            g.GENRE_NM  AS genreNm,
+            g.PARENT_ID AS parentId,
+            p.GENRE_NM  AS parentNm
+        FROM GENRE g
+                 LEFT JOIN GENRE p ON p.GENRE_ID = g.PARENT_ID
+        WHERE g.GENRE_ID = #{genreId}
+    </select>
+
+</mapper>

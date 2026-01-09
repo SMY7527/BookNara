@@ -46,22 +46,6 @@ public class UserController {
         return "login";
     }
 
-    @PostMapping("/login")
-    public String login(@RequestParam String userId,
-                        @RequestParam String password,
-                        HttpSession session,
-                        RedirectAttributes ra) {
-        try {
-            User user = userService1.login(userId, password);
-            session.setAttribute("loginUser", user);
-            return "redirect:/main";
-        } catch (IllegalArgumentException e) {
-            ra.addFlashAttribute("errorMessage", e.getMessage());
-            return "redirect:/users/login";
-        }
-    }
-
-
 
     //회원가입
     @GetMapping("/signup")

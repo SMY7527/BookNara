@@ -4,7 +4,8 @@ import com.booknara.booknaraPrj.bookSearch.dto.BookSearchConditionDTO;
 import com.booknara.booknaraPrj.bookSearch.dto.BookSearchDTO;
 import com.booknara.booknaraPrj.bookSearch.dto.PageInsertDTO;
 import com.booknara.booknaraPrj.bookSearch.mapper.BookSearchMapper;
-import com.booknara.booknaraPrj.common.dto.PageResultDTO;
+import com.booknara.booknaraPrj.bookSearch.dto.PageResultDTO;
+import com.booknara.booknaraPrj.security.uitil.LoginUserUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -35,100 +36,165 @@ public class BookSearchService {
      * @return PageResultDTO(목록 + 페이지 정보)
      */
     public PageResultDTO<BookSearchDTO> search(BookSearchConditionDTO cond, PageInsertDTO page) {
-        // null 방어: 컨트롤러 바인딩이 실패하거나 호출자가 null로 넘겨도 서비스가 죽지 않도록
+
+        // ✅ 0) null 방어 먼저
         if (cond == null) cond = new BookSearchConditionDTO();
         if (page == null) page = new PageInsertDTO();
 
-        // ---------------------------------------------------------------------
-        // 1) 페이징 입력값 방어
-        // - page는 1부터 시작, size는 상한을 둬서 대량 조회(폭탄 요청) 방지
-        // - offset은 DB LIMIT/OFFSET 조회를 위한 내부 계산값
-        // ---------------------------------------------------------------------
+        // ✅ 1) 페이징 방어
         int safePage = clamp(page.getPage(), 1, 1_000_000, 1);
-        int safeSize = clamp(page.getSize(), 1, 60, 20); // 필요 시 상한(60) 조정
+        int safeSize = clamp(page.getSize(), 1, 60, 20);
 
         page.setPage(safePage);
         page.setSize(safeSize);
-
-        // offset 오버플로우 방지: long으로 계산 후 int로 안전 변환
         page.setOffset(Math.toIntExact(((long) safePage - 1) * safeSize));
 
-        // ---------------------------------------------------------------------
-        // 2) 검색어 정규화
-        // - null/공백 입력은 검색 조건 미적용(null)
-        // - 너무 긴 검색어는 잘라서 DB 부하/로그 문제 방지
-        // - 연속 공백은 1개로 정리(선택)
-        // ---------------------------------------------------------------------
-        cond.setKeyword(normalizeKeyword(cond.getKeyword()));
-
-        // ---------------------------------------------------------------------
-        // 3) field/sort/ebookYn 화이트리스트
-        // - 사용자가 임의의 값을 보내도(개발자도구/직접 URL 입력 등) 안전하게 기본값으로 강제
-        // - 대소문자 혼용도 대비해 대문자로 통일
-        // ---------------------------------------------------------------------
+        // ✅ 2) field/sort/ebookYn 화이트리스트 (keyword보다 먼저 해도 됨)
         String field = upperOrNull(cond.getField());
         String sort = upperOrNull(cond.getSort());
         String ebook = upperOrNull(cond.getEbookYn());
 
         cond.setField(whitelistOrDefault(field, "ALL", "ALL", "TITLE", "AUTHOR", "PUBLISHER"));
         cond.setSort(whitelistOrDefault(sort, "NEW", "NEW", "RATING", "REVIEW"));
-        cond.setEbookYn(whitelistOrDefault(ebook, "ALL", "ALL", "ALL", "N"));
+        cond.setEbookYn(whitelistOrDefault(ebook, "ALL", "ALL", "Y", "N"));
 
-        // ---------------------------------------------------------------------
-        // 4) 카테고리 값 방어
-        // - 0/음수로 들어오는 경우 의미 없는 값이므로 null 처리
-        //   (MyBatis 동적 SQL에서 조건이 붙지 않도록)
-        // ---------------------------------------------------------------------
-        // genreId: 소분류는 실제 GENRE_ID만 허용 (0/음수는 무효)
-        if (cond.getGenreId() != null && cond.getGenreId() <= 0) {
-            cond.setGenreId(null);
-        }
+        // ✅ 3) keyword: FULLTEXT 시도 → 실패하면 LIKE 폴백
+        String raw = cond.getKeyword();
 
-        // parentGenreId: -1(기타)은 허용, 0 이하 중 -1만 예외
+        String likeKeyword = normalizeKeyword(raw);          // "치 킨" -> "치 킨"
+        String nsKeyword   = removeAllSpaces(likeKeyword);   // "치 킨" -> "치킨"
+
+        String ftKeyword = normalizeFulltextKeyword(raw);    // "치 킨" -> "+치* +킨*"
+        String ftJoined  = normalizeFulltextJoined(raw);     // "치 킨" -> "+치킨*"
+
+        cond.setKeyword(likeKeyword);
+        cond.setKeywordNs(nsKeyword);
+
+        cond.setFtKeyword(ftKeyword);
+        cond.setFtJoined(ftJoined);
+        // ftKeyword가 만들어지면 FULLTEXT 사용
+        cond.setUseFulltext(cond.getFtKeyword() != null || cond.getFtJoined() != null);
+
+
+
+
+        if (cond.getGenreId() != null && cond.getGenreId() <= 0) cond.setGenreId(null);
         if (cond.getParentGenreId() != null) {
             Integer pid = cond.getParentGenreId();
-            if (pid == 0) {                 // 0은 무효
-                cond.setParentGenreId(null);
-            } else if (pid < -1) {          // -2 이하 같은 값은 무효(필요시)
-                cond.setParentGenreId(null);
-            }
-            // pid == -1 은 기타로 유효
+            if (pid == 0 || pid < -1) cond.setParentGenreId(null);
         }
 
-        // ---------------------------------------------------------------------
-        // 5) DB 조회
-        // - total(전체 건수) 먼저 구하고, 0이면 리스트 조회는 생략하여 불필요 쿼리 방지
-        // ---------------------------------------------------------------------
-        long total = mapper.countBooks(cond);
-        List<BookSearchDTO> items = (total == 0) ? List.of() : mapper.searchBooks(cond, page);
-
-        // ---------------------------------------------------------------------
-        // 6) 공통 페이지 응답 포맷으로 반환
-        // ---------------------------------------------------------------------
+        String userId = LoginUserUtils.getUserId();
+        long total = mapper.countBooks(cond, userId);
+        List<BookSearchDTO> items = (total == 0) ? List.of() : mapper.searchBooks(cond, page, userId);
         return PageResultDTO.of(items, page.getPage(), page.getSize(), total);
     }
 
+
     /**
-     * 검색어 정규화:
-     * - null이면 null
-     * - trim 후 빈 문자열이면 null
-     * - 길이 제한(기본 100자)
-     * - 연속 공백은 1개로 축소(선택)
+     * FULLTEXT(BOOLEAN MODE) 검색어 정규화
+     * - null/공백 -> null
+     * - 길이 제한
+     * - 연속 공백 축소
+     * - 단어 단위로 +word* 형태로 변환 (AND + prefix match)
+     *
+     * 주의:
+     * - MySQL FULLTEXT는 "토큰" 기준이라 LIKE '%...%'와 결과가 다를 수 있음
+     * - 1~2글자 토큰은 설정(ft_min_word_len / innodb_ft_min_token_size)에 따라 검색이 안 될 수 있음
      */
+    private static String normalizeFulltextKeyword(String keyword) {
+        if (keyword == null) return null;
+
+        String k = keyword.trim();
+        if (k.isEmpty()) return null;
+
+        // 너무 긴 검색어 제한(성능/로그)
+        if (k.length() > 100) k = k.substring(0, 100);
+
+        // 연속 공백 정리
+        k = k.replaceAll("\\s{2,}", " ");
+
+        // 사용자가 BOOLEAN MODE 연산자를 의도적으로 쓴 경우는 최대한 존중
+        // (예: +"자바 스프링" -오라클, spring* 등)
+        if (containsBooleanOperator(k)) {
+            return k;
+        }
+
+        // 단어 분리 후: +term* 로 변환 (단, 너무 짧은 토큰은 제외)
+        String[] tokens = k.split("\\s+");
+        StringBuilder sb = new StringBuilder();
+
+        for (String t : tokens) {
+            String term = sanitizeToken(t);
+            if (term.isEmpty()) continue;
+
+            // 너무 짧은 단어는 FULLTEXT에서 매칭 안 될 가능성이 높아서 제외(옵션)
+            // 2글자도 환경에 따라 안 될 수 있음. 기본은 2로 둠.
+            if (term.length() < 2) continue;
+
+            if (sb.length() > 0) sb.append(' ');
+            sb.append('+').append(term).append('*');
+        }
+
+        String out = sb.toString().trim();
+        return out.isEmpty() ? null : out;
+    }
+
     private static String normalizeKeyword(String keyword) {
         if (keyword == null) return null;
 
         String k = keyword.trim();
         if (k.isEmpty()) return null;
 
-        // 너무 긴 검색어 제한(성능/UX/로그)
         if (k.length() > 100) k = k.substring(0, 100);
 
-        // 연속 공백 정리(예: "자바   스프링" -> "자바 스프링")
+        // 연속 공백 정리
         k = k.replaceAll("\\s{2,}", " ");
 
         return k;
     }
+
+    private static String removeAllSpaces(String s){
+        if (s == null) return null;
+        String t = s.replaceAll("\\s+", "");
+        return t.isEmpty() ? null : t;
+    }
+
+    private static String normalizeFulltextJoined(String keyword) {
+        if (keyword == null) return null;
+        String k = keyword.trim();
+        if (k.isEmpty()) return null;
+        if (k.length() > 100) k = k.substring(0, 100);
+        k = k.replaceAll("\\s{2,}", " ");
+
+        // 사용자가 BOOLEAN 연산자 직접 쓴 경우는 건드리지 않음
+        if (containsBooleanOperator(k)) return null;
+
+        // 토큰 붙이기
+        String joined = k.replaceAll("\\s+", "");
+        joined = sanitizeToken(joined);
+        if (joined.length() < 2) return null;
+
+        return "+" + joined + "*";
+    }
+
+
+    /** BOOLEAN MODE 연산자/구문이 포함되면 사용자가 직접 쓴 것으로 간주 */
+    private static boolean containsBooleanOperator(String s) {
+        // + - " * () < > ~ @ 같은 토큰이 들어가면 변환하지 않음(보수적)
+        // * 는 일반 검색에도 들어갈 수 있지만 BOOLEAN에서 의미가 있어서 포함.
+        return s.matches(".*[\\+\\-\\\"\\*\\(\\)<>~@].*");
+    }
+
+
+
+    /** FULLTEXT용으로 토큰을 정리: 특수문자 제거(한글/영문/숫자/_만 허용) */
+    private static String sanitizeToken(String token) {
+        if (token == null) return "";
+        // 한글, 영문, 숫자, 밑줄만 남김
+        return token.replaceAll("[^0-9A-Za-z가-힣_]", "");
+    }
+
 
     /**
      * 화이트리스트 기반 값 검증:

@@ -25,6 +25,9 @@
 
             <!-- 로그인 폼 -->
             <form th:action="@{/users/login}" method="post">
+                <input type="hidden" name="redirect"
+                       th:value="${param.redirect != null ? param.redirect[0] : ''}" />
+
 
                 <div class="input-box">
                     <input type="text" name="userId" placeholder="아이디 또는 이메일">
@@ -46,6 +49,7 @@
 
                 <button type="submit" class="login-btn">로그인</button>
             </form>
+
 
             <!-- 회원가입 -->
             <div class="sub-links">

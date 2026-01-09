@@ -31,6 +31,8 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
 
+
+
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/home",                 // 메인(비로그인 허용이면)
@@ -41,6 +43,13 @@ public class SecurityConfig {
                                 "/users/check-id",
                                 "/users/check-profile",
                                 "/users/social/**",
+                                "/book/search",
+                                "/book/search/list",
+                                "/api/bookmarks/**",
+                                "/book/detail/**",
+                                "/book/genres/**",
+                                "/book/reviewstatus/**",
+                                "/book/circulation/status",
                                 "/oauth2/**",
                                 "/login/oauth2/**",
                                 "/api/users/**",

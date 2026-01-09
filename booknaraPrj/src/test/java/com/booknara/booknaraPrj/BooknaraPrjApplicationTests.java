@@ -8,6 +8,6 @@ class BooknaraPrjApplicationTests {
 
 	@Test
 	void contextLoads() {
-	}
 
+	}
 }

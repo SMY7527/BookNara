@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>도서 대여 시스템 - 통계관리</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+        /* [1] 공통 테마 설정 */
+        :root { --main-color: #DCA244; --hover-color: #C8903A; }
+        .bg-main { background-color: var(--main-color); }
+        .text-main { color: var(--main-color); }
+
+        /* [2] 사이드바 네비게이션 스타일 (기억된 구성 적용) */
+        .nav-item { display: flex; align-items: center; gap: 12px; padding: 16px 24px; cursor: pointer; transition: all 0.2s; color: rgba(255,255,255,0.7); font-weight: 500; }
+        .nav-item:hover { background-color: rgba(255,255,255,0.1); color: white; }
+        .active-tab { background-color: rgba(255, 255, 255, 0.15); border-left: 4px solid white; color: white; font-weight: 700; }
+
+        /* [3] 통계 요약 카드 */
+        .stat-summary-card { background: white; padding: 24px; border-radius: 20px; border: 1px solid #E5E7EB; box-shadow: 0 1px 3px rgba(0,0,0,0.05); transition: transform 0.2s; }
+        .stat-summary-card:hover { transform: translateY(-4px); }
+        .stat-summary-title { font-size: 11px; font-weight: 900; color: #9CA3AF; text-transform: uppercase; margin-bottom: 4px; }
+        .stat-summary-value { font-size: 28px; font-weight: 900; color: #1F2937; }
+
+        /* [4] 차트 박스 레이아웃 */
+        .chart-box { background: white; padding: 32px; border-radius: 24px; border: 1px solid #E5E7EB; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+
+        /* 막대 그래프 스타일 */
+        .bar-chart-container {
+            position: relative; width: 100%; height: 300px; display: flex; align-items: flex-end;
+            justify-content: space-between; padding: 20px 20px 20px 60px;
+        }
+        .grid-line { position: absolute; left: 60px; right: 20px; height: 1px; background-color: #F3F4F6; }
+        .y-axis-label { position: absolute; left: 0; font-weight: bold; font-size: 11px; color: #9CA3AF; width: 50px; text-align: right; }
+
+        .bar-wrapper { position: relative; flex: 1; display: flex; justify-content: center; align-items: flex-end; height: 100%; z-index: 10; }
+        .bar { width: 45%; background-color: var(--main-color); border-radius: 4px 4px 0 0; transition: all 0.3s; cursor: pointer; }
+        .bar:hover { background-color: #1F2937; transform: scaleX(1.1); }
+
+        .tooltip {
+            position: absolute; top: -35px; left: 50%; transform: translateX(-50%);
+            background: #1F2937; color: white; padding: 4px 10px; border-radius: 6px;
+            font-size: 11px; font-weight: bold; display: none; white-space: nowrap; z-index: 50;
+        }
+        .bar-wrapper:hover .tooltip { display: block; }
+
+        /* [5] 원형 그래프 */
+        .pie-base { width: 150px; height: 150px; border-radius: 50%; position: relative; }
+        .pie-inner-circle {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 85px; height: 85px; background: white; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 13px; color: #9CA3AF;
+        }
+        .pie-age { background: conic-gradient(#3B82F6 0% 15%, #10B981 15% 55%, #F59E0B 55% 80%, #8B5CF6 80% 100%); }
+        .pie-genre { background: conic-gradient(#6366F1 0% 24%, #EC4899 24% 64%, #F97316 64% 80%, #14B8A6 80% 100%); }
+
+        .legend-item { display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: bold; color: #4B5563; }
+        .legend-dot { width: 10px; height: 10px; border-radius: 3px; }
+    </style>
+</head>
+<body class="bg-gray-50 flex h-screen overflow-hidden">
+
+<nav class="w-64 bg-main text-white flex flex-col shadow-xl z-50">
+    <div class="p-8 text-2xl font-black border-b border-white/10 flex items-center gap-3">
+        <i class="fas fa-book-reader"></i>
+        <span>ADMIN</span>
+    </div>
+
+    <div class="flex-1 overflow-y-auto py-4">
+        <div class="px-6 mb-2 text-[10px] font-bold text-white/40 uppercase tracking-widest">Main Menu</div>
+        <ul class="space-y-1">
+            <li><a href="/admin/Statistics" class="nav-item active-tab"><i class="fas fa-chart-pie w-5 text-center"></i> 대시보드</a></li>
+            <li><a href="/admin/BookManageMent" class="nav-item"><i class="fas fa-book w-5 text-center"></i> 도서관리</a></li>
+            <li><a href="/admin/UserManageMent" class="nav-item"><i class="fas fa-users w-5 text-center"></i> 회원관리</a></li>
+        </ul>
+
+        <div class="px-6 mt-8 mb-2 text-[10px] font-bold text-white/40 uppercase tracking-widest">Support & Service</div>
+        <ul class="space-y-1">
+            <li><a href="/admin/Inquiries" class="nav-item"><i class="fas fa-question-circle w-5 text-center"></i> 문의관리</a></li>
+            <li><a href="/admin/Notifications" class="nav-item"><i class="fas fa-bell w-5 text-center"></i> 알림관리</a></li>
+        </ul>
+
+        <div class="px-6 mt-8 mb-2 text-[10px] font-bold text-white/40 uppercase tracking-widest">System</div>
+        <ul class="space-y-1">
+            <li><a href="/admin/Settings" class="nav-item"><i class="fas fa-cog w-5 text-center"></i> 시스템 설정</a></li>
+        </ul>
+    </div>
+
+    <div class="p-6 bg-black/10">
+        <div class="flex items-center justify-between group">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center font-bold text-sm border border-white/10">
+                    AD
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-bold truncate">관리자 님</p>
+                    <p class="text-[10px] text-white/50 uppercase tracking-tighter font-medium">Master Account</p>
+                </div>
+            </div>
+
+            <form th:action="@{/logout}" method="post">
+                <button type="submit" class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-red-500/20 hover:text-red-300 transition-all text-white/50" title="로그아웃">
+                    <i class="fas fa-sign-out-alt text-sm"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+</nav>
+
+<main class="flex-1 overflow-y-auto p-10 bg-[#FBFBFD]">
+    <div class="mb-10">
+        <h2 class="text-3xl font-extrabold text-gray-800 tracking-tight">통계 대시보드</h2>
+        <p class="text-gray-400 mt-2 font-medium">시스템 운영 및 대여 현황을 시각적으로 파악합니다.</p>
+    </div>
+
+    <div class="grid grid-cols-4 gap-6 mb-10">
+        <div class="stat-summary-card">
+            <p class="stat-summary-title">현재 대여 중</p>
+            <p class="stat-summary-value">342 <span class="text-sm font-bold text-gray-400">권</span></p>
+            <div class="mt-4 text-[11px] font-bold text-green-500"><i class="fas fa-caret-up"></i> 12% 증가</div>
+        </div>
+        <div class="stat-summary-card">
+            <p class="stat-summary-title">신규 가입자</p>
+            <p class="stat-summary-value">128 <span class="text-sm font-bold text-gray-400">명</span></p>
+            <div class="mt-4 text-[11px] font-bold text-blue-500">이번 달 기준</div>
+        </div>
+        <div class="stat-summary-card">
+            <p class="stat-summary-title">평균 대여 기간</p>
+            <p class="stat-summary-value">6.8 <span class="text-sm font-bold text-gray-400">일</span></p>
+            <div class="mt-4 text-[11px] font-bold text-gray-400">최근 30일 평균</div>
+        </div>
+        <div class="stat-summary-card" style="border-bottom: 4px solid #EF4444;">
+            <p class="stat-summary-title text-red-400">연체 중인 도서</p>
+            <p class="stat-summary-value text-red-500">15 <span class="text-sm font-bold text-red-300">권</span></p>
+            <div class="mt-4 text-[11px] font-bold text-red-500">즉시 확인 필요</div>
+        </div>
+    </div>
+
+    <div class="chart-box mb-8">
+        <div class="flex justify-between items-center mb-10">
+            <h3 class="text-lg font-bold text-gray-800 tracking-tight">월별 도서 대여 건수</h3>
+            <select class="text-xs font-bold border-none bg-gray-50 rounded-lg px-3 py-2 outline-none">
+                <option>2023년</option>
+                <option>2024년</option>
+            </select>
+        </div>
+
+        <div class="bar-chart-container">
+            <div class="grid-line" style="bottom: 20px;"></div>
+            <div class="grid-line" style="bottom: 85px;"></div>
+            <div class="grid-line" style="bottom: 150px;"></div>
+            <div class="grid-line" style="bottom: 215px;"></div>
+            <div class="grid-line" style="bottom: 280px;"></div>
+
+            <div class="y-axis-label" style="bottom: 20px;">0</div>
+            <div class="y-axis-label" style="bottom: 150px;">200</div>
+            <div class="y-axis-label" style="bottom: 280px;">400</div>
+
+            <div class="bar-wrapper"><div class="tooltip">120건</div><div class="bar" style="height: 30%;"></div></div>
+            <div class="bar-wrapper"><div class="tooltip">150건</div><div class="bar" style="height: 40%;"></div></div>
+            <div class="bar-wrapper"><div class="tooltip">90건</div><div class="bar" style="height: 25%;"></div></div>
+            <div class="bar-wrapper"><div class="tooltip">210건</div><div class="bar" style="height: 55%;"></div></div>
+            <div class="bar-wrapper"><div class="tooltip">280건</div><div class="bar" style="height: 70%;"></div></div>
+            <div class="bar-wrapper"><div class="tooltip">190건</div><div class="bar" style="height: 50%;"></div></div>
+            <div class="bar-wrapper"><div class="tooltip">310건</div><div class="bar" style="height: 78%;"></div></div>
+            <div class="bar-wrapper"><div class="tooltip">350건</div><div class="bar" style="height: 85%;"></div></div>
+            <div class="bar-wrapper"><div class="tooltip">240건</div><div class="bar" style="height: 60%;"></div></div>
+            <div class="bar-wrapper"><div class="tooltip">270건</div><div class="bar" style="height: 68%;"></div></div>
+            <div class="bar-wrapper"><div class="tooltip">330건</div><div class="bar" style="height: 82%;"></div></div>
+            <div class="bar-wrapper"><div class="tooltip">385건</div><div class="bar" style="height: 95%;"></div></div>
+        </div>
+        <div class="flex justify-between px-[60px] pr-[20px] mt-6 text-[11px] font-black text-gray-400">
+            <span>1월</span><span>2월</span><span>3월</span><span>4월</span><span>5월</span><span>6월</span>
+            <span>7월</span><span>8월</span><span>9월</span><span>10월</span><span>11월</span><span>12월</span>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-8">
+        <div class="chart-box">
+            <h3 class="font-bold text-gray-800 mb-8 flex items-center gap-2">
+                <i class="fas fa-users text-blue-500"></i> 연령별 이용 비중
+            </h3>
+            <div class="flex items-center justify-around">
+                <div class="pie-base pie-age"><div class="pie-inner-circle">AGE</div></div>
+                <div class="space-y-3">
+                    <div class="legend-item"><span class="legend-dot bg-[#3B82F6]"></span> 10대 (15%)</div>
+                    <div class="legend-item"><span class="legend-dot bg-[#10B981]"></span> 20대 (40%)</div>
+                    <div class="legend-item"><span class="legend-dot bg-[#F59E0B]"></span> 30대 (25%)</div>
+                    <div class="legend-item"><span class="legend-dot bg-[#8B5CF6]"></span> 40대+ (20%)</div>
+                </div>
+            </div>
+        </div>
+        <div class="chart-box">
+            <h3 class="font-bold text-gray-800 mb-8 flex items-center gap-2">
+                <i class="fas fa-tags text-pink-500"></i> 장르별 선호도
+            </h3>
+            <div class="flex items-center justify-around">
+                <div class="pie-base pie-genre"><div class="pie-inner-circle">GENRE</div></div>
+                <div class="space-y-3">
+                    <div class="legend-item"><span class="legend-dot bg-[#6366F1]"></span> IT/기술 (24%)</div>
+                    <div class="legend-item"><span class="legend-dot bg-[#EC4899]"></span> 소설/문학 (40%)</div>
+                    <div class="legend-item"><span class="legend-dot bg-[#F97316]"></span> 과학/자연 (16%)</div>
+                    <div class="legend-item"><span class="legend-dot bg-[#14B8A6]"></span> 인문/철학 (20%)</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+</body>
+</html>

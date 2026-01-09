@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.booknara.booknaraPrj.login_signup.SocialAccountMapper">
+
+    <select id="findByProviderAndProviderId"
+            resultType="com.booknara.booknaraPrj.login_signup.SocialAccount">
+        SELECT
+        SOCIAL_ID     AS socialId,
+        USER_ID       AS userId,
+        PROVIDER      AS provider,
+        PROVIDER_ID   AS providerId,
+        CREATED_AT    AS createdAt
+        FROM SOCIAL_ACCOUNT
+        WHERE PROVIDER = #{provider}
+        AND PROVIDER_ID = #{providerId}
+    </select>
+
+    <insert id="insertSocialAccount">
+        INSERT INTO SOCIAL_ACCOUNT (
+        SOCIAL_ID,
+        USER_ID,
+        PROVIDER,
+        PROVIDER_ID
+        ) VALUES (
+        UUID(),
+        #{userId},
+        #{provider},
+        #{providerId}
+        )
+    </insert>
+
+
+</mapper>

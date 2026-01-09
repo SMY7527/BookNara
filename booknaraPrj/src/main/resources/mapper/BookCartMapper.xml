@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.booknara.booknaraPrj.bookcart.mapper.BookCartMapper">
+
+    <!-- 담기: 중복 방지(유니크키 있어야 함: (USER_ID, ISBN13)) -->
+    <insert id="insert">
+        INSERT IGNORE INTO BOOKS_CART (USER_ID, ISBN13)
+    VALUES (#{userId}, #{isbn13})
+    </insert>
+
+    <!-- 개별 삭제 -->
+    <delete id="delete">
+        DELETE FROM BOOKS_CART
+        WHERE USER_ID = #{userId}
+          AND CART_ID = #{cartId}
+    </delete>
+    <!-- ISBN으로 삭제-->
+    <delete id="deleteByIsbn">
+        DELETE FROM BOOKS_CART
+        WHERE USER_ID = #{userId}
+          AND ISBN13 = #{isbn13}
+    </delete>
+
+    <!-- 전체 비우기 -->
+    <delete id="deleteAll">
+        DELETE FROM BOOKS_CART
+        WHERE USER_ID = #{userId}
+    </delete>
+
+
+    <!-- 장바구니 목록 -->
+    <select id="selectList"
+            resultType="com.booknara.booknaraPrj.bookcart.dto.BookCartDTO">
+        SELECT
+            c.CART_ID           AS cartId,
+            bi.ISBN13           AS isbn13,
+            bi.BOOK_TITLE       AS bookTitle,
+            bi.AUTHORS          AS authors,
+            bi.ALADIN_IMAGE_BIG AS aladinImageBig,
+            bi.NAVER_IMAGE      AS naverImage,
+            bi.EBOOK_YN         AS ebookYn
+        FROM BOOKS_CART c
+                 JOIN BOOK_ISBN bi ON bi.ISBN13 = c.ISBN13
+        WHERE c.USER_ID = #{userId}
+        ORDER BY c.CREATED_AT DESC
+    </select>
+
+</mapper>

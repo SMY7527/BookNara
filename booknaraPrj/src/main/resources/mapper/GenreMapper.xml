@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.booknara.booknaraPrj.bookSearch.mapper.GenreMapper">
+
+    <!-- 대분류 : 국내도서 -->
+    <select id="selectParentGenresAuto"
+            resultType="com.booknara.booknaraPrj.bookSearch.dto.GenreDTO">
+        SELECT
+            COALESCE(p.GENRE_ID, c.GENRE_ID)  AS genreId,
+
+            CASE
+                WHEN COALESCE(p.GENRE_NM, c.GENRE_NM) LIKE '\\_%' ESCAPE '\\'
+                    THEN SUBSTRING(COALESCE(p.GENRE_NM, c.GENRE_NM), 2)
+                ELSE COALESCE(p.GENRE_NM, c.GENRE_NM)
+                END AS genreNm,
+
+            NULL                              AS parentId
+        FROM BOOK_ISBN b
+                 JOIN GENRE c ON c.GENRE_ID = b.GENRE_ID
+                 LEFT JOIN GENRE p ON p.GENRE_ID = c.PARENT_ID
+        WHERE c.MALL = '국내도서'
+        GROUP BY
+            COALESCE(p.GENRE_ID, c.GENRE_ID),
+            CASE
+                WHEN COALESCE(p.GENRE_NM, c.GENRE_NM) LIKE '\\_%' ESCAPE '\\'
+                    THEN SUBSTRING(COALESCE(p.GENRE_NM, c.GENRE_NM), 2)
+                ELSE COALESCE(p.GENRE_NM, c.GENRE_NM)
+                END
+        HAVING COUNT(*) &gt;= #{min}
+        ORDER BY COUNT(*) DESC
+            LIMIT #{top}
+    </select>
+
+    <!-- 소분류 : 국내도서 -->
+    <select id="selectChildGenresAuto"
+            resultType="com.booknara.booknaraPrj.bookSearch.dto.GenreDTO">
+        SELECT
+            c.GENRE_ID  AS genreId,
+
+            CASE
+                WHEN c.GENRE_NM LIKE '\\_%' ESCAPE '\\'
+                    THEN SUBSTRING(c.GENRE_NM, 2)
+                ELSE c.GENRE_NM
+                END AS genreNm,
+
+            c.PARENT_ID AS parentId
+        FROM BOOK_ISBN b
+                 JOIN GENRE c ON c.GENRE_ID = b.GENRE_ID
+        WHERE c.MALL = '국내도서'
+          AND c.PARENT_ID = #{parentId}
+        GROUP BY
+            c.GENRE_ID,
+            CASE
+                WHEN c.GENRE_NM LIKE '\\_%' ESCAPE '\\'
+                    THEN SUBSTRING(c.GENRE_NM, 2)
+                ELSE c.GENRE_NM
+                END,
+            c.PARENT_ID
+        HAVING COUNT(*) &gt;= #{min}
+        ORDER BY COUNT(*) DESC
+            LIMIT #{top}
+    </select>
+
+    <!-- 대분류 : 외국도서 top 19 -->
+    <select id="selectForeignParentGenresAuto"
+            resultType="com.booknara.booknaraPrj.bookSearch.dto.GenreDTO">
+        SELECT
+            COALESCE(p.GENRE_ID, c.GENRE_ID) AS genreId,
+
+            CASE
+                WHEN COALESCE(p.GENRE_NM, c.GENRE_NM) LIKE '\\_%' ESCAPE '\\'
+                    THEN SUBSTRING(COALESCE(p.GENRE_NM, c.GENRE_NM), 2)
+                ELSE COALESCE(p.GENRE_NM, c.GENRE_NM)
+                END AS genreNm,
+
+            NULL AS parentId,
+            '외국도서' AS mall
+        FROM BOOK_ISBN b
+                 JOIN GENRE c ON c.GENRE_ID = b.GENRE_ID
+                 LEFT JOIN GENRE p ON p.GENRE_ID = c.PARENT_ID
+        WHERE c.MALL = '외국도서'
+        GROUP BY
+            COALESCE(p.GENRE_ID, c.GENRE_ID),
+            CASE
+                WHEN COALESCE(p.GENRE_NM, c.GENRE_NM) LIKE '\\_%' ESCAPE '\\'
+                    THEN SUBSTRING(COALESCE(p.GENRE_NM, c.GENRE_NM), 2)
+                ELSE COALESCE(p.GENRE_NM, c.GENRE_NM)
+                END
+        HAVING COUNT(*) &gt;= #{min}
+        ORDER BY COUNT(*) DESC
+            LIMIT #{top}
+    </select>
+
+</mapper>

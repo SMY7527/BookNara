@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>login</title>
+
+    <link rel="stylesheet" th:href="@{/css/login.css}">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+
+<body>
+<div class="login-page">
+
+    <!-- 왼쪽 이미지 영역 -->
+    <div class="login-visual">
+        <img th:src="@{/images/login.png}" alt="로그인 일러스트">
+    </div>
+
+    <!-- 오른쪽 로그인 영역 -->
+    <div class="login-area">
+        <div class="login-wrap">
+            <div class="logo">반갑습니다</div>
+            <div class="login-title">로그인</div>
+
+            <!-- 로그인 폼 -->
+            <form th:action="@{/users/login}" method="post">
+                <input type="hidden" name="redirect"
+                       th:value="${param.redirect != null ? param.redirect[0] : ''}" />
+
+
+                <div class="input-box">
+                    <input type="text" name="userId" placeholder="아이디 또는 이메일">
+                </div>
+
+                <div class="input-box">
+                    <input type="password" name="password" placeholder="비밀번호">
+                </div>
+
+                <button type="submit" class="login-btn">로그인</button>
+            </form>
+
+
+            <!-- 회원가입 -->
+            <div class="sub-links">
+                <a th:href="@{/users/signup}">회원가입</a>
+            </div>
+
+            <!-- 간편 로그인 -->
+            <div class="divider">
+                <span>간편 로그인</span>
+            </div>
+
+            <div class="social-login">
+<!--                <a th:href="@{/oauth2/authorization/naver}" class="naver">N</a>-->
+
+                <a th:href="@{/oauth2/authorization/kakao}" class="kakao">
+                    K
+                </a>
+
+<!--                <a th:href="@{/oauth2/authorization/google}" class="google">G</a>-->
+            </div>
+        </div>
+
+
+
+
+    </div>
+</div>
+
+
+
+</body>
+</html>

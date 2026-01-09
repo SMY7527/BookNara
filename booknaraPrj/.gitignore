@@ -36,5 +36,7 @@ out/
 ### VS Code ###
 .vscode/
 
+/src/main/resources/application.properties
+/src/main/resources/application-apikey.properties
 /src/main/resources/*.properties
 /src/main/resources/keys/*.json

@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>내 서재 - 대여</title>
+    <link rel="stylesheet" href="/css/mybooklist.css">
+</head>
+<body>
+
+<div class="mypage-container">
+
+    <!-- 상단 탭 -->
+    <div class="mypage-tabs">
+        <a th:href="@{/my/booklist}" class="mypage-tab"
+           th:classappend="${activeTab=='rent'} ? ' active' : ''">대여</a>
+        <a th:href="@{/my/reserve}" class="mypage-tab"
+           th:classappend="${activeTab=='reserve'} ? ' active' : ''">예약</a>
+        <a th:href="@{/my/bookmark}" class="mypage-tab"
+           th:classappend="${activeTab=='bookmark'} ? ' active' : ''">북마크</a>
+    </div>
+
+    <!-- 현재 대여중 -->
+    <div class="section">
+        <div class="section-title">
+            대여중 :
+            <span th:text="${#lists.size(currentLends)}">0</span>
+        </div>
+
+        <div th:if="${#lists.isEmpty(currentLends)}">
+            현재 대여 중인 도서가 없습니다.
+        </div>
+
+        <div class="book-list" th:if="${!#lists.isEmpty(currentLends)}">
+            <div class="book-card" th:each="book : ${currentLends}">
+                <img class="book-img rent-img"
+                     th:src="${book.coverImg}"
+                     th:data-lend-id="${book.lendId}"
+                     th:data-title="${book.bookTitle}"
+                     th:data-authors="${book.authors}"
+                     th:data-rent-date="${#temporals.format(book.lendDate,'yyyy-MM-dd')}"
+                     th:data-return-date="${#temporals.format(book.returnDueDate,'yyyy-MM-dd')}"
+                     th:data-overdue="${book.overDue}"
+                     th:data-img="${book.coverImg}">
+
+
+
+                <div class="book-title" th:text="${book.bookTitle}"></div>
+
+                <div class="book-meta">
+                    반납예정일 :
+                    <span th:text="${#temporals.format(book.returnDueDate,'yyyy-MM-dd')}"></span>
+                </div>
+
+                <div class="book-btns">
+                    <button type="button"
+                            th:data-lend-id="${book.lendId}"
+                            onclick="returnBook(this)">
+                        반납
+                    </button>
+                    <button type="button"
+                            th:if="${book.extendCnt == null || book.extendCnt == 0}"
+                            th:data-lend-id="${book.lendId}"
+                            onclick="extendBook(this)">
+                        연장
+                    </button>
+
+                    <!-- (선택) 이미 연장한 책이면 텍스트만 보여주기 -->
+                    <span class="book-meta"
+                          th:if="${book.extendCnt != null && book.extendCnt > 0}">
+    연장 완료
+</span>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 대여 기록 -->
+    <div class="section">
+        <div class="section-title">대여 기록</div>
+
+        <div th:if="${historyGroups == null or #maps.isEmpty(historyGroups)}">
+            대여 기록이 없습니다.
+        </div>
+
+        <div th:each="entry : ${historyGroups}">
+            <div class="date-title"
+                 th:text="${#temporals.format(entry.key,'yyyy-MM-dd')}"></div>
+
+            <div class="book-list">
+                <div class="book-card" th:each="book : ${entry.value}">
+                    <img class="book-img" th:src="${book.coverImg}">
+                    <div class="book-title" th:text="${book.bookTitle}"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- ===== 대여 상세 모달 ===== -->
+<div id="rentModal" class="modal hidden">
+    <div class="modal-content">
+        <span class="modal-close" onclick="closeRentModal()">×</span>
+
+        <div class="modal-body">
+            <img id="modalImg">
+
+            <div class="modal-info">
+                <h3 id="modalTitle"></h3>
+                <p id="modalAuthor"></p>
+
+                <p>대여일 : <span id="modalRentDate"></span></p>
+                <p>반납예정일 : <span id="modalReturnDate"></span></p>
+
+                <!-- 🔥 대여 기간 진행바 -->
+                <div class="rent-progress">
+                    <div class="rent-bar" id="rentBar"></div>
+                </div>
+                <p class="overdue-text hidden" id="overdueText">⚠ 연체된 도서입니다</p>
+
+                <div class="modal-btns">
+                    <button class="btn-orange" id="extendBtn" onclick="modalExtend()">연장</button>
+                    <button class="btn-blue" id="returnBtn" onclick="modalReturn()">반납</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+    function returnBook(btn) {
+        const lendId = btn.dataset.lendId;
+        if (!confirm("반납하시겠습니까?")) return;
+
+        fetch("/my/lend/return", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: "lendId=" + lendId
+        }).then(res => {
+            if (res.ok) location.reload();
+            else alert("반납 실패");
+        });
+    }
+
+    function extendBook(btn) {
+        const lendId = btn.dataset.lendId;
+        if (!confirm("7일 연장하시겠습니까?")) return;
+
+        fetch("/my/lend/extend", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: "lendId=" + lendId
+        }).then(res => {
+            if (res.ok) location.reload();
+            else alert("연장 실패 (이미 연장했을 수 있음)");
+        });
+    }
+</script>
+<script>
+    let modalLendId = null;
+
+    document.addEventListener("DOMContentLoaded", () => {
+        document.querySelectorAll(".rent-img").forEach(img => {
+            img.addEventListener("click", () => openRentModal(img));
+        });
+    });
+
+    function openRentModal(img) {
+        modalLendId = img.dataset.lendId;
+
+        const rentDate = new Date(img.dataset.rentDate);
+        const returnDate = new Date(img.dataset.returnDate);
+        const today = new Date();
+        const overDue = img.dataset.overdue === 'Y';
+
+        document.getElementById("modalImg").src = img.dataset.img;
+        document.getElementById("modalTitle").innerText = img.dataset.title;
+        document.getElementById("modalAuthor").innerText = img.dataset.authors || '';
+        document.getElementById("modalRentDate").innerText = img.dataset.rentDate;
+        document.getElementById("modalReturnDate").innerText = img.dataset.returnDate;
+
+        /* ===== 진행률 ===== */
+        const total = returnDate - rentDate;
+        const passed = Math.min(Math.max(today - rentDate, 0), total);
+        const percent = Math.round((passed / total) * 100);
+
+        const bar = document.getElementById("rentBar");
+        bar.style.width = percent + "%";
+
+        const extendBtn = document.getElementById("extendBtn");
+        const overdueText = document.getElementById("overdueText");
+
+        if (overDue) {
+            bar.classList.add("overdue");
+            extendBtn.disabled = true;
+            overdueText.classList.remove("hidden");
+        } else {
+            bar.classList.remove("overdue");
+            extendBtn.disabled = false;
+            overdueText.classList.add("hidden");
+        }
+
+        document.getElementById("rentModal").classList.remove("hidden");
+    }
+
+    function closeRentModal() {
+        document.getElementById("rentModal").classList.add("hidden");
+    }
+
+    function modalReturn() {
+        returnBook({ dataset: { lendId: modalLendId } });
+    }
+
+    function modalExtend() {
+        extendBook({ dataset: { lendId: modalLendId } });
+    }
+</script>
+
+
+
+</body>
+</html>

@@ -26,4 +26,5 @@ public class BookDetailDTO {
 
     private Integer genreId;
     private String genreNm; // GENRE.GENRE_NM (태그용)
+
 }

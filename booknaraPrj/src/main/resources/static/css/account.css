@@ -1,0 +1,152 @@
+/* =========================
+   공통 레이아웃
+========================= */
+body {
+  margin: 0;
+  padding: 0;
+  background: #f5f1ea;
+  font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo",
+               "Noto Sans KR", "Malgun Gothic", Arial, sans-serif;
+}
+
+.find-wrap {
+  width: 420px;
+  margin: 80px auto;
+  background: #fff;
+  border-radius: 18px;
+  padding: 30px 28px 32px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+  box-sizing: border-box;
+}
+
+/* =========================
+   탭 영역
+========================= */
+.find-tabs {
+  display: flex;
+  margin-bottom: 24px;
+  background: #eee;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.find-tabs button {
+  flex: 1;
+  padding: 12px 0;
+  border: none;
+  background: transparent;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.find-tabs button.active {
+  background: #333;
+  color: #fff;
+  font-weight: 600;
+}
+
+/* =========================
+   박스 공통
+========================= */
+.find-box h3 {
+  font-size: 18px;
+  margin-bottom: 18px;
+}
+
+.find-box input {
+  width: 100%;
+  padding: 12px 14px;
+  margin-bottom: 12px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.find-box input:focus {
+  outline: none;
+  border-color: #dca244;
+}
+
+/* =========================
+   버튼
+========================= */
+.find-box button {
+  width: 100%;
+  padding: 13px;
+  border-radius: 12px;
+  border: none;
+  font-size: 15px;
+  cursor: pointer;
+  margin-top: 6px;
+}
+
+.find-box button:not(.btn-secondary) {
+  background: #dca244;
+  color: #000;
+  font-weight: 600;
+}
+
+.find-box button:not(.btn-secondary):hover {
+  background: #c89434;
+}
+
+.btn-secondary {
+  background: #f4f4f4;
+  color: #333;
+  margin-top: 12px;
+}
+
+.btn-secondary:hover {
+  background: #e6e6e6;
+}
+
+/* =========================
+   메시지
+========================= */
+.msg {
+  font-size: 13px;
+  margin-top: 6px;
+  color: #d33;
+}
+
+.msg.success {
+  color: #2e8b57;
+}
+
+/* =========================
+   단계 간 여백
+========================= */
+#pwStep2,
+#pwStep3 {
+  margin-top: 18px;
+}
+
+/* =========================
+   하단 링크
+========================= */
+.sub-links {
+  margin-top: 22px;
+  text-align: center;
+}
+
+.sub-links a {
+  font-size: 13px;
+  color: #555;
+  text-decoration: none;
+}
+
+.sub-links a:hover {
+  text-decoration: underline;
+}
+
+/* =========================
+   반응형 (모바일)
+========================= */
+@media (max-width: 480px) {
+  .find-wrap {
+    width: calc(100% - 32px);
+    margin: 40px auto;
+    padding: 24px 20px;
+  }
+}

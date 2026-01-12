@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>도서 대여 시스템 - 알림 센터</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+        /* [1] 공통 테마 설정 */
+        :root { --main-color: #DCA244; --hover-color: #C8903A; }
+        .bg-main { background-color: var(--main-color); }
+        .text-main { color: var(--main-color); }
+
+        /* [2] 사이드바 네비게이션 스타일 */
+        .nav-item { display: flex; align-items: center; gap: 12px; padding: 16px 24px; cursor: pointer; transition: all 0.2s; color: rgba(255,255,255,0.7); font-weight: 500; }
+        .nav-item:hover { background-color: rgba(255,255,255,0.1); color: white; }
+        .active-tab { background-color: rgba(255, 255, 255, 0.15); border-left: 4px solid white; color: white; font-weight: 700; }
+
+        /* [3] 필터 및 검색창 */
+        .filter-group {
+            display: flex; gap: 8px; padding: 6px; background: white;
+            border-radius: 20px; border: 1px solid #E5E7EB;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02); width: fit-content;
+        }
+        .filter-btn {
+            padding: 8px 20px; border-radius: 15px; font-size: 14px; font-weight: 600; color: #6B7280;
+            transition: all 0.2s; display: flex; align-items: center; gap: 8px; white-space: nowrap;
+        }
+        .filter-btn:hover { background-color: #F3F4F6; color: #1F2937; }
+        .filter-btn.active {
+            background-color: var(--main-color); color: white;
+            box-shadow: 0 4px 12px rgba(220, 162, 68, 0.25);
+        }
+
+        .search-container {
+            background: white; padding: 8px; border-radius: 20px;
+            border: 1px solid #E5E7EB; display: flex; gap: 10px; margin-bottom: 32px;
+            transition: focus-within 0.2s; width: 100%; max-width: 1024px;
+        }
+        .search-container:focus-within {
+            border-color: var(--main-color);
+            box-shadow: 0 0 0 4px rgba(220, 162, 68, 0.1);
+        }
+
+        /* [4] 알림 아이템 디자인 */
+        .noti-item {
+            background: white; padding: 24px; border-radius: 24px; border: 1px solid #F1F1F4;
+            display: flex; gap: 20px; transition: all 0.3s ease; border-left: 6px solid #E5E7EB;
+            width: 100%; max-width: 1024px;
+        }
+        .noti-item:hover {
+            transform: translateY(-2px) translateX(4px);
+            border-left-width: 10px;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.04);
+        }
+        .noti-overdue { border-left-color: #EF4444; }
+        .noti-join { border-left-color: #3B82F6; }
+        .noti-rental { border-left-color: #10B981; }
+
+        .icon-box {
+            width: 56px; height: 56px; border-radius: 18px;
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 20px;
+        }
+
+        /* [5] 버튼 및 모달 */
+        .btn-dark { background-color: #1F2937; color: white; padding: 10px 28px; border-radius: 14px; font-weight: 700; transition: all 0.2s; flex-shrink: 0; }
+        .btn-dark:hover { background-color: #000; transform: translateY(-1px); }
+
+        /* 초기화 버튼 스타일 */
+        .btn-reset { background-color: #F3F4F6; color: #6B7280; padding: 10px 20px; border-radius: 14px; font-weight: 700; transition: all 0.2s; flex-shrink: 0; border: 1px solid #E5E7EB; }
+        .btn-reset:hover { background-color: #E5E7EB; color: #1F2937; }
+
+        /* 전체 확인 버튼 스타일 추가 */
+        .btn-all-check {
+            background-color: white; color: #4B5563; border: 1px solid #E5E7EB;
+            padding: 8px 16px; border-radius: 12px; font-size: 13px; font-weight: 700;
+            transition: all 0.2s; display: flex; align-items: center; gap: 6px;
+        }
+        .btn-all-check:hover { background-color: #F9FAFB; color: var(--main-color); border-color: var(--main-color); }
+
+        .page-btn {
+            padding: 10px 20px; border-radius: 12px; background: white; border: 1px solid #E5E7EB;
+            font-weight: 700; font-size: 13px; color: #4B5563; transition: all 0.2s; display: flex; align-items: center;
+        }
+        .page-btn:hover:not(.disabled) { background-color: #F9FAFB; border-color: var(--main-color); color: var(--main-color); }
+        .page-btn.disabled { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
+
+        #modalContent { transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+    </style>
+</head>
+<body class="bg-gray-50 flex h-screen overflow-hidden">
+
+<nav class="w-64 min-w-[256px] bg-main text-white flex flex-col shadow-xl z-50">
+    <div class="p-8 text-2xl font-black border-b border-white/10 flex items-center gap-3">
+        <i class="fas fa-book-reader"></i>
+        <span>ADMIN</span>
+    </div>
+
+    <div class="flex-1 overflow-y-auto py-4">
+        <div class="px-6 mb-2 text-[10px] font-bold text-white/40 uppercase tracking-widest">Main Menu</div>
+        <ul class="space-y-1">
+            <li><a href="/admin/Statistics" class="nav-item"><i class="fas fa-chart-pie w-5 text-center"></i> 대시보드</a></li>
+            <li><a href="/admin/BookManageMent" class="nav-item"><i class="fas fa-book w-5 text-center"></i> 도서관리</a></li>
+            <li><a href="/admin/UserManageMent" class="nav-item"><i class="fas fa-users w-5 text-center"></i> 회원관리</a></li>
+        </ul>
+
+        <div class="px-6 mt-8 mb-2 text-[10px] font-bold text-white/40 uppercase tracking-widest">Support & Service</div>
+        <ul class="space-y-1">
+            <li><a href="/admin/Inquiries" class="nav-item"><i class="fas fa-question-circle w-5 text-center"></i> 문의관리</a></li>
+            <li><a href="/admin/Notifications" class="nav-item active-tab flex justify-between">
+                <div class="flex items-center gap-3">
+                    <i class="fas fa-bell w-5 text-center"></i> 알림관리
+                </div>
+                <span th:if="${unreadCount > 0}" class="bg-red-500 text-[10px] px-1.5 py-0.5 rounded-full font-bold text-white" th:text="${unreadCount}">0</span>
+            </a></li>
+        </ul>
+
+        <div class="px-6 mt-8 mb-2 text-[10px] font-bold text-white/40 uppercase tracking-widest">System</div>
+        <ul class="space-y-1">
+            <li><a href="/admin/Settings" class="nav-item"><i class="fas fa-cog w-5 text-center"></i> 시스템 설정</a></li>
+        </ul>
+    </div>
+
+    <div class="p-6 bg-black/10">
+        <div class="flex items-center justify-between group">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center font-bold text-sm border border-white/10">AD</div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-bold truncate">관리자 님</p>
+                    <p class="text-[10px] text-white/50 uppercase tracking-tighter font-medium">Master Account</p>
+                </div>
+            </div>
+            <form th:action="@{/logout}" method="post">
+                <button type="submit" class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-red-500/20 hover:text-red-300 transition-all text-white/50"><i class="fas fa-sign-out-alt text-sm"></i></button>
+            </form>
+        </div>
+    </div>
+</nav>
+
+<main class="flex-1 overflow-y-auto p-10 bg-[#FBFBFD]">
+    <div class="max-w-5xl">
+        <div class="mb-10 flex justify-between items-end">
+            <div>
+                <h2 class="text-3xl font-extrabold text-gray-800 tracking-tight">알림 센터</h2>
+                <p class="text-gray-400 mt-2 font-medium">실시간 대여, 반납 및 연체 상태를 확인하세요.</p>
+            </div>
+            <button onclick="markAllAsRead()" class="btn-all-check shadow-sm">
+                <i class="fas fa-check-double"></i> 전체 확인
+            </button>
+        </div>
+
+        <div class="flex items-center mb-8">
+            <div class="filter-group">
+                <a th:href="@{/admin/Notifications(type='전체', keyword=${keyword})}" class="filter-btn" th:classappend="${selectedType == '전체' ? 'active' : ''}">전체</a>
+                <a th:href="@{/admin/Notifications(type='연체', keyword=${keyword})}" class="filter-btn" th:classappend="${selectedType == '연체' ? 'active' : ''}">
+                    <i class="fas fa-exclamation-circle text-red-400"></i> 도서연체
+                </a>
+                <a th:href="@{/admin/Notifications(type='대여', keyword=${keyword})}" class="filter-btn" th:classappend="${selectedType == '대여' ? 'active' : ''}">
+                    <i class="fas fa-book-medical text-blue-400"></i> 대여
+                </a>
+                <a th:href="@{/admin/Notifications(type='반납', keyword=${keyword})}" class="filter-btn" th:classappend="${selectedType == '반납' ? 'active' : ''}">
+                    <i class="fas fa-exchange-alt text-green-400"></i> 반납
+                </a>
+            </div>
+        </div>
+
+        <form action="/admin/Notifications" method="get" class="search-container shadow-sm">
+            <input type="hidden" name="type" th:value="${selectedType}">
+            <div class="relative flex-1 flex items-center">
+                <i class="fas fa-search absolute left-5 text-gray-400"></i>
+                <input type="text" name="keyword" th:value="${keyword}" placeholder="도서명, 회원명, ID로 검색..."
+                       class="w-full pl-14 pr-4 py-3 bg-gray-50 border-none rounded-xl text-sm focus:ring-0 outline-none transition-all font-medium">
+            </div>
+            <button type="submit" class="btn-dark">검색</button>
+
+            <a th:if="${keyword != null and keyword != ''}"
+               th:href="@{/admin/Notifications(type='전체')}"
+               class="btn-reset flex items-center gap-2">
+                <i class="fas fa-redo-alt text-xs"></i> 초기화
+            </a>
+        </form>
+
+        <div class="space-y-5">
+            <div th:each="noti : ${notifications}"
+                 class="noti-item cursor-pointer"
+                 th:classappend="${noti.notiType == '연체' ? 'noti-overdue' : (noti.notiType == '대여' ? 'noti-join' : 'noti-rental')}"
+                 th:onclick="openNotiModal([[${noti.notiId}]], [[${noti.userNm}]], [[${noti.bookTitle}]], [[${noti.notiType}]], [[${noti.notiContent}]], [[${#temporals.format(noti.createdAt, 'yyyy-MM-dd HH:mm')}]], [[${#temporals.format(noti.updatedAt, 'yyyy-MM-dd HH:mm')}]])">
+
+                <div class="icon-box"
+                     th:classappend="${noti.notiType == '연체' ? 'bg-red-50 text-red-500' : (noti.notiType == '대여' ? 'bg-blue-50 text-blue-500' : 'bg-green-50 text-green-500')}">
+                    <i th:class="${noti.notiType == '연체' ? 'fas fa-clock' : (noti.notiType == '대여' ? 'fas fa-book-medical' : 'fas fa-undo-alt')}"></i>
+                </div>
+
+                <div class="flex-1">
+                    <div class="flex justify-between items-start">
+                        <span class="text-[10px] font-black uppercase tracking-widest"
+                              th:classappend="${noti.notiType == '연체' ? 'text-red-500' : (noti.notiType == '대여' ? 'text-blue-500' : 'text-green-500')}"
+                              th:text="${noti.notiType}">TYPE</span>
+                        <span class="text-[11px] font-bold text-gray-400 font-mono" th:text="${#temporals.format(noti.createdAt, 'yyyy-MM-dd HH:mm')}">TIME</span>
+                    </div>
+                    <h4 class="font-bold text-gray-800 mt-1 text-lg" th:text="${noti.bookTitle}">도서 제목</h4>
+                    <p class="text-sm text-gray-600 mt-2 leading-relaxed">
+                        <span class="font-bold text-gray-900" th:text="${noti.userNm}">사용자</span>(<span th:text="${noti.userId}" class="text-xs">ID</span>)님의 알림이 도착했습니다.
+                    </p>
+                </div>
+                <div th:if="${noti.updatedAt == null}" class="w-2.5 h-2.5 bg-red-500 rounded-full self-center shadow-[0_0_8px_rgba(239,68,68,0.5)]"></div>
+                <div th:if="${noti.updatedAt != null}" class="text-[10px] text-gray-300 self-center font-bold">확인됨</div>
+            </div>
+
+            <div th:if="${#lists.isEmpty(notifications)}" class="text-center py-20 bg-white rounded-[32px] border border-dashed border-gray-200">
+                <i class="fas fa-bell-slash text-4xl text-gray-200 mb-4"></i>
+                <p class="text-gray-400 font-medium">표시할 알림이 없습니다.</p>
+            </div>
+
+            <div th:if="${!page.isEmpty()}" class="flex items-center justify-center gap-4 mt-12 pb-10">
+                <a th:href="@{/admin/Notifications(page=${page.number - 1}, type=${selectedType}, keyword=${keyword})}"
+                   class="page-btn" th:classappend="${!page.hasPrevious() ? 'disabled' : ''}">
+                    <i class="fas fa-chevron-left mr-2"></i> 이전
+                </a>
+                <div class="flex items-center gap-2">
+                    <span class="text-sm font-bold text-gray-900" th:text="${page.number + 1}">1</span>
+                    <span class="text-sm font-medium text-gray-400">/</span>
+                    <span class="text-sm font-medium text-gray-400" th:text="${page.totalPages}">10</span>
+                </div>
+                <a th:href="@{/admin/Notifications(page=${page.number + 1}, type=${selectedType}, keyword=${keyword})}"
+                   class="page-btn" th:classappend="${!page.hasNext() ? 'disabled' : ''}">
+                    다음 <i class="fas fa-chevron-right ml-2"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</main>
+
+<div id="notiModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+    <div class="bg-white w-full max-w-lg rounded-[32px] overflow-hidden shadow-2xl transition-all scale-95" id="modalContent">
+        <div class="p-8">
+            <div class="flex justify-between items-start mb-6">
+                <div id="modalIconBox" class="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl">
+                    <i id="modalIcon"></i>
+                </div>
+                <button onclick="closeNotiModal()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times text-xl"></i></button>
+            </div>
+            <span id="modalTag" class="text-[11px] font-black uppercase tracking-tighter px-3 py-1 rounded-full mb-4 inline-block"></span>
+            <h3 id="modalTitle" class="text-2xl font-extrabold text-gray-900 mb-1"></h3>
+            <p id="modalUser" class="text-main font-bold mb-6 text-sm"></p>
+            <div class="bg-gray-50 rounded-2xl p-6 mb-4 border border-gray-100">
+                <p id="modalContentText" class="text-gray-600 leading-relaxed font-medium"></p>
+            </div>
+            <div class="space-y-2 px-1">
+                <div class="flex justify-between items-center text-gray-400 text-[11px] font-bold">
+                    <span>발생 시각</span>
+                    <span id="modalDate" class="font-mono text-gray-500"></span>
+                </div>
+                <div id="modalCheckRow" class="hidden flex justify-between items-center text-main text-[11px] font-bold">
+                    <span>관리자 확인 시각</span>
+                    <span id="modalCheckDate" class="font-mono"></span>
+                </div>
+            </div>
+            <input type="hidden" id="currentNotiId">
+            <button id="modalConfirmBtn" onclick="markAsReadAndClose()" class="w-full mt-8 bg-gray-900 text-white py-4 rounded-2xl font-bold hover:bg-black transition-all shadow-lg">확인 완료</button>
+        </div>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    // 전체 읽음 처리 함수 추가
+    async function markAllAsRead() {
+        if(!confirm("모든 미확인 알림을 확인 완료 처리하시겠습니까?")) return;
+
+        try {
+            const response = await fetch(`/admin/Notifications/readAll`, { method: 'POST' });
+            if (response.ok) {
+                location.reload();
+            } else {
+                alert("처리 중 오류가 발생했습니다.");
+            }
+        } catch (error) {
+            console.error("Error:", error);
+            alert("서버와 통신 중 오류가 발생했습니다.");
+        }
+    }
+
+    function openNotiModal(id, user, title, type, content, date, updateDate) {
+        document.getElementById('currentNotiId').value = id;
+        document.getElementById('modalTitle').innerText = title;
+        document.getElementById('modalUser').innerText = `대상 회원: ${user}`;
+        document.getElementById('modalContentText').innerText = content;
+        document.getElementById('modalDate').innerText = date;
+        document.getElementById('modalTag').innerText = type;
+
+        const checkRow = document.getElementById('modalCheckRow');
+        const confirmBtn = document.getElementById('modalConfirmBtn');
+
+        if(updateDate && updateDate !== 'null') {
+            checkRow.classList.remove('hidden');
+            document.getElementById('modalCheckDate').innerText = updateDate;
+            confirmBtn.innerText = "닫기";
+            confirmBtn.onclick = closeNotiModal;
+            confirmBtn.className = "w-full mt-8 bg-gray-100 text-gray-500 py-4 rounded-2xl font-bold hover:bg-gray-200 transition-all";
+        } else {
+            checkRow.classList.add('hidden');
+            confirmBtn.innerText = "확인 완료";
+            confirmBtn.onclick = markAsReadAndClose;
+            confirmBtn.className = "w-full mt-8 bg-gray-900 text-white py-4 rounded-2xl font-bold hover:bg-black transition-all shadow-lg";
+        }
+
+        const iconBox = document.getElementById('modalIconBox');
+        const icon = document.getElementById('modalIcon');
+        const tag = document.getElementById('modalTag');
+
+        if(type === '연체') {
+            iconBox.className = 'w-14 h-14 rounded-2xl flex items-center justify-center text-2xl bg-red-50 text-red-500';
+            icon.className = 'fas fa-clock';
+            tag.className = 'text-[11px] font-black uppercase tracking-tighter px-3 py-1 rounded-full mb-4 inline-block bg-red-100 text-red-600';
+        } else if(type === '대여') {
+            iconBox.className = 'w-14 h-14 rounded-2xl flex items-center justify-center text-2xl bg-blue-50 text-blue-500';
+            icon.className = 'fas fa-book-medical';
+            tag.className = 'text-[11px] font-black uppercase tracking-tighter px-3 py-1 rounded-full mb-4 inline-block bg-blue-100 text-blue-600';
+        } else {
+            iconBox.className = 'w-14 h-14 rounded-2xl flex items-center justify-center text-2xl bg-green-50 text-green-500';
+            icon.className = 'fas fa-undo-alt';
+            tag.className = 'text-[11px] font-black uppercase tracking-tighter px-3 py-1 rounded-full mb-4 inline-block bg-green-100 text-green-600';
+        }
+
+        document.getElementById('notiModal').classList.remove('hidden');
+        setTimeout(() => document.getElementById('modalContent').classList.remove('scale-95'), 10);
+    }
+
+    function closeNotiModal() {
+        document.getElementById('notiModal').classList.add('hidden');
+        document.getElementById('modalContent').classList.add('scale-95');
+    }
+
+    async function markAsReadAndClose() {
+        const notiId = document.getElementById('currentNotiId').value;
+        const response = await fetch(`/admin/Notifications/read/${notiId}`, { method: 'POST' });
+        if (response.ok) { location.reload(); }
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="ebook">
+
+    <!--  ISBN으로 epub파일 검색  -->
+    <select id="selectEpubByISBN" parameterType="string" resultType="string">
+        SELECT EPUB
+        FROM BOOK_ISBN
+        WHERE ISBN13 = #{isbn}
+    </select>
+
+    <!--  도서ID로 epub파일 검색  -->
+    <select id="selectEpubByBook" parameterType="long" resultType="string">
+        SELECT bi.EPUB
+        FROM BOOKS b
+        JOIN BOOK_ISBN bi ON b.ISBN13 = bi.ISBN13
+        WHERE b.BOOK_ID = #{id}
+    </select>
+
+    <!--  도서ID로 도서 ISBN 검색  -->
+    <select id="selectISBNByBook" parameterType="long" resultType="string">
+        SELECT ISBN13
+        FROM BOOKS
+        WHERE BOOK_ID = #{id}
+    </select>
+    <!--  USER_ID와 ISBN으로 CFI검색  -->
+    <select id="selectCfi" parameterType="hashmap" resultType="SaveCfiRequest">
+        SELECT CFI, PCT, HREF
+        FROM EBOOK_HISTORY
+        WHERE USER_ID = #{userId} AND ISBN13 = #{isbn}
+    </select>
+    
+    <!--  도서가 회원이 대여중인게 맞는지 검증 도서ID  -->
+    <select id="selectUserBook" parameterType="hashmap" resultType="int">
+        SELECT 1
+        FROM LENDS
+        WHERE USER_ID = #{userId}
+            AND BOOK_ID = #{bookId}
+            AND RETURN_DONE_AT IS NULL
+        LIMIT 1
+    </select>
+
+    <!--  도서가 회원이 대여중인게 맞는지 검증 ISBN  -->
+    <select id="selectUserIsbn" parameterType="hashmap" resultType="int">
+        SELECT 1
+        FROM LENDS l
+        join books b
+          on l.BOOK_ID = b.BOOK_ID
+        WHERE l.USER_ID = #{userId}
+            AND b.ISBN13 = #{isbn}
+            AND l.RETURN_DONE_AT IS NULL
+        LIMIT 1
+    </select>
+
+    <!--  회원의 대여중인 전자책 목록 검색  -->
+    <select id="selectEBookList" parameterType="string" resultType="MyEBookItemDTO">
+        SELECT
+            l.LEND_ID,
+            l.BOOK_ID,
+            b.ISBN13,
+            bi.BOOK_TITLE,
+            bi.AUTHORS,
+            COALESCE(bi.NAVER_IMAGE, bi.ALADIN_IMAGE_BIG) AS BOOK_IMAGE,
+            bi.EBOOK_YN,
+            eh.cfi
+        FROM LENDS l
+        JOIN BOOKS b
+          ON b.BOOK_ID = l.BOOK_ID
+        JOIN BOOK_ISBN bi
+          ON bi.ISBN13 = b.ISBN13
+        LEFT OUTER JOIN EBOOK_HISTORY eh
+          ON bi.ISBN13 = eh.ISBN13
+        WHERE l.USER_ID = #{id}
+          AND l.RETURN_DONE_AT IS NULL
+          AND bi.EBOOK_YN = 'Y'
+          AND bi.EPUB IS NOT NULL
+        ORDER BY l.LEND_DATE DESC;
+    </select>
+
+    <insert id="saveCfi" parameterType="hashmap">
+        INSERT INTO EBOOK_HISTORY (
+            ISBN13,
+            USER_ID,
+            CFI,
+            PCT,
+            HREF
+        ) VALUES (
+            #{isbn},
+            #{userId},
+            #{cfi},
+            #{pct},
+            #{href}
+        )
+        ON DUPLICATE KEY UPDATE
+            CFI = VALUES(CFI),
+            PCT = VALUES(PCT),
+            HREF = VALUES(HREF),
+            UPDATED_AT = CURRENT_TIMESTAMP
+    </insert>
+
+</mapper>

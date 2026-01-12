@@ -1,0 +1,219 @@
+<!-- fragments/header.html -->
+<th:block
+        th:fragment="header"
+        xmlns:th="http://www.thymeleaf.org"
+        xmlns:sec="http://www.thymeleaf.org/extras/spring-security6">
+
+    <!-- header 전용 CSS -->
+    <link rel="stylesheet" th:href="@{/css/header.css}">
+
+    <header class="header">
+        <div class="top-bar">
+            <div class="top-center">
+                <img th:src="@{/images/mallangs.png}" alt="상단 배너">
+            </div>
+
+            <!-- 로그인 전 -->
+            <div class="top-right before-login" sec:authorize="isAnonymous()">
+                <a th:href="@{/users/login}" class="login-link">로그인/회원가입</a>
+            </div>
+
+            <!-- 로그인 후 -->
+            <div class="top-right after-login" sec:authorize="isAuthenticated()">
+                <div class="profile-row">
+                    <div class="profile-img"></div>
+                    <div class="profile-name">
+                        <span sec:authentication="principal.profileNm"></span> 님 🔽
+                    </div>
+
+                    <div class="user-dropdown">
+                        <a href="#">마이페이지</a>
+                        <a href="#">내 서재</a>
+                        <a href="#">북마크</a>
+                        <!-- ⭐ 관리자 전용 -->
+                        <a th:href="@{/admin/Statistics}"
+                           sec:authorize="hasRole('ADMIN')">
+                            관리자페이지
+                        </a>
+                        <hr>
+                        <form th:action="@{/logout}" method="post">
+                            <button type="submit" class="logout-btn">로그아웃</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="header-inner">
+            <div class="logo">
+                <a th:href="@{/home}">
+                    <img th:src="@{/images/logo.png}" alt="사이트 로고">
+                </a>
+            </div>
+
+            <nav class="nav">
+                <a th:href="@{/recommend}">맞춤 추천</a><span>|</span>
+                <a th:href="@{/book/search}">검색</a><span>|</span>
+                <a href="">피드</a><span>|</span>
+                <a href="">안내</a><span>|</span>
+                <a href="">이벤트</a><span>|</span>
+            </nav>
+
+            <div class="right">
+                <div class="icon-row">
+                    <div class="search-bar">
+                        <form th:action="@{/book/search}" method="get">
+                            <input type="text" name="keyword">
+                            <button class="search-btn" type="submit">
+                                <img th:src="@{/images/icon1.png}">
+                            </button>
+                        </form>
+                    </div>
+
+
+                    <div class="after-login icon-group" sec:authorize="isAuthenticated()">
+                        <div class="icon">🛒</div>
+                        <div class="icon">
+                            <button id="alarmBtn">🔔</button>
+                            <span class="alarm-cnt"></span>
+                            <div class="alarm-panel" id="alarmBox">
+
+                                <div class="alarm-panel-top">
+                                    <h2 class="alarm-title">알림</h2>
+                                    <div class="alarm-menu-dot">
+                                        <img th:src="@{/images/noti/dotdotdot.png}">
+                                        <div class="alarm-menu">
+                                            <button id="allread">모두 읽음</button>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                                <!-- 필터 버튼 -->
+                                <div class="tab-wrapper">
+                                    <div class="alarm-tabs">
+                                        <button class="tab" data-filter="all">전체</button>
+                                        <button class="tab active" data-filter="unread">미읽음</button>
+                                        <button class="tab" data-filter="system">시스템</button>
+                                        <button class="tab" data-filter="delivery">배송</button>
+                                        <button class="tab" data-filter="community">커뮤니티</button>
+                                        <button class="tab" data-filter="event">이벤트</button>
+                                        <button class="tab" data-filter="admin">관리자</button>
+                                    </div>
+                                </div>
+
+                                <!-- 알림 리스트 -->
+                                <ul class="alarm-list">
+
+                                    <li class="alarm-item unread system">
+                                        <span class="alarm-dot"></span>
+                                        <img th:src="@{/images/noti/lend_expiration_noti.png}" class="alarm-icon">
+                                        <div class="alarm-text">
+                                            <p class="alarm-msg">대여 만료 알림 : ‘노인과 바다’ 반납 예정일 3일 남았어요</p>
+                                            <span class="alarm-time">3시간 전</span>
+                                        </div>
+                                    </li>
+
+                                    <li class="alarm-item unread system">
+                                        <span class="alarm-dot"></span>
+                                        <img src="https://your-url/book.png" class="alarm-icon">
+                                        <div class="alarm-text">
+                                            <p class="alarm-msg">예약도서 대여 가능 : ‘수학의 정석’</p>
+                                            <span class="alarm-time">1일 전</span>
+                                        </div>
+                                    </li>
+
+                                    <li class="alarm-item community">
+                                        <span class="alarm-dot"></span>
+                                        <img src="https://your-url/heart.png" class="alarm-icon">
+                                        <div class="alarm-text">
+                                            <p class="alarm-msg">다른 사용자에게 좋아요를 받았습니다</p>
+                                            <span class="alarm-time">2일 전</span>
+                                        </div>
+                                    </li>
+
+                                    <li class="alarm-item event">
+                                        <span class="alarm-dot"></span>
+                                        <img src="https://your-url/event.png" class="alarm-icon">
+                                        <div class="alarm-text">
+                                            <p class="alarm-msg">이벤트 당첨! ‘이달의 다독왕’에 당첨되었어요.</p>
+                                            <span class="alarm-time">2일 전</span>
+                                        </div>
+                                    </li>
+
+                                    <li class="alarm-item unread admin">
+                                        <span class="alarm-dot"></span>
+                                        <img src="https://your-url/megaphone.png" class="alarm-icon">
+                                        <div class="alarm-text">
+                                            <p class="alarm-msg danger">계정 이용이 제한되었습니다.</p>
+                                            <span class="alarm-time">3시간 전</span>
+                                        </div>
+                                    </li>
+
+                                    <!---->
+                                    <li class="alarm-item unread system">
+                                        <span class="alarm-dot"></span>
+                                        <img src="https://your-url/calendar.png" class="alarm-icon">
+                                        <div class="alarm-text">
+                                            <p class="alarm-msg">대여 만료 알림 : ‘노인과 바다’ 반납 예정일 3일 남았어요</p>
+                                            <span class="alarm-time">3시간 전</span>
+                                        </div>
+                                    </li>
+
+                                    <li class="alarm-item unread system">
+                                        <span class="alarm-dot"></span>
+                                        <img src="https://your-url/book.png" class="alarm-icon">
+                                        <div class="alarm-text">
+                                            <p class="alarm-msg">예약도서 대여 가능 : ‘수학의 정석’</p>
+                                            <span class="alarm-time">1일 전</span>
+                                        </div>
+                                    </li>
+
+                                    <li class="alarm-item community">
+                                        <span class="alarm-dot"></span>
+                                        <img src="https://your-url/heart.png" class="alarm-icon">
+                                        <div class="alarm-text">
+                                            <p class="alarm-msg">다른 사용자에게 좋아요를 받았습니다</p>
+                                            <span class="alarm-time">2일 전</span>
+                                        </div>
+                                    </li>
+
+                                    <li class="alarm-item event">
+                                        <span class="alarm-dot"></span>
+                                        <img src="https://your-url/event.png" class="alarm-icon">
+                                        <div class="alarm-text">
+                                            <p class="alarm-msg">이벤트 당첨! ‘이달의 다독왕’에 당첨되었어요.</p>
+                                            <span class="alarm-time">2일 전</span>
+                                        </div>
+                                    </li>
+
+                                    <li class="alarm-item unread admin">
+                                        <span class="alarm-dot"></span>
+                                        <img src="https://your-url/megaphone.png" class="alarm-icon">
+                                        <div class="alarm-text">
+                                            <p class="alarm-msg danger">계정 이용이 제한되었습니다.</p>
+                                            <span class="alarm-time">3시간 전</span>
+                                        </div>
+                                    </li>
+                                </ul>
+                                <div class="alarm-footer">
+                                    <button id="all-noti-btn">전체 알림 보러가기</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <script th:inline="javascript">
+        window.IS_LOGGED_IN = [[${#authorization.expression('isAuthenticated()')}]];
+    </script>
+
+    <!-- header 전용 JS -->
+    <script th:src="@{/js/header.js}"></script>
+
+</th:block>

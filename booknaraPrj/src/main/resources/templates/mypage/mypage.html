@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>마이페이지</title>
+    <link rel="stylesheet" href="/css/mypage.css">
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.css" rel="stylesheet">
+
+
+
+</head>
+<body>
+
+<!-- ================= 헤더 ================= -->
+<header class="header">
+    헤더
+</header>
+
+<!-- ================= 메인 ================= -->
+<div class="container">
+
+    <!-- ===== 좌측 프로필 영역 ===== -->
+    <aside class="mypage-sidebar">
+
+        <!-- 프로필 영역 -->
+        <div class="profile-box">
+
+
+            <div class="profile-info">
+                <div class="profile-img"
+                     th:style="'background-image:url(' + ${profileImg} + ');'"></div>
+
+                <div class="profile-name" th:text="${profileNm}">사용자 닉네임</div>
+
+            </div>
+
+
+                <!-- 메뉴 -->
+                <nav class="profile-menu">
+                    <button class="write-btn">✏️ 글쓰기</button>
+                    <ul>
+                        <li><a th:href="@{/mypage/myinfo}">내 정보</a></li>
+                        <li><a href="/my/booklist">내 서재</a></li>
+                        <li><a href="">말랑이 키우기</a></li>
+                        <li><a href="/mypage/events">이벤트 참여내역</a></li>
+                        <li><a href="/my/inquiry">내 문의 내역</a></li>
+                    </ul>
+                </nav>
+                <!-- 오른쪽 콘텐츠 영역 -->
+                <section class="mypage-content">
+
+                    <!-- 요약 카드 -->
+                    <div class="summary-box">
+                        <div class="summary-item">
+                            <span class="count">0</span>
+                            <span class="label">포스트</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="count">0</span>
+                            <span class="label">활동</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="count">0</span>
+                            <span class="label">관심책</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="count">0</span>
+                            <span class="label">내서재</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="count">0</span>
+                            <span class="label">알림</span>
+                        </div>
+                    </div>
+                   <!--반납, 연체 여부-->
+                    <div class="status-message">
+                        <span th:text="${statusText}">대여 불가능</span>
+                        <span th:if="${statusValue != null and statusValue != ''}"
+                              th:classappend="${statusLevel}"
+                              th:text="${statusValue}">D-2</span>
+                    </div>
+
+
+                </section>
+
+        </div>
+
+    </aside>
+
+
+
+    <!-- ===== 우측 콘텐츠 영역 ===== -->
+    <main class="content">
+
+        <!-- 📅 FullCalendar -->
+        <section class="calendar-box">
+            <div id="calendar"></div>
+        </section>
+
+        <!-- 📚 대여 도서 -->
+        <section class="rental-box">
+            <div class="section-header">
+                <span>대여 도서</span>
+                <a href="/my/booklist">더보기 →</a>
+            </div>
+
+            <div class="book-list">
+                <div class="book-item" th:each="r : ${currentRentals}">
+                    <div class="book-thumb"
+                         th:style="'background-image:url(' + ${r.coverImg} + ');'"></div>
+
+                    <div class="book-title" th:text="${r.bookTitle}">도서명</div>
+                    <div class="book-date" th:text="'반납 예정일 ' + ${#temporals.format(r.returnDueDate, 'yyyy-MM-dd')}"></div>
+                </div>
+
+                <div th:if="${#lists.isEmpty(currentRentals)}" style="padding:12px;">
+                    대여중인 도서가 없습니다.
+                </div>
+            </div>
+
+        </section>
+
+        <!-- 📖 연체 / 이력 -->
+        <section class="history-box">
+
+            <div>
+                <span> 연체 중인 도서 </span>
+            </div>
+
+            <div class="history-item" th:each="o : ${overdueRentals}">
+                <div class="book-thumb"
+                     th:style="'background-image:url(' + ${o.coverImg} + ');'"></div>
+
+                <div class="book-info">
+                    <div class="book-title" th:text="${o.bookTitle}">도서명</div>
+                    <div class="book-date"
+                         th:text="'반납 예정일 ' + ${#temporals.format(o.returnDueDate, 'yyyy-MM-dd')}"></div>
+                    <div class="book-status">연체</div>
+                </div>
+            </div>
+
+            <div th:if="${#lists.isEmpty(overdueRentals)}" style="padding:12px;">
+                연체 도서가 없습니다.
+            </div>
+
+        </section>
+
+
+    </main>
+</div>
+
+<!-- 캘린더 JS -->
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
+<script src="/js/calendar.js"></script>
+
+
+
+</body>
+</html>

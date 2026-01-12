@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>내 서재 - 북마크</title>
+    <link rel="stylesheet" href="/css/mybooklist.css">
+</head>
+<body>
+
+<div class="mypage-container">
+
+    <!-- 상단 탭 -->
+    <div class="mypage-tabs">
+        <a th:href="@{/my/booklist}" class="mypage-tab"
+           th:classappend="${activeTab=='rent'} ? ' active' : ''">대여</a>
+        <a th:href="@{/my/reserve}" class="mypage-tab"
+           th:classappend="${activeTab=='reserve'} ? ' active' : ''">예약</a>
+        <a th:href="@{/my/bookmark}" class="mypage-tab"
+           th:classappend="${activeTab=='bookmark'} ? ' active' : ''">북마크</a>
+    </div>
+
+    <div class="section">
+        <div class="section-title">북마크 도서</div>
+
+        <div th:if="${#lists.isEmpty(bookmarkList)}">
+            북마크한 도서가 없습니다.
+        </div>
+
+        <div class="book-row" th:if="${!#lists.isEmpty(bookmarkList)}">
+            <div class="book-card" th:each="book : ${bookmarkList}">
+                <img class="book-img" th:src="${book.coverImg}">
+                <div class="book-title" th:text="${book.bookTitle}"></div>
+                <div class="book-meta" th:text="${book.authors}"></div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>

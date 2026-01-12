@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>signup</title>
+
+    <link rel="stylesheet" th:href="@{/css/signup.css}">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+
+<body>
+<div class="signup-page">
+
+    <!-- 왼쪽 이미지 영역 -->
+    <div class="signup-visual">
+        <img th:src="@{/images/login.png}" alt="회원가입 일러스트">
+    </div>
+
+    <!-- 오른쪽 로그인 영역 -->
+    <div class="signup-area">
+        <div class="signup-wrap">
+
+
+            <div class="logo">말랑북스</div>
+            <div class="title">회원가입</div>
+
+            <p th:if="${errorMessage}" class="error-msg">
+                [[${errorMessage}]]
+            </p>
+
+            <form th:action="@{/users/signup}" method="post">
+
+                <div class="short-box">
+                    <!-- 아이디 -->
+                    <div class="form-short">
+                        <input type="text" id="userIdInput" name="userId" placeholder="아이디" >
+                        <button type="button" class="check-btn" onclick="checkUserId()">중복확인</button>
+                        <span id="userIdMsg" class="msg"></span>
+                    </div>
+
+                    <!-- 비밀번호 -->
+                    <div class="form-short">
+                        <input type="password" id="password" name="password" placeholder="비밀번호">
+                        <span id="pwMsg" class="msg error"></span>
+                    </div>
+
+                    <!-- 비밀번호 확인 -->
+                    <div class="form-short">
+                        <input type="password" id="passwordConfirm" name="passwordConfirm" placeholder="비밀번호 확인">
+                        <span id="pwConfirmMsg" class="icon"></span>
+                    </div>
+
+                    <!-- 이름 -->
+                    <div class="form-short">
+                        <input type="text" name="userNm" placeholder="이름">
+                    </div>
+
+                    <!-- 프로필 이름 -->
+                    <div class="form-short">
+                        <input type="text" id="profileNameInput" name="profileNm" placeholder="프로필 이름">
+                        <span id="profileNameMsg" class="msg"></span>
+                    </div>
+                </div>
+                <!-- 성별 -->
+                <div class="form-row">
+                    <div class="gender-group">
+                        <label>
+                            <input type="radio" name="gender" value="M">
+                            남자
+                        </label>
+                        <label>
+                            <input type="radio" name="gender" value="F">
+                            여자
+                        </label>
+                    </div>
+                </div>
+
+                <!-- 생년월일 -->
+                <div class="form-row">
+                    <input type="date" name="birthday">
+                </div>
+
+                <!-- 휴대폰 -->
+                <div class="form-row">
+                    <input type="tel" name="phoneNo" placeholder="휴대폰 번호">
+                </div>
+
+                <!-- 이메일 -->
+                <div class="form-row">
+                    <input type="email" name="email" placeholder="이메일">
+                </div>
+
+                <!-- 이메일 수신 동의 -->
+                <div class="form-row" style="margin-top:-6px;">
+                    <label style="font-size:13px; color:#555; display:flex; align-items:center; gap:6px;">
+                        <input type="checkbox" name="smsYn" value="Y">
+                        이메일 수신 동의 (공지 · 안내 메일)
+                    </label>
+                </div>
+
+
+
+
+
+                <button type="submit" class="signup-btn">회원가입</button>
+            </form>
+
+            <div class="sub-links">
+                <a th:href="@{/users/login}">로그인으로 돌아가기</a>
+            </div>
+
+
+        </div>
+    </div>
+</div>
+
+<script th:src="@{/js/signup.js}"></script>
+</body>
+</html>

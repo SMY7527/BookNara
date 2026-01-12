@@ -1,0 +1,22 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>소셜 연동</title>
+</head>
+<body>
+<h2>🔐 기존 계정이 있어유</h2>
+<p>이메일: <b th:text="${email}"></b></p>
+<p>이 계정과 소셜 로그인을 연동할까요?</p>
+
+<form th:action="@{/users/social/link}" method="post" style="display:inline;">
+    <button type="submit">연동하기</button>
+</form>
+
+<form th:action="@{/users/social/link-cancel}" method="post" style="display:inline;">
+    <button type="submit">취소</button>
+</form>
+</body>
+</html>
+
+

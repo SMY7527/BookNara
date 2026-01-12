@@ -4,9 +4,10 @@ import com.booknara.booknaraPrj.bookSearch.dto.BookSearchConditionDTO;
 import com.booknara.booknaraPrj.bookSearch.dto.BookSearchDTO;
 import com.booknara.booknaraPrj.bookSearch.dto.PageInsertDTO;
 import com.booknara.booknaraPrj.bookSearch.service.BookSearchService;
-import com.booknara.booknaraPrj.common.dto.PageResultDTO;
+import com.booknara.booknaraPrj.bookSearch.dto.PageResultDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 @Controller
@@ -21,12 +22,14 @@ public class BookSearchController {
      * - 최초 진입 시 HTML만 반환
      */
     @GetMapping("/search")
-    public String searchPage() {
-        return "book/booksearch"; // templates/book/booksearch.html
+    public String searchPage(@RequestParam(required = false) String keyword, Model model) {
+        model.addAttribute("keyword", keyword); // 초기 검색어
+        return "book/booksearch";
     }
 
+
     /**
-     * 도서 검색 API(JSON)
+     * 도서 검색
      *  fetch/Ajax로 호출
      */
     @GetMapping("/search/list")
@@ -44,4 +47,5 @@ public class BookSearchController {
 
         return service.search(cond, page);
     }
+
 }

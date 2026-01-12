@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+  <link rel="stylesheet" th:href="@{/css/notification_list.css}">
+</head>
+<body>
+
+  <div class="noti-page">
+
+    <header class="noti-header">
+      <div class="noti-title-row">
+        <h1 class="noti-title">알림</h1>
+
+        
+      </div>
+
+      <nav class="noti-tabs" aria-label="알림 탭">
+        <button class="tab is-active" data-filter="ALL" type="button">전체</button>
+        <button class="tab" data-filter="UNREAD" type="button">미읽음</button>
+        <button class="tab" data-filter="SYSTEM" type="button">시스템</button>
+        <button class="tab" data-filter="DELIVERY" type="button">배송</button>
+        <button class="tab" data-filter="COMMUNITY" type="button">커뮤니티</button>
+        <button class="tab" data-filter="EVENT" type="button">이벤트</button>
+        <button class="tab" data-filter="ADMIN" type="button">관리자</button>
+
+        <div class="noti-actions">
+          <button id="btnReadAll" class="btn btn-primary" type="button">
+            현재 탭 모두 읽음
+          </button>
+        </div>
+      </nav>
+    </header>
+
+    <main class="noti-main">
+      <section class="noti-panel">
+        <div id="notiEmpty" class="noti-empty" style="display:none;">
+          <div class="noti-empty-icon">🔔</div>
+          <div class="noti-empty-text">알림이 없습니다.</div>
+        </div>
+
+        <ul id="notiList" class="noti-list" aria-live="polite">
+          <!-- <li class="noti-item">
+            <div class="noti-icon-wrap">
+              <img class="noti-icon" th:src="@{/images/noti/resv_noti.png}" alt="">
+            </div>
+          
+            <div class="noti-content">
+              <div class="line1">
+                <span class="noti-badge-dot" title="미읽음"></span>
+                <div class="noti-text danger">대여 만료 알림 : ‘노인과 바다’ 반납 예정일 3일 남았어요</div>
+              </div>
+              <div class="noti-meta">2026.01.07</div>
+            </div>
+            <div class="alarm-menu-dot">
+              <img th:src="@{/images/noti/dotdotdot.png}">
+              <div class="alarm-menu">
+                <button class="read-btn" disabled>읽음 표시</button>
+              </div>
+            </div>
+          </li> -->
+        </ul>
+
+        <footer class="noti-footer">
+          <div class="page-info">
+            <span id="pageInfo"></span>
+          </div>
+
+          <div class="pagination" aria-label="페이지네이션">
+            <button id="btnPrev" class="btn" type="button" disabled>이전</button>
+
+            <div class="page-numbers" id="pageNumbers"></div>
+
+            <button id="btnNext" class="btn" type="button" disabled>다음</button>
+          </div>
+        </footer>
+      </section>
+    </main>
+
+  </div>
+
+  <script th:src="@{/js/notification_list.js}"></script>
+
+</body>
+</html>

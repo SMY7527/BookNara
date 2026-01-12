@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>내 문의 내역</title>
+    <link rel="stylesheet" href="/css/InquiryHistory.css">
+</head>
+
+<body>
+
+<div class="inquiry-container">
+
+    <!-- 제목 + 글쓰기 버튼 -->
+    <div class="inquiry-title">
+        문의 내역
+        <a href="/my/inquiry/write" class="write-btn">✏️ 문의하기</a>
+    </div>
+
+    <!-- 검색 -->
+    <form class="search-box" method="get" action="/my/inquiry">
+        <div class="search-input">
+            <input type="text"
+                   name="keyword"
+                   placeholder="검색어 입력"
+                   th:value="${keyword}">
+            <button type="submit">🔍</button>
+        </div>
+    </form>
+
+    <!-- 문의 리스트 -->
+    <div class="inquiry-list">
+
+        <!-- 문의 없음 -->
+        <div th:if="${#lists.isEmpty(inquiryList)}"
+             style="padding:20px; text-align:center; color:#666;">
+            문의 내역이 없습니다.
+        </div>
+
+        <!-- 문의 카드 -->
+        <div class="inquiry-card"
+             th:each="inq : ${inquiryList}">
+
+            <!-- 질문 -->
+            <div class="question">
+                <div class="question-text"
+                     th:text="'Q. ' + ${inq.inqTitle}">
+                    Q. 문의 제목
+                </div>
+
+                <div class="question-meta">
+                    문의 날짜<br>
+                    <span th:text="${#temporals.format(inq.createdAt,'yyyy/MM/dd')}">
+                        2025/12/05
+                    </span>
+                </div>
+            </div>
+
+            <!-- 질문 내용 -->
+            <div style="font-size:13px; margin-top:6px; color:#555;"
+                 th:text="${inq.inqContent}">
+                문의 내용
+            </div>
+
+            <!-- 답변 -->
+            <div class="answer"
+                 th:if="${inq.respContent != null}"
+                 th:text="'A. ' + ${inq.respContent}">
+                A. 답변 내용
+            </div>
+
+            <!-- 답변 없음 -->
+            <div class="answer"
+                 th:if="${inq.respContent == null}"
+                 style="color:#999;">
+                A. 아직 답변이 등록되지 않았습니다.
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>

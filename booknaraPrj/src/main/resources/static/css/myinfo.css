@@ -1,0 +1,229 @@
+* {
+    box-sizing: border-box;
+    font-family: "Apple SD Gothic Neo", sans-serif;
+}
+
+body {
+    margin: 0;
+    background: #f5f5f5;
+}
+
+/* ===== 전체 ===== */
+.myinfo-container {
+    width: 900px;
+    margin: 40px auto;
+    background: #fff;
+    border-radius: 10px;
+    padding: 32px;
+}
+
+.page-title {
+    font-size: 22px;
+    margin-bottom: 24px;
+}
+
+/* ===== 섹션 ===== */
+.info-section {
+    margin-bottom: 40px;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.section-header h3 {
+    margin: 0;
+}
+
+/* ===== 버튼 ===== */
+.btn {
+    padding: 8px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    border: none;
+    font-size: 14px;
+}
+
+.btn-primary {
+    background: #000;
+    color: #fff;
+}
+
+.btn-outline {
+    background: #fff;
+    border: 1px solid #ccc;
+}
+
+.btn-outline.small {
+    padding: 6px 10px;
+    font-size: 13px;
+}
+
+.btn-text {
+    background: none;
+    border: none;
+    color: #888;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+/* ===== 폼 ===== */
+.info-form {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.form-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.form-row.right {
+    justify-content: flex-end;
+}
+
+.form-row label {
+    width: 120px;
+    font-size: 14px;
+    color: #555;
+}
+
+.form-row input {
+    flex: 1;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+    background: #f3f3f3;
+}
+
+.form-row input:disabled {
+    color: #666;
+}
+
+/* ===== 주소 ===== */
+.address-row {
+    display: flex;
+    gap: 8px;
+    flex: 1;
+}
+
+/* ===== 장르 ===== */
+.genre-tags {
+    display: flex;
+    gap: 8px;
+}
+
+.tag {
+    padding: 6px 10px;
+    border-radius: 14px;
+    font-size: 13px;
+    background: #eee;
+}
+
+.tag.active {
+    background: #000;
+    color: #fff;
+}
+
+/* ===== 탈퇴 ===== */
+.withdraw {
+    margin-top: 40px;
+}
+
+/* ================= 회원탈퇴 모달 ================= */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.modal {
+    width: 420px;
+    background: #fff;
+    border-radius: 10px;
+    padding: 18px 18px 16px;
+    position: relative;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.18);
+}
+
+.modal-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 18px;
+}
+
+.modal-title {
+    margin: 6px 0 12px;
+    text-align: center;
+    font-size: 18px;
+}
+
+.modal-box {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 12px;
+    height: 140px;
+    overflow: auto;
+    font-size: 13px;
+    color: #444;
+    background: #fafafa;
+}
+
+.captcha-row {
+    margin-top: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+#captchaImg {
+    width: 180px;
+    height: 48px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    background: #fff;
+}
+
+.modal-field {
+    margin-top: 10px;
+}
+
+.modal-field input {
+    width: 100%;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+    background: #fff;
+}
+
+.password-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.pw-label {
+    width: 70px;
+    font-size: 13px;
+    color: #555;
+}
+
+.modal-actions {
+    margin-top: 14px;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}

@@ -1,0 +1,211 @@
+body {
+  margin: 0;
+  height: 100vh;
+}
+
+.login-page {
+  display: flex;
+  height: 100vh;
+}
+
+/* 왼쪽 */
+.login-visual {
+  flex: 7;
+  background: #f5f1ea;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+}
+
+.login-visual img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* 오른쪽 */
+.login-area {
+  flex: 3;
+  display: flex;
+  align-items: flex-start;   /* ⭐ 가운데 말고 위로 */
+
+  justify-content: center;
+  background: #fff;
+}
+
+/* 기존 login-wrap은 거의 그대로 */
+
+.login-wrap {
+            width: 100%;
+            max-width: 390px;
+            margin-top: 120px;
+            padding: 0 40px;
+            box-sizing: border-box;
+        }
+
+        .logo {
+            text-align: center;
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .login-title {
+            text-align: center;
+            font-size: 15px;
+            color: #555;
+            margin-bottom: 32px;
+        }
+
+        .input-box {
+            margin-bottom: 14px;
+        }
+
+        .input-box input {
+            width: 100%;
+            height: 48px;
+            padding: 0 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        .option-row {
+            display: flex;
+            justify-content: flex-end;
+            font-size: 13px;
+            margin: 10px 0 20px;
+        }
+
+        .option-row a {
+            text-decoration: none;
+            color: #666;
+        }
+
+        .option-row a:hover {
+            text-decoration: underline;
+        }
+
+        .login-btn {
+            width: 100%;
+            height: 50px;
+            background: #111;
+            color: #fff;
+            border: none;
+            border-radius: 25px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .sub-links {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 13px;
+        }
+
+        .sub-links a {
+            text-decoration: none;
+            color: #333;
+            margin: 0 6px;
+        }
+
+        .sub-links a:hover {
+            text-decoration: underline;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 30px 0 20px;
+            font-size: 13px;
+            color: #aaa;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background: #eee;
+        }
+
+        .divider span {
+            padding: 0 10px;
+        }
+
+        .social-login {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+        }
+
+        .social-login a {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            font-size: 18px;
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .naver {
+            background: #03c75a;
+        }
+
+        .kakao {
+            background: #fee500;
+            color: #000;
+        }
+
+        .google {
+            background: #fff;
+            border: 1px solid #ddd;
+            color: #555;
+            font-weight: 600;
+        }
+
+        /* 카카오 풀버튼 */
+        .kakao-full-btn {
+          width: 100%;
+          height: 52px;
+
+          background: #FEE500;
+          border-radius: 12px;
+
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 12px;
+
+          text-decoration: none;
+          cursor: pointer;
+        }
+
+        /* 카카오 말풍선 아이콘 */
+        .kakao-icon {
+          width: 22px;
+          height: 22px;
+          background-image: url("/images/kakao_icon.png");
+          background-size: contain;
+          background-repeat: no-repeat;
+          background-position: center;
+        }
+
+        /* 버튼 텍스트 */
+        .kakao-text {
+          font-size: 16px;
+          font-weight: 600;
+          color: #000;
+        }
+
+        /* hover */
+        .kakao-full-btn:hover {
+          background: #f7dc00;
+        }

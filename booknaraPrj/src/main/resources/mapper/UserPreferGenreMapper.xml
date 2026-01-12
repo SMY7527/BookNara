@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.booknara.booknaraPrj.login_signup.mapper.UserPreferGenreMapper">
+
+    <insert id="insert">
+        INSERT INTO USER_PREFER_GENRE (
+        USER_ID,
+        GENRE_ID,
+        USE_YN
+        ) VALUES (
+        #{userId},
+        #{genreId},
+        'Y'
+        )
+    </insert>
+
+</mapper>

@@ -1,0 +1,77 @@
+.footer {
+    background: #e3dede;
+    color: #333;
+    font-size: 14px;
+
+}
+
+.footer-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 60px 40px;
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 40px;
+}
+
+/* 브랜드 */
+.footer-logo {
+    font-size: 22px;
+    margin-bottom: 12px;
+}
+
+.footer-desc {
+    line-height: 1.6;
+    color: #555;
+}
+
+/* 메뉴 공통 */
+.footer-menu h3 {
+    font-size: 16px;
+    margin-bottom: 12px;
+}
+
+.footer-menu ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.footer-menu li {
+    margin-bottom: 8px;
+}
+
+.footer-menu a {
+    text-decoration: none;
+    color: #555;
+}
+
+.footer-menu a:hover {
+    text-decoration: underline;
+}
+
+.footer-admin {
+    display: flex;
+        justify-content: center;   /* ⭐ 가로 가운데 */
+        align-items: center;
+        gap: 24px;                 /* 이메일 / 전화 간격 */
+        border-top: 1px solid #e5e5e5;
+        padding: 16px 0;
+        font-size: 13px;
+        color: #666;
+
+}
+
+.footer-admin p {
+    margin: 4px 0;
+}
+
+
+/* 하단 */
+.footer-bottom {
+    border-top: 1px solid #ddd;
+    text-align: center;
+    padding: 20px;
+    font-size: 13px;
+    color: #777;
+}

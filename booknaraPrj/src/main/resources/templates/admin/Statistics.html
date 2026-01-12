@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>도서 대여 시스템 - 통계관리</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+        /* [1] 공통 테마 설정 */
+        :root { --main-color: #DCA244; --hover-color: #C8903A; }
+        .bg-main { background-color: var(--main-color); }
+        .text-main { color: var(--main-color); }
+
+        /* [2] 사이드바 네비게이션 스타일 */
+        .nav-item { display: flex; align-items: center; gap: 12px; padding: 16px 24px; cursor: pointer; transition: all 0.2s; color: rgba(255,255,255,0.7); font-weight: 500; }
+        .nav-item:hover { background-color: rgba(255,255,255,0.1); color: white; }
+        .active-tab { background-color: rgba(255, 255, 255, 0.15); border-left: 4px solid white; color: white; font-weight: 700; }
+
+        /* [3] 통계 요약 카드 */
+        .stat-summary-card { background: white; padding: 24px; border-radius: 20px; border: 1px solid #E5E7EB; box-shadow: 0 1px 3px rgba(0,0,0,0.05); transition: transform 0.2s; }
+        .stat-summary-card:hover { transform: translateY(-4px); }
+        .stat-summary-title { font-size: 11px; font-weight: 900; color: #9CA3AF; text-transform: uppercase; margin-bottom: 4px; }
+        .stat-summary-value { font-size: 28px; font-weight: 900; color: #1F2937; }
+
+        /* [4] 차트 박스 레이아웃 */
+        .chart-box { background: white; padding: 32px; border-radius: 24px; border: 1px solid #E5E7EB; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+
+        /* [막대 그래프 CSS] */
+        .bar-chart-container {
+            position: relative; width: 100%; height: 320px;
+            padding: 20px 20px 0 60px;
+        }
+        .grid-line { position: absolute; left: 60px; right: 20px; height: 1px; background-color: #F3F4F6; }
+        .line-zero { bottom: 0; background-color: #E5E7EB; height: 2px; }
+
+        #barContainer {
+            position: relative; width: 100%; height: 100%;
+            display: flex; align-items: flex-end; justify-content: space-between;
+            z-index: 10;
+        }
+
+        .bar-wrapper {
+            position: relative; flex: 1; display: flex; flex-direction: column;
+            justify-content: flex-end; align-items: center; height: 100%;
+        }
+        .bar {
+            width: 50%; background-color: var(--main-color); border-radius: 4px 4px 0 0;
+            transition: all 0.3s; cursor: pointer;
+        }
+        .bar:hover { background-color: #1F2937; transform: scaleX(1.1); }
+
+        .x-axis-label {
+            position: absolute; bottom: -35px;
+            font-size: 11px; font-weight: bold; color: #9CA3AF;
+            white-space: nowrap; transition: color 0.2s;
+        }
+
+        .tooltip {
+            position: absolute; top: -35px; left: 50%; transform: translateX(-50%);
+            background: #1F2937; color: white; padding: 4px 10px; border-radius: 6px;
+            font-size: 11px; font-weight: bold; display: none; white-space: nowrap; z-index: 50;
+        }
+        .bar-wrapper:hover .tooltip { display: block; }
+
+        /* [5] 원형 그래프 */
+        .pie-base { width: 150px; height: 150px; border-radius: 50%; position: relative; transition: background 0.5s ease; }
+        .pie-inner-circle {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 85px; height: 85px; background: white; border-radius: 50%;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: 900; font-size: 12px; color: #9CA3AF;
+        }
+        .pie-inner-circle span { font-size: 9px; opacity: 0.6; }
+
+        .legend-item { display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: bold; color: #4B5563; }
+        .legend-dot { width: 10px; height: 10px; border-radius: 3px; }
+    </style>
+</head>
+<body class="bg-gray-50 flex h-screen overflow-hidden">
+
+<nav class="w-64 bg-main text-white flex flex-col shadow-xl z-50">
+    <div class="p-8 text-2xl font-black border-b border-white/10 flex items-center gap-3">
+        <i class="fas fa-book-reader"></i>
+        <span>ADMIN</span>
+    </div>
+
+    <div class="flex-1 overflow-y-auto py-4">
+        <div class="px-6 mb-2 text-[10px] font-bold text-white/40 uppercase tracking-widest">Main Menu</div>
+        <ul class="space-y-1">
+            <li><a href="/admin/Statistics" class="nav-item active-tab"><i class="fas fa-chart-pie w-5 text-center"></i> 대시보드</a></li>
+            <li><a href="/admin/BookManageMent" class="nav-item"><i class="fas fa-book w-5 text-center"></i> 도서관리</a></li>
+            <li><a href="/admin/UserManageMent" class="nav-item"><i class="fas fa-users w-5 text-center"></i> 회원관리</a></li>
+        </ul>
+
+        <div class="px-6 mt-8 mb-2 text-[10px] font-bold text-white/40 uppercase tracking-widest">Support & Service</div>
+        <ul class="space-y-1">
+            <li><a href="/admin/Inquiries" class="nav-item"><i class="fas fa-question-circle w-5 text-center"></i> 문의관리</a></li>
+            <li><a href="/admin/Notifications" class="nav-item"><i class="fas fa-bell w-5 text-center"></i> 알림관리</a></li>
+        </ul>
+
+        <div class="px-6 mt-8 mb-2 text-[10px] font-bold text-white/40 uppercase tracking-widest">System</div>
+        <ul class="space-y-1">
+            <li><a href="/admin/Settings" class="nav-item"><i class="fas fa-cog w-5 text-center"></i> 시스템 설정</a></li>
+        </ul>
+    </div>
+
+    <div class="p-6 bg-black/10">
+        <div class="flex items-center justify-between group">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center font-bold text-sm border border-white/10">AD</div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-bold truncate">관리자 님</p>
+                    <p class="text-[10px] text-white/50 uppercase tracking-tighter font-medium">Master Account</p>
+                </div>
+            </div>
+            <form th:action="@{/logout}" method="post">
+                <button type="submit" class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-red-500/20 hover:text-red-300 transition-all text-white/50">
+                    <i class="fas fa-sign-out-alt text-sm"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+</nav>
+
+<main class="flex-1 overflow-y-auto p-10 bg-[#FBFBFD]">
+    <div class="mb-10">
+        <h2 class="text-3xl font-extrabold text-gray-800 tracking-tight">통계 대시보드</h2>
+        <p class="text-gray-400 mt-2 font-medium">대여 현황을 파악합니다.</p>
+    </div>
+
+    <div class="grid grid-cols-4 gap-6 mb-10">
+
+        <div class="stat-summary-card" style="border-bottom: 4px solid #3B82F6;">
+            <p class="stat-summary-title text-blue-400">도서 연장 비율</p>
+            <p class="stat-summary-value text-blue-600">
+                <span th:text="${extensionRate}">50.6</span> <span class="text-sm font-bold text-blue-300">%</span>
+            </p>
+            <div class="mt-4 text-[11px] font-bold text-blue-500">
+                <i class="fas fa-sync-alt"></i> 전체 대여 건수 대비
+            </div>
+        </div>
+
+        <div class="stat-summary-card" style="border-bottom: 4px solid #10B981;">
+            <p class="stat-summary-title text-emerald-500">평균 대여 일수</p>
+            <p class="stat-summary-value text-emerald-600">
+                <span th:text="${avgLendDays}">15.4</span> <span class="text-sm font-bold text-emerald-300">일</span>
+            </p>
+            <div class="mt-4 text-[11px] font-bold text-emerald-500">
+                <i class="fas fa-calendar-check"></i> 반납 완료 데이터 기준
+            </div>
+        </div>
+
+        <div class="stat-summary-card" style="border-bottom: 4px solid #EF4444;">
+            <p class="stat-summary-title text-red-400">전체 연체율</p>
+            <p class="stat-summary-value text-red-500">
+                <span th:text="${overdueRate}">3.8</span> <span class="text-sm font-bold text-red-300">%</span>
+            </p>
+            <div class="mt-4 text-[11px] font-bold text-red-500">
+                <i class="fas fa-exclamation-triangle"></i> 누적 연체 건수 포함
+            </div>
+        </div>
+
+        <div class="stat-summary-card" style="border-bottom: 4px solid #F59E0B;">
+            <p class="stat-summary-title text-orange-400">평균 연체 일수</p>
+            <p class="stat-summary-value text-orange-500">
+                <span th:text="${avgOverdueDays}">4.2</span> <span class="text-sm font-bold text-orange-300">일</span>
+            </p>
+            <div class="mt-4 text-[11px] font-bold text-orange-500">
+                <i class="fas fa-clock"></i> 연체 발생 시 평균 소요 기간
+            </div>
+        </div>
+    </div>
+
+    <div class="chart-box mb-8">
+        <div class="flex justify-between items-center mb-10">
+            <h3 class="text-lg font-bold text-gray-800 tracking-tight">월별 도서 대여 건수</h3>
+            <select id="yearSelector" onchange="filterByYear()"
+                    class="bg-gray-50 border border-gray-200 text-gray-700 text-sm rounded-lg focus:ring-main focus:border-main block p-2.5 font-bold shadow-sm">
+                <option value="2023">2023년</option>
+                <option value="2024">2024년</option>
+                <option value="2025" selected>2025년</option>
+            </select>
+        </div>
+        <div class="bar-chart-container mb-12">
+            <div class="grid-line" style="bottom: 100%;"></div>
+            <div class="grid-line" style="bottom: 50%;"></div>
+            <div class="grid-line line-zero"></div>
+            <div id="barContainer"></div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-8 mb-8">
+        <div class="chart-box">
+            <h3 class="font-bold text-gray-800 mb-8 flex items-center gap-2">
+                <i class="fas fa-users text-blue-500"></i> 전체 사용자 연령별 분포
+            </h3>
+            <div class="flex items-center justify-around">
+                <div class="pie-base" id="agePie"><div class="pie-inner-circle">AGE</div></div>
+                <div class="space-y-3">
+                    <div th:each="stat : ${ageStats}" class="legend-item">
+                        <span class="legend-dot" th:style="'background-color:' + (${stat.label == '10대 이하' ? '#3B82F6' : stat.label == '20대' ? '#10B981' : stat.label == '30대' ? '#F59E0B' : '#8B5CF6'})"></span>
+                        <span th:text="${stat.label}">연령대</span>
+                        <span class="text-gray-400" th:text="|(${stat.percentage}%)|">0%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="chart-box">
+            <h3 class="font-bold text-gray-800 mb-8 flex items-center gap-2">
+                <i class="fas fa-venus-mars text-indigo-500"></i> 전체 사용자 성별 비중
+            </h3>
+            <div class="flex items-center justify-around">
+                <div class="pie-base" id="genderPie"><div class="pie-inner-circle">GENDER</div></div>
+                <div class="space-y-3">
+                    <div th:each="stat : ${genderStats}" class="legend-item">
+                        <span class="legend-dot" th:style="'background-color:' + (${stat.label == '남성' ? '#6366F1' : '#EC4899'})"></span>
+                        <span th:text="${stat.label}">성별</span>
+                        <span class="text-gray-400" th:text="|(${stat.percentage}%)|">0%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-8 mb-8">
+        <div class="chart-box">
+            <h3 class="font-bold text-gray-800 mb-8 flex items-center gap-2">
+                <i class="fas fa-male text-blue-600"></i> 남성 연령별 분포
+            </h3>
+            <div class="flex items-center justify-around">
+                <div class="pie-base" id="maleAgePie">
+                    <div class="pie-inner-circle">MALE <span>AGE</span></div>
+                </div>
+                <div class="space-y-3">
+                    <div th:each="stat : ${maleAgeStats}" class="legend-item">
+                        <span class="legend-dot" th:style="'background-color:' + (${stat.label == '10대 이하' ? '#3B82F6' : stat.label == '20대' ? '#10B981' : stat.label == '30대' ? '#F59E0B' : '#8B5CF6'})"></span>
+                        <span th:text="${stat.label}">연령대</span>
+                        <span class="text-gray-400" th:text="|(${stat.percentage}%)|">0%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="chart-box">
+            <h3 class="font-bold text-gray-800 mb-8 flex items-center gap-2">
+                <i class="fas fa-female text-pink-600"></i> 여성 연령별 분포
+            </h3>
+            <div class="flex items-center justify-around">
+                <div class="pie-base" id="femaleAgePie">
+                    <div class="pie-inner-circle">FEMALE <span>AGE</span></div>
+                </div>
+                <div class="space-y-3">
+                    <div th:each="stat : ${femaleAgeStats}" class="legend-item">
+                        <span class="legend-dot" th:style="'background-color:' + (${stat.label == '10대 이하' ? '#3B82F6' : stat.label == '20대' ? '#10B981' : stat.label == '30대' ? '#F59E0B' : '#8B5CF6'})"></span>
+                        <span th:text="${stat.label}">연령대</span>
+                        <span class="text-gray-400" th:text="|(${stat.percentage}%)|">0%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script th:inline="javascript">
+    const monthlyStats = [[${monthlyStats}]];
+    const maxCount = [[${maxCount}]];
+    const ageStats = [[${ageStats}]];
+    const genderStats = [[${genderStats}]];
+    const maleAgeStats = [[${maleAgeStats}]];
+    const femaleAgeStats = [[${femaleAgeStats}]];
+
+    function filterByYear() {
+        const selectedYear = document.getElementById('yearSelector').value;
+        const container = document.getElementById('barContainer');
+        container.innerHTML = '';
+        const filteredData = monthlyStats.filter(stat => stat.label.startsWith(selectedYear));
+
+        if (filteredData.length === 0) {
+            container.innerHTML = '<p class="w-full text-center text-gray-400 font-bold self-center">데이터가 없습니다.</p>';
+            return;
+        }
+
+        filteredData.forEach(stat => {
+            const heightPercentage = (stat.count * 95) / maxCount;
+            const monthLabel = stat.label.split('-')[1];
+            const barWrapper = document.createElement('div');
+            barWrapper.className = 'bar-wrapper group';
+            barWrapper.innerHTML = `
+                <div class="tooltip">${stat.label} : ${stat.count}건</div>
+                <div class="bar" style="height: ${heightPercentage}%;"></div>
+                <div class="x-axis-label group-hover:text-main group-hover:font-black">${monthLabel}월</div>
+            `;
+            container.appendChild(barWrapper);
+        });
+    }
+
+    function updatePieChart(elementId, stats, colorPalette) {
+        const el = document.getElementById(elementId);
+        if (!el || !stats || stats.length === 0) return;
+        let cumulative = 0;
+        const gradient = stats.map((s, idx) => {
+            const start = cumulative;
+            cumulative += s.percentage;
+            const color = colorPalette[s.label] || colorPalette['default'][idx % colorPalette['default'].length];
+            return `${color} ${start}% ${cumulative}%`;
+        }).join(', ');
+        el.style.background = `conic-gradient(${gradient})`;
+    }
+
+    const ageColors = {'10대 이하': '#3B82F6', '20대': '#10B981', '30대': '#F59E0B', '40대': '#8B5CF6', 'default': ['#3B82F6', '#10B981', '#F59E0B', '#8B5CF6']};
+    const genderColors = {'남성': '#6366F1', '여성': '#EC4899', 'default': ['#6366F1', '#EC4899']};
+
+    window.onload = () => {
+        filterByYear();
+        updatePieChart('agePie', ageStats, ageColors);
+        updatePieChart('genderPie', genderStats, genderColors);
+        updatePieChart('maleAgePie', maleAgeStats, ageColors);
+        updatePieChart('femaleAgePie', femaleAgeStats, ageColors);
+    };
+</script>
+
+</body>
+</html>

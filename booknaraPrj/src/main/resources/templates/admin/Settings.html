@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>도서 대여 시스템 - 설정변경</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+        /* [1] 공통 테마 설정 */
+        :root { --main-color: #DCA244; --hover-color: #C8903A; }
+        .bg-main { background-color: var(--main-color); }
+        .text-main { color: var(--main-color); }
+
+        /* [2] 사이드바 네비게이션 스타일 */
+        .nav-item { display: flex; align-items: center; gap: 12px; padding: 16px 24px; cursor: pointer; transition: all 0.2s; color: rgba(255,255,255,0.7); font-weight: 500; }
+        .nav-item:hover { background-color: rgba(255,255,255,0.1); color: white; }
+        .active-tab { background-color: rgba(255, 255, 255, 0.15); border-left: 4px solid white; color: white; font-weight: 700; }
+
+        /* [3] 설정 섹션 스타일 */
+        .settings-section { background: white; border-radius: 24px; border: 1px solid #E5E7EB; overflow: hidden; margin-bottom: 32px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .section-header { padding: 24px 32px; border-bottom: 1px solid #F3F4F6; background-color: #F9FAFB; display: flex; justify-content: space-between; align-items: center; }
+        .section-title { font-weight: 800; color: #1F2937; display: flex; align-items: center; gap: 10px; font-size: 16px; }
+        .section-content { padding: 32px; }
+
+        .input-group { margin-bottom: 4px; }
+        .input-label { display: block; font-size: 13px; font-weight: 800; color: #4B5563; margin-bottom: 10px; }
+        .input-control {
+            width: 100%; border-radius: 12px; border: 1px solid #E5E7EB;
+            font-weight: 500; outline: none; transition: all 0.2s; background-color: #F9FAFB;
+        }
+        .input-control:focus { background-color: white; border-color: var(--main-color); box-shadow: 0 0 0 4px rgba(220, 162, 68, 0.1); }
+
+        /* 배너 및 추천카드 스타일 */
+        .banner-card {
+            border: 1px solid #F3F4F6; border-radius: 16px; padding: 16px;
+            display: flex; align-items: center; gap: 16px; transition: all 0.2s;
+        }
+        .banner-card:hover { border-color: var(--main-color); background-color: #FEFCE8; }
+
+        .btn-update { background-color: var(--main-color); color: white; padding: 10px 24px; border-radius: 12px; font-weight: bold; transition: all 0.2s; border: none; cursor: pointer; }
+        .btn-update:hover { background-color: var(--hover-color); transform: translateY(-1px); }
+
+        .banner-item { display: none; }
+
+        .pagination-btn {
+            padding: 6px 12px; border-radius: 8px; font-size: 14px; font-weight: 700;
+            color: #6B7280; border: 1px solid #E5E7EB; background-color: white;
+            cursor: pointer; transition: all 0.2s; min-width: 35px;
+        }
+        .pagination-btn:hover { background-color: #F9FAFB; border-color: var(--main-color); color: var(--main-color); }
+        .pagination-btn.active { background-color: var(--main-color) !important; color: white !important; border-color: var(--main-color) !important; }
+    </style>
+</head>
+<body class="bg-gray-50 flex h-screen overflow-hidden">
+
+<nav class="w-64 bg-main text-white flex flex-col shadow-xl z-50">
+    <div class="p-8 text-2xl font-black border-b border-white/10 flex items-center gap-3">
+        <i class="fas fa-book-reader"></i>
+        <span>ADMIN</span>
+    </div>
+
+    <div class="flex-1 overflow-y-auto py-4">
+        <div class="px-6 mb-2 text-[10px] font-bold text-white/40 uppercase tracking-widest">Main Menu</div>
+        <ul class="space-y-1">
+            <li><a href="/admin/Statistics" class="nav-item"><i class="fas fa-chart-pie w-5 text-center"></i> 대시보드</a></li>
+            <li><a href="/admin/BookManageMent" class="nav-item"><i class="fas fa-book w-5 text-center"></i> 도서관리</a></li>
+            <li><a href="/admin/UserManageMent" class="nav-item"><i class="fas fa-users w-5 text-center"></i> 회원관리</a></li>
+        </ul>
+
+        <div class="px-6 mt-8 mb-2 text-[10px] font-bold text-white/40 uppercase tracking-widest">Support & Service</div>
+        <ul class="space-y-1">
+            <li><a href="/admin/Inquiries" class="nav-item"><i class="fas fa-question-circle w-5 text-center"></i> 문의관리</a></li>
+            <li><a href="/admin/Notifications" class="nav-item flex justify-between">
+                <div class="flex items-center gap-3">
+                    <i class="fas fa-bell w-5 text-center"></i> 알림관리
+                </div>
+                <span class="bg-red-500 text-[10px] px-1.5 py-0.5 rounded-full font-bold text-white">2</span>
+            </a></li>
+        </ul>
+
+        <div class="px-6 mt-8 mb-2 text-[10px] font-bold text-white/40 uppercase tracking-widest">System</div>
+        <ul class="space-y-1">
+            <li><a href="/admin/Settings" class="nav-item active-tab"><i class="fas fa-cog w-5 text-center"></i> 시스템 설정</a></li>
+        </ul>
+    </div>
+
+    <div class="p-6 bg-black/10">
+        <div class="flex items-center justify-between group">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center font-bold text-sm border border-white/10">AD</div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-bold truncate">관리자 님</p>
+                    <p class="text-[10px] text-white/50 uppercase tracking-tighter font-medium">Master Account</p>
+                </div>
+            </div>
+            <form th:action="@{/logout}" method="post">
+                <button type="submit" class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-red-500/20 hover:text-red-300 transition-all text-white/50"><i class="fas fa-sign-out-alt text-sm"></i></button>
+            </form>
+        </div>
+    </div>
+</nav>
+
+<main class="flex-1 overflow-y-auto p-10 bg-[#FBFBFD]">
+    <div class="mb-10">
+        <h2 class="text-3xl font-extrabold text-gray-800 tracking-tight">시스템 설정</h2>
+        <p class="text-gray-400 mt-2 font-medium">라이브러리 운영 정책 및 시스템 환경을 구성합니다.</p>
+    </div>
+
+    <div class="max-w-5xl">
+        <form th:action="@{/admin/updateSettings}" method="post">
+            <section class="settings-section">
+                <div class="section-header">
+                    <h3 class="section-title"><i class="fas fa-file-contract text-main"></i> 도서 대여 정책 관리</h3>
+                    <button type="submit" class="btn-update shadow-md shadow-[#DCA244]/20">정책 업데이트</button>
+                </div>
+                <div class="section-content">
+                    <div class="grid grid-cols-2 gap-x-12 gap-y-8">
+                        <div class="input-group">
+                            <label class="input-label">최대 대여 가능 권수</label>
+                            <div class="relative">
+                                <input type="number" name="maxLendCount" th:value="${settings?.maxLendCount}" class="input-control px-4 py-3">
+                                <span class="absolute right-4 top-3.5 text-gray-400 font-bold text-xs">권</span>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">기본 대여 기간</label>
+                            <div class="relative">
+                                <input type="number" name="defaultLendDays" th:value="${settings?.defaultLendDays}" class="input-control px-4 py-3">
+                                <span class="absolute right-4 top-3.5 text-gray-400 font-bold text-xs">일</span>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">추가 대여 기간</label>
+                            <div class="relative">
+                                <input type="number" name="defaultExtendDays" th:value="${settings?.defaultExtendDays}" class="input-control px-4 py-3">
+                                <span class="absolute right-4 top-3.5 text-gray-400 font-bold text-xs">일</span>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">일일 연체료</label>
+                            <div class="relative">
+                                <input type="number" name="lateFeePerDay" th:value="${settings?.lateFeePerDay}" class="input-control px-4 py-3">
+                                <span class="absolute right-4 top-3.5 text-gray-400 font-bold text-xs">원</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="settings-section">
+                <div class="section-header">
+                    <h3 class="section-title"><i class="fas fa-user-shield text-main"></i> 시스템 관리 정보</h3>
+                    <button type="submit" class="btn-update shadow-md shadow-[#DCA244]/20">정보 업데이트</button>
+                </div>
+                <div class="section-content">
+                    <div class="grid grid-cols-2 gap-x-12">
+                        <div class="input-group">
+                            <label class="input-label">관리자 대표 이메일</label>
+                            <input type="email" name="adminEmail" th:value="${settings?.adminEmail}" class="input-control px-4 py-3">
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">관리자 연락처</label>
+                            <input type="text" name="adminPhone" th:value="${settings?.adminPhone}" class="input-control px-4 py-3">
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </form>
+
+        <section class="settings-section">
+            <div class="section-header">
+                <h3 class="section-title"><i class="fas fa-image text-main"></i> 메인 페이지 이벤트 배너 설정</h3>
+                <button type="button" onclick="openBannerModal()" class="btn-update shadow-md shadow-[#DCA244]/20">배너 설정하기</button>
+            </div>
+            <div class="section-content">
+                <p class="input-label mb-4">현재 활성화된 메인 배너</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div th:each="event : ${activeBanners}" class="banner-card bg-orange-50/50">
+                        <div class="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-main shadow-sm">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-bold text-gray-800 truncate" th:text="${event.eventTitle}">이벤트 제목</p>
+                            <p class="text-[11px] text-gray-500" th:text="|${#temporals.format(event.startAt, 'yyyy.MM.dd')} ~ ${#temporals.format(event.endAt, 'yyyy.MM.dd')}|"></p>
+                        </div>
+                        <span class="px-3 py-1 bg-green-100 text-green-700 text-[10px] font-bold rounded-full">노출중</span>
+                    </div>
+                    <div th:if="${#lists.isEmpty(activeBanners)}" class="col-span-2 py-10 text-center border-2 border-dashed border-gray-100 rounded-2xl text-gray-400 text-sm">
+                        설정된 메인 배너가 없습니다.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="settings-section">
+            <div class="section-header">
+                <h3 class="section-title"><i class="fas fa-thumbs-up text-main"></i> 메인 페이지 추천 도서 설정</h3>
+                <button type="button" onclick="openRecommendModal()" class="btn-update shadow-md shadow-[#DCA244]/20">추천 도서 구성</button>
+            </div>
+            <div class="section-content">
+                <p class="input-label mb-4">현재 활성화된 추천 도서 (최대 10권)</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="activeRecommendList">
+                    <div th:each="recom : ${activeRecommends}" class="banner-card bg-blue-50/30 border-blue-100">
+                        <div class="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-blue-500 shadow-sm border border-blue-50">
+                            <i class="fas fa-book text-lg"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-bold text-gray-800 truncate" th:text="${recom.bookTitle}">추천 도서 제목</p>
+                            <p class="text-[11px] text-gray-400" th:text="${recom.isbn13}">ISBN 정보</p>
+                        </div>
+                        <span class="px-3 py-1 bg-blue-100 text-blue-700 text-[10px] font-bold rounded-full">추천중</span>
+                    </div>
+                    <div th:if="${#lists.isEmpty(activeRecommends)}" class="col-span-2 py-10 text-center border-2 border-dashed border-gray-100 rounded-2xl text-gray-400 text-sm">
+                        설정된 추천 도서가 없습니다.
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</main>
+
+<div id="bannerModal" class="fixed inset-0 bg-black/60 z-[100] hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-2xl overflow-hidden">
+        <div class="px-8 py-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+            <h3 class="text-xl font-black text-gray-800">메인 배너 선택</h3>
+            <button type="button" onclick="closeBannerModal()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times text-xl"></i></button>
+        </div>
+        <form th:action="@{/admin/updateBannerStatus}" method="post">
+            <div id="bannerListContainer" class="p-8 max-h-[60vh] overflow-y-auto space-y-3">
+                <label th:each="event : ${allEvents}" class="banner-item flex items-center gap-4 p-4 border border-gray-100 rounded-2xl hover:bg-gray-50 cursor-pointer transition-all">
+                    <input type="checkbox" name="selectedEventIds" th:value="${event.eventId}" th:checked="${event.eventMainYn == 'Y'}" class="w-5 h-5 accent-[#DCA244] rounded">
+                    <div class="flex-1">
+                        <p class="text-sm font-bold text-gray-800" th:text="${event.eventTitle}">이벤트 제목</p>
+                        <p class="text-[11px] text-gray-400" th:text="|기간: ${#temporals.format(event.startAt, 'yyyy-MM-dd')} ~ ${#temporals.format(event.endAt, 'yyyy-MM-dd')}|"></p>
+                    </div>
+                </label>
+            </div>
+            <div id="jsPagination" class="px-8 py-4 border-t border-gray-100 flex justify-center gap-2 bg-white"></div>
+            <div class="p-8 bg-gray-50 flex justify-end gap-3">
+                <button type="button" onclick="closeBannerModal()" class="px-6 py-3 font-bold text-gray-400 hover:text-gray-600">취소</button>
+                <button type="submit" class="btn-update shadow-lg shadow-[#DCA244]/30">배너 업데이트</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="recommendModal" class="fixed inset-0 bg-black/60 z-[100] hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-2xl overflow-hidden">
+        <div class="px-8 py-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+            <div>
+                <h3 class="text-xl font-black text-gray-800">추천 도서 구성</h3>
+                <p class="text-xs text-gray-400 mt-1 font-medium">직접 선택하거나 랜덤으로 추출할 수 있습니다.</p>
+            </div>
+            <button type="button" onclick="closeRecommendModal()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times text-xl"></i></button>
+        </div>
+        <div class="flex border-b border-gray-100">
+            <button onclick="switchRecomTab('manual')" id="tabManual" class="flex-1 py-4 text-sm font-bold text-main border-b-2 border-main">수동 검색 선택</button>
+            <button onclick="switchRecomTab('random')" id="tabRandom" class="flex-1 py-4 text-sm font-bold text-gray-400">랜덤 일괄 추출</button>
+        </div>
+        <div class="p-8">
+            <div id="recomManualArea">
+                <div class="flex gap-2 mb-6">
+                    <div class="relative flex-1">
+                        <i class="fas fa-search absolute left-4 top-3.5 text-gray-400"></i>
+                        <input type="text" id="recomSearchInput" placeholder="도서명 또는 ISBN 입력..." class="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-100 rounded-xl text-sm outline-none focus:border-main">
+                    </div>
+                    <button type="button" onclick="searchBooks(0)" class="bg-gray-800 text-white px-6 rounded-xl font-bold text-sm">검색</button>
+                </div>
+                <div id="recomSearchResult" class="space-y-2 min-h-[200px] max-h-[300px] overflow-y-auto pr-2">
+                    <p class="text-center text-gray-400 py-20 text-sm">검색어를 입력해 주세요.</p>
+                </div>
+                <div id="recomPagination" class="mt-6 flex justify-center gap-2"></div>
+            </div>
+            <div id="recomRandomArea" class="hidden py-10 text-center">
+                <div class="inline-flex items-center justify-center w-20 h-20 bg-orange-50 text-main rounded-full mb-4 text-3xl">
+                    <i class="fas fa-dice"></i>
+                </div>
+                <h4 class="text-lg font-bold text-gray-800 mb-2">랜덤 추출 설정</h4>
+                <p class="text-sm text-gray-500 mb-6">전체 도서 중 무작위로 추천 목록을 구성합니다.</p>
+                <div class="flex justify-center gap-4">
+                    <button type="button" onclick="fetchRandomBooks(5)" class="px-6 py-3 border border-gray-200 rounded-xl font-bold text-sm hover:border-main">5권 추출</button>
+                    <button type="button" onclick="fetchRandomBooks(10)" class="px-6 py-3 border border-gray-200 rounded-xl font-bold text-sm hover:border-main">10권 추출</button>
+                </div>
+            </div>
+        </div>
+        <div class="p-8 bg-gray-50 flex justify-between items-center border-t border-gray-100">
+            <span class="text-xs font-bold text-gray-500">선택된 도서: <span id="selectedCount" class="text-main">0</span>권</span>
+            <div class="flex gap-3">
+                <button type="button" onclick="closeRecommendModal()" class="px-6 py-3 font-bold text-gray-400">취소</button>
+                <button type="button" onclick="saveRecommendations()" class="btn-update shadow-lg">추천 목록 저장</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    /* 이벤트 배너 관련 스크립트 */
+    const itemsPerPage = 10;
+    let currentPage = 1;
+    let bannerItems = [];
+
+    function openBannerModal() {
+        document.getElementById('bannerModal').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+        bannerItems = Array.from(document.querySelectorAll('.banner-item'));
+        if(bannerItems.length > 0) { renderPagination(); showPage(1); }
+    }
+
+    function showPage(page) {
+        currentPage = page;
+        const start = (page - 1) * itemsPerPage;
+        const end = start + itemsPerPage;
+        bannerItems.forEach((item, index) => {
+            item.style.display = (index >= start && index < end) ? 'flex' : 'none';
+        });
+        updatePaginationStyles();
+    }
+
+    function renderPagination() {
+        const container = document.getElementById('jsPagination');
+        const pageCount = Math.ceil(bannerItems.length / itemsPerPage);
+        container.innerHTML = '';
+        if (pageCount <= 1) return;
+        for (let i = 1; i <= pageCount; i++) {
+            const btn = document.createElement('button');
+            btn.type = 'button'; btn.innerText = i; btn.className = 'pagination-btn';
+            btn.onclick = () => showPage(i);
+            btn.setAttribute('data-page', i);
+            container.appendChild(btn);
+        }
+    }
+
+    function updatePaginationStyles() {
+        document.querySelectorAll('.pagination-btn').forEach(btn => {
+            btn.classList.toggle('active', parseInt(btn.getAttribute('data-page')) === currentPage);
+        });
+    }
+
+    function closeBannerModal() {
+        document.getElementById('bannerModal').classList.add('hidden');
+        document.body.style.overflow = 'auto';
+    }
+
+    /* 추천 도서 관련 스크립트 */
+    let selectedIsbns = [];
+
+    function openRecommendModal() {
+        document.getElementById('recommendModal').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+        switchRecomTab('manual');
+    }
+
+    function closeRecommendModal() {
+        document.getElementById('recommendModal').classList.add('hidden');
+        document.body.style.overflow = 'auto';
+    }
+
+    function switchRecomTab(type) {
+        const isManual = type === 'manual';
+        document.getElementById('recomManualArea').classList.toggle('hidden', !isManual);
+        document.getElementById('recomRandomArea').classList.toggle('hidden', isManual);
+        document.getElementById('tabManual').className = isManual ? 'flex-1 py-4 text-sm font-bold text-main border-b-2 border-main' : 'flex-1 py-4 text-sm font-bold text-gray-400';
+        document.getElementById('tabRandom').className = !isManual ? 'flex-1 py-4 text-sm font-bold text-main border-b-2 border-main' : 'flex-1 py-4 text-sm font-bold text-gray-400';
+    }
+
+    async function searchBooks(page) {
+        const keyword = document.getElementById('recomSearchInput').value;
+        if(!keyword) return alert("검색어를 입력하세요.");
+        const container = document.getElementById('recomSearchResult');
+        container.innerHTML = '<div class="text-center py-20"><i class="fas fa-circle-notch fa-spin text-2xl text-main"></i></div>';
+
+        try {
+            const res = await fetch(`/api/books/search?keyword=${encodeURIComponent(keyword)}&page=${page}&size=5`);
+            const data = await res.json();
+            renderSearchResult(data.content);
+            renderRecomPagination(data.totalPages, data.number);
+        } catch (e) { container.innerHTML = '<p class="text-center py-20 text-red-400">오류가 발생했습니다.</p>'; }
+    }
+
+    function renderSearchResult(books) {
+        const container = document.getElementById('recomSearchResult');
+        container.innerHTML = books.length ? '' : '<p class="text-center py-20 text-gray-400">결과가 없습니다.</p>';
+        books.forEach(book => {
+            const checked = selectedIsbns.includes(book.isbn13) ? 'checked' : '';
+            container.innerHTML += `
+                <label class="flex items-center gap-4 p-4 border border-gray-100 rounded-xl hover:bg-gray-50 cursor-pointer transition-all">
+                    <input type="checkbox" onchange="toggleRecomSelection('${book.isbn13}')" ${checked} class="w-5 h-5 accent-[#DCA244] rounded">
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-bold text-gray-800 truncate">${book.title}</p>
+                        <p class="text-[11px] text-gray-400">ISBN: ${book.isbn13} / ${book.author}</p>
+                    </div>
+                </label>`;
+        });
+    }
+
+    function toggleRecomSelection(isbn) {
+        if(selectedIsbns.includes(isbn)) {
+            selectedIsbns = selectedIsbns.filter(id => id !== isbn);
+        } else {
+            if(selectedIsbns.length >= 10) return alert("최대 10권까지 가능합니다.");
+            selectedIsbns.push(isbn);
+        }
+        document.getElementById('selectedCount').innerText = selectedIsbns.length;
+    }
+
+    async function fetchRandomBooks(count) {
+        if(!confirm(`${count}권을 랜덤 추출하시겠습니까?`)) return;
+        try {
+            const res = await fetch(`/api/books/random?count=${count}`);
+            const data = await res.json();
+            selectedIsbns = data.map(b => b.isbn13);
+            document.getElementById('selectedCount').innerText = selectedIsbns.length;
+            switchRecomTab('manual');
+            renderSearchResult(data);
+        } catch (e) { alert("추출 실패"); }
+    }
+
+    async function saveRecommendations() {
+        if(!selectedIsbns.length) return alert("도서를 선택하세요.");
+        const res = await fetch('/admin/updateRecommendations', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ isbns: selectedIsbns })
+        });
+        if(res.ok) { alert("저장되었습니다."); location.reload(); }
+    }
+</script>
+
+</body>
+</html>

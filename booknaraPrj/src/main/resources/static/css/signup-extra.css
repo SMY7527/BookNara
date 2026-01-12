@@ -1,0 +1,237 @@
+:root{
+    --brand: #DCA244;
+    --text: #1f2937;
+    --muted: #6b7280;
+    --line: rgba(0,0,0,.08);
+    --shadow: 0 18px 60px rgba(0,0,0,.18);
+  }
+
+  /* 오버레이 */
+  .side-overlay{
+     position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.35);
+
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+
+      transition: opacity .25s ease, visibility .25s ease;
+      z-index: 999;
+  }
+  .side-overlay.is-open{
+    opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+  }
+
+  /* 패널 */
+  .side-panel{
+     position: fixed;
+      top: 50%;
+      left: 50%;
+      width: min(420px, 92vw);
+      max-height: 90vh;
+      padding: 22px 20px;
+
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+
+      /* ⭐ 핵심: 처음엔 완전 숨김 */
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+
+      /* 애니메이션 준비 */
+      transform: translate(50%, -50%);
+      transition:
+        transform .4s ease,
+        opacity .25s ease,
+        visibility .25s ease;
+
+      z-index: 1000;
+  }
+  .side-panel.is-open{
+    opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+
+      transform: translate(-50%, -50%);
+  }
+  .side-panel.is-exit{
+    opacity: 0;
+      transform: translate(-150%, -50%);
+  }
+
+  /* 헤더 */
+  .side-panel__header{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--line);
+  }
+  .side-panel__title{
+    margin: 0;
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--text);
+    letter-spacing: -0.2px;
+  }
+  .side-panel__close{
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    border: 1px solid var(--line);
+    background: #fff;
+    cursor: pointer;
+    font-size: 18px;
+    line-height: 1;
+  }
+  .side-panel__close:hover{
+    border-color: rgba(0,0,0,.18);
+  }
+
+  /* 설명 */
+  .side-panel__desc{
+    margin: 14px 0 16px;
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.45;
+  }
+
+  /* 폼 */
+  .side-panel__form{
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    flex: 1;
+  }
+  .addr-search-btn{
+    width: 100%;
+    height: 44px;
+    border-radius: 12px;
+  }
+  .field{
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .field__label{
+    font-size: 12px;
+    color: var(--muted);
+    font-weight: 700;
+  }
+  .field__input{
+    height: 44px;
+    padding: 0 12px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    outline: none;
+    font-size: 14px;
+    color: var(--text);
+  }
+  .field__input:focus{
+    border-color: rgba(220,162,68,.8);
+    box-shadow: 0 0 0 4px rgba(220,162,68,.18);
+  }
+
+  /* 버튼 */
+  .side-panel__actions{
+    margin-top: auto;
+    display: flex;
+    gap: 10px;
+    padding-top: 10px;
+  }
+  .btn{
+    height: 44px;
+    padding: 0 14px;
+    border-radius: 12px;
+    border: 1px solid var(--line);
+    cursor: pointer;
+    font-weight: 800;
+    font-size: 14px;
+  }
+  .btn--primary{
+    background: var(--brand);
+    border-color: var(--brand);
+    color: #111;
+    flex: 1;
+  }
+  .btn--primary:hover{
+    filter: brightness(.98);
+  }
+  .btn--ghost{
+    background: #fff;
+    color: var(--text);
+    width: 120px;
+  }
+  .btn--ghost:hover{
+    background: rgba(0,0,0,.03);
+  }
+
+  /* 작은 화면에서 패널 더 넓게 */
+  @media (max-width: 480px){
+    .btn--ghost{ width: 110px; }
+  }
+
+  /*장르선택*/
+  .genre-section {
+      padding: 32px 24px;
+      text-align: center;
+      max-width: 980px;      /* 900~1100 사이 취향껏 */
+      margin: 0 auto;
+  }
+
+  .genre-title {
+      font-size: 22px;
+      margin-bottom: 8px;
+  }
+
+  .genre-desc {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 24px;
+  }
+
+  .genre-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin-bottom: 24px;
+  }
+
+  .genre-card {
+      height: 90px;
+      border-radius: 18px;
+      border: 1.5px solid #ddd;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      background: #fff;
+      transition: all 0.2s ease;
+  }
+
+  /* 선택됨 */
+  .genre-card.active {
+      background: #ffe6b3;
+      border-color: #f2b84b;
+      font-weight: 700;
+  }
+
+  /* 선택 불가 상태 */
+  .genre-card.disabled {
+      opacity: 0.35;
+      pointer-events: none;
+  }
+
+  .genre-actions {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+  }

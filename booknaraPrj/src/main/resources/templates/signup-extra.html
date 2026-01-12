@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+
+    <link rel="stylesheet" th:href="@{/css/signup-extra.css}">
+</head>
+<body>
+<div id="overlay" class="side-overlay"></div>
+<!-- 패널 -->
+<aside id="addressPanel" class="side-panel" aria-hidden="true">
+    <div class="side-panel__header">
+        <h3 class="side-panel__title">주소를 추가할까유?</h3>
+        <button type="button" class="side-panel__close" onclick="closeAddressPanel()" aria-label="닫기">✕</button>
+    </div>
+
+    <p class="side-panel__desc">
+        선택사항이여유. 나중에 마이페이지에서도 언제든 추가할 수 있어유.
+    </p>
+
+    <form class="side-panel__form"
+          onsubmit="event.preventDefault(); submitAddress();">
+        <button type="button" onclick="execDaumPostcode()">주소 찾기</button>
+
+        <label class="field">
+            <span class="field__label">우편번호</span>
+            <input class="field__input" type="text" name="zipcode" placeholder="예) 12345">
+        </label>
+
+        <label class="field">
+            <span class="field__label">주소</span>
+            <input class="field__input" type="text" name="addr" placeholder="예) 대전광역시 ...">
+        </label>
+
+        <label class="field">
+            <span class="field__label">상세주소</span>
+            <input class="field__input" type="text" name="detailAddr" placeholder="예) 101동 202호">
+        </label>
+
+        <div class="side-panel__actions">
+            <button type="submit" class="btn btn--primary">다음</button>
+            <button type="button" class="btn btn--ghost" onclick="closeAddressPanel()">건너뛰기</button>
+        </div>
+    </form>
+</aside>
+
+<!-- 선호 장르 영역 -->
+<section id="genreSection" class="genre-section" hidden>
+        <h2 class="genre-title">선호 장르 골라봐유 📚</h2>
+        <p class="genre-desc">
+            최대 3개까지 선택할 수 있어유.<br>
+            다시 누르면 취소도 돼유 🙂
+        </p>
+
+        <div class="genre-grid">
+            <div class="genre-card" data-genre-id="1">소설</div>
+            <div class="genre-card" data-genre-id="55889">에세이</div>
+            <div class="genre-card" data-genre-id="336">자기계발</div>
+
+            <div class="genre-card" data-genre-id="656">인문</div>
+            <div class="genre-card" data-genre-id="74">사회·역사</div>
+            <div class="genre-card" data-genre-id="170">경제·경영</div>
+
+            <div class="genre-card" data-genre-id="987">과학</div>
+            <div class="genre-card" data-genre-id="517">예술·취미</div>
+            <div class="genre-card" data-genre-id="1108">아동·청소년</div>
+
+        </div>
+
+        <div class="genre-actions">
+            <button class="btn btn--primary" onclick="submitGenres()">완료</button>
+            <button class="btn btn--ghost" onclick="skipGenres()">건너뛰기</button>
+        </div>
+    </section>
+</section>
+
+<script th:src="@{/js/signup-extra.js}"></script>
+</body>
+</html>

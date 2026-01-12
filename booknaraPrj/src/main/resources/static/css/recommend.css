@@ -1,0 +1,332 @@
+ html {
+  scroll-behavior: smooth; /* 해시태그 클릭 시 부드럽게 이동 */
+}
+
+/* 스크롤 시 헤더가 있다면 겹치지 않게 여백을 주는 설정 (선택사항) */
+.recommend-section {
+  scroll-margin-top: 20px;
+}
+    /* ===== 기본 리셋 ===== */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: "Noto Sans KR", sans-serif; overflow-x: hidden; }
+
+    .section-inner {
+      width: 100%;
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+
+    /* ===== 우측 사이드바 (최근 본 책) ===== */
+.side-bar {
+  position: fixed; /* 브라우저 창 기준으로 고정 */
+  top: 150px;      /* 상단 여백 */
+  right: calc(50% - 830px); /* 중앙 컨텐츠(1280px) 영역 바로 오른쪽에 배치 */
+  width: 100px;
+  background: #f8f8f8;
+  border: 1px solid #e3a23b;
+  border-radius: 4px;
+  overflow: hidden;
+  z-index: 100;
+}
+
+/* 제목 영역 */
+.side-bar .side-header {
+  background: #e3a23b;
+  color: #000;
+  padding: 12px 0;
+  text-align: center;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+/* 책 리스트 영역 */
+.side-content {
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  align-items: center;
+}
+
+.side-item {
+  width: 100%;
+  aspect-ratio: 1 / 1.4;
+  background: #ddd; /* 이미지 없을 때 대비 */
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.side-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* 화면이 작아질 때 사이드바 숨기기 (선택사항) */
+@media (max-width: 1600px) {
+  .side-bar {
+    display: none;
+  }
+}
+
+
+    /* ===== 맞춤추천 상단 ===== */
+    .recommend-hero {
+     border-top: 2px solid #f2a65a;
+     background: #fff;
+     }
+    .recommend-wrap {
+     display: flex;
+     height:125px;
+     align-items: end;
+     gap: 32px;
+     padding:40px 0;
+     }
+    .recommend-mallang {
+      width: 120px;
+      height: 120px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: end;
+      justify-content: center;
+      border-radius: 16px;
+      font-weight: 600;
+      color: #777;
+    }
+    .recommend-tags { display: flex; flex-wrap: wrap; gap: 12px; }
+    .recommend-tags .tag {
+      padding: 10px 18px; background: #e3a23b; color: #fff; border-radius: 999px;
+      font-size: 14px; font-weight: 500; text-decoration: none; transition: all 0.2s ease;
+    }
+    .recommend-mallang img{
+    width:80px;
+    height:80px;
+    }
+
+    /* ===== 공통 섹션 헤더 ===== */
+    .recommend-section { padding: 60px 0; }
+    .recommend-header { margin-bottom: 32px; }
+    .recommend-header h2 { font-size: 22px; font-weight: 700; margin-bottom: 8px; }
+    .recommend-header p { font-size: 14px; color: #666; }
+
+    /* ===== 평점 섹션 슬라이더 ===== */
+    .slider-wrap { position: relative; }
+    .slider-viewport { overflow: hidden; margin: 0 auto; width: 1112px; }
+    .slider-track { display: flex; gap: 24px; transition: transform 0.4s ease; }
+    .book-card { width: 260px; flex-shrink: 0; }
+    .book-card img { width: 100%; height: 360px; border-radius: 16px; object-fit: cover; }
+
+    /* 공통 슬라이더 버튼 */
+    .slider-btn {
+      position: absolute; top: 50%; transform: translateY(-50%);
+      width: 44px; height: 44px; border-radius: 50%; border: none;
+      background: #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+      font-size: 26px; cursor: pointer; z-index: 10;
+    }
+    .slider-btn.left { left: -22px; }
+    .slider-btn.right { right: -22px; }
+    .slider-btn:disabled { opacity: 0.3; cursor: default; }
+
+    /* ===== 연령대/성별 섹션 (핵심 수정 부분) ===== */
+    .age-gender-section { background-color: #f9f9f9; padding: 100px 0; }
+
+    .age-slider-outer {
+      position: relative;
+      width: 100%;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* 5개만 노출: 카드(230) + 마진(15*2) = 260px | 260 * 5 = 1300px */
+    .age-viewport {
+      width: 1300px;
+      height: 450px; /* 강조 카드 scale 고려 */
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .age-track {
+      display: flex;
+      align-items: center;
+      transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+      /* 시작점 초기화 */
+      will-change: transform;
+    }
+
+    .age-card {
+      width: 230px;
+      height: 340px;
+      background: #fff;
+      border-radius: 20px;
+      padding: 30px 24px;
+      margin: 0 15px;
+      flex-shrink: 0;
+      transition: all 0.5s ease;
+
+      /* 기본: 흐리고 투명함 (요청사항 반영) */
+      opacity: 0.15;
+      transform: scale(0.85);
+      filter: blur(3px);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+      text-align: left;
+    }
+
+    /* ⭐ 중앙 강조: opacity 제거 및 선명하게 */
+    .age-card.active {
+      opacity: 1;
+      transform: scale(1.1);
+      filter: blur(0);
+      background: #ffffff;
+      border: 1px solid #ddd;
+      box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+      z-index: 10;
+    }
+
+    .age-card h3 {
+      font-size: 20px; font-weight: 700; margin-bottom: 20px;
+      border-bottom: 1.5px solid #333; padding-bottom: 12px; color: #222;
+    }
+
+    .age-card ul li {
+      font-size: 14px; color: #555; margin-bottom: 10px;
+      list-style: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+
+    .age-dots { display: flex; justify-content: center; gap: 8px; margin-top: 40px; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: #ddd; cursor: pointer; transition: 0.3s; }
+    .dot.active { background: #f2a65a; width: 22px; border-radius: 10px; }
+
+    /* 연령대 섹션 화살표 위치 조절 */
+    .age-slider-outer .slider-btn.left { left: 40px; }
+    .age-slider-outer .slider-btn.right { right: 40px; }
+
+
+
+
+    /* ===== 대여 섹션 스타일 ===== */
+  .rental-section {
+    padding: 60px 0;
+    background-color: #fff;
+  }
+
+  .rental-list {
+    display: grid;
+    /* 1280px 안에서 6개가 나란히 배치되도록 설정 */
+    grid-template-columns: repeat(6, 1fr);
+    gap: 20px;
+  }
+
+  .rental-item {
+    width: 100%;
+    cursor: pointer;
+  }
+
+  /* 도서 커버 이미지 */
+  .rental-item .book-cover {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1 / 1.45; /* 이미지 비율 고정 */
+    margin-bottom: 12px;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    transition: transform 0.3s ease;
+  }
+
+  .rental-item:hover .book-cover {
+    transform: translateY(-5px);
+  }
+
+  .rental-item .book-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* 도서 정보 텍스트 */
+  .rental-item .book-info .title {
+    font-size: 15px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 4px;
+    /* 긴 제목 생략 처리 */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .rental-item .book-info .author {
+    font-size: 13px;
+    color: #888;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* 소년이 온다 이미지 위 엠블럼 같은 특수 배지 예시 */
+  .badge-award {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    width: 40px;
+    height: 40px;
+    background: url('엠블럼이미지경로') no-repeat center/contain;
+    pointer-events: none;
+  }
+
+
+  /*===주간베스트셀러====*/
+  .bestseller-section {
+    padding: 60px 0;
+    background-color: #fff;
+  }
+
+  .rental-list {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 20px;
+  }
+
+  .rental-item {
+    width: 100%;
+  }
+
+  .rental-item .book-cover {
+    width: 100%;
+    aspect-ratio: 1 / 1.45;
+    margin-bottom: 12px;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+
+  .rental-item .book-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .rental-item .book-info .title {
+    font-size: 15px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .rental-item .book-info .author {
+    font-size: 13px;
+    color: #888;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }

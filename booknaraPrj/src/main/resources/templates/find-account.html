@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>아이디 / 비밀번호 찾기</title>
+
+    <!-- ✅ 공용 CSS -->
+    <link rel="stylesheet" th:href="@{/css/account.css}">
+</head>
+<body>
+
+<div class="find-wrap">
+
+    <div class="find-tabs">
+        <button id="tabFindId" class="active">아이디 찾기</button>
+        <button id="tabFindPw">비밀번호 찾기</button>
+    </div>
+
+    <!-- 아이디 찾기 -->
+    <section id="findIdSection" class="find-box">
+        <h3>아이디 찾기</h3>
+        <input type="text" id="findIdName" placeholder="이름">
+        <input type="email" id="findIdEmail" placeholder="이메일">
+        <button type="button" id="findIdBtn">아이디 찾기</button>
+        <p id="findIdMsg" class="msg"></p>
+    </section>
+
+    <!-- 비밀번호 찾기 -->
+    <section id="findPwSection" class="find-box" style="display:none;">
+        <h3>비밀번호 찾기</h3>
+
+        <input type="text" id="findPwUserId" placeholder="아이디">
+        <input type="email" id="findPwEmail" placeholder="이메일">
+        <button type="button" id="sendCodeBtn">인증코드 보내기</button>
+        <p id="sendCodeMsg" class="msg"></p>
+
+        <div id="pwStep2" style="display:none;">
+            <input type="text" id="verifyCode" placeholder="인증코드 6자리">
+            <p id="timer" style="display:none; margin:8px 0; font-size:14px; color:#dca244; text-align:center;"></p>
+            <button type="button" id="verifyCodeBtn">인증 확인</button>
+            <p id="verifyMsg" class="msg"></p>
+        </div>
+    </section>
+
+    <div class="sub-links">
+        <a th:href="@{/users/login}">로그인으로 돌아가기</a>
+    </div>
+
+</div>
+
+<!-- ✅ 공용 JS -->
+<script th:src="@{/js/account.js}"></script>
+</body>
+</html>

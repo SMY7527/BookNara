@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="notification">
+
+    <!--  풀링용 새로운 알림 카운트  -->
+    <select id="countUnread" parameterType="String" resultType="int">
+        SELECT COUNT(*)
+        FROM NOTIFICATION
+        WHERE USER_ID = #{userId}
+        AND CHECK_YN = 'N'
+    </select>
+
+    <!--  선택한 탭 별로 알림 카운트  -->
+    <select id="countNotification" parameterType="hashmap" resultType="int">
+        SELECT COUNT(*)
+        FROM NOTIFICATION
+        WHERE USER_ID = #{userId}
+        <if test="checkYn != null and checkYn == 'N'">
+            AND CHECK_YN = #{checkYn}
+        </if>
+        <if test="targetTypes != null and targetTypes.size() > 0">
+            AND TARGET_TYPE IN
+            <foreach collection="targetTypes" item="t" open="(" separator="," close=")">
+                #{t}
+            </foreach>
+        </if>
+    </select>
+
+    <!--  선택한 탭 별로 알림 가져오기  -->
+    <select id="selectNotifications" parameterType="NotificationQueryParam" resultType="NotificationDTO">
+        SELECT *
+        FROM NOTIFICATION
+        WHERE USER_ID = #{userId}
+        <if test="checkYn == 'N'">
+            AND CHECK_YN = #{checkYn}
+        </if>
+        <if test="targetTypes != null and targetTypes.size() > 0">
+            AND TARGET_TYPE IN
+            <foreach collection="targetTypes" item="t" open="(" separator="," close=")">
+                #{t}
+            </foreach>
+        </if>
+        ORDER BY CREATED_AT DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+</mapper>

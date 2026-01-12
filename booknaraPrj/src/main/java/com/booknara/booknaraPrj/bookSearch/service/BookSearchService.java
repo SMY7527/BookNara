@@ -4,7 +4,8 @@ import com.booknara.booknaraPrj.bookSearch.dto.BookSearchConditionDTO;
 import com.booknara.booknaraPrj.bookSearch.dto.BookSearchDTO;
 import com.booknara.booknaraPrj.bookSearch.dto.PageInsertDTO;
 import com.booknara.booknaraPrj.bookSearch.mapper.BookSearchMapper;
-import com.booknara.booknaraPrj.common.dto.PageResultDTO;
+import com.booknara.booknaraPrj.bookSearch.dto.PageResultDTO;
+import com.booknara.booknaraPrj.security.uitil.LoginUserUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +27,8 @@ import java.util.List;
 public class BookSearchService {
 
     private final BookSearchMapper mapper;
+    private final GenreService genreService;
+
 
     /**
      * 검색 조건 + 페이징을 기반으로 도서 목록을 조회하고, 페이지 메타 정보와 함께 반환한다.
@@ -74,8 +77,14 @@ public class BookSearchService {
         // ftKeyword가 만들어지면 FULLTEXT 사용
         cond.setUseFulltext(cond.getFtKeyword() != null || cond.getFtJoined() != null);
 
+        // ✅ 4) 외국도서 + 기타(-1)일 때 Top19 부모 장르 ID 주입
+        if ("외국도서".equals(cond.getMall())
+                && cond.getParentGenreId() != null
+                && cond.getParentGenreId() < 0
+                && (cond.getForeignTopParentIds() == null || cond.getForeignTopParentIds().isEmpty())) {
 
-
+            cond.setForeignTopParentIds(genreService.foreignTopParentIds(19, 0)); // min은 너 정책
+        }
 
         if (cond.getGenreId() != null && cond.getGenreId() <= 0) cond.setGenreId(null);
         if (cond.getParentGenreId() != null) {
@@ -83,9 +92,9 @@ public class BookSearchService {
             if (pid == 0 || pid < -1) cond.setParentGenreId(null);
         }
 
-        // ✅ 5) 조회
-        long total = mapper.countBooks(cond);
-        List<BookSearchDTO> items = (total == 0) ? List.of() : mapper.searchBooks(cond, page);
+        String userId = LoginUserUtils.getUserId();
+        long total = mapper.countBooks(cond, userId);
+        List<BookSearchDTO> items = (total == 0) ? List.of() : mapper.searchBooks(cond, page, userId);
         return PageResultDTO.of(items, page.getPage(), page.getSize(), total);
     }
 

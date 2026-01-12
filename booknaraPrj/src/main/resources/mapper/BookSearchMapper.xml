@@ -5,177 +5,12 @@
 
 <mapper namespace="com.booknara.booknaraPrj.bookSearch.mapper.BookSearchMapper">
 
-    <sql id="BaseFrom">
-        FROM BOOK_ISBN b
-        JOIN GENRE g ON g.GENRE_ID = b.GENRE_ID
-        LEFT JOIN GENRE p ON p.GENRE_ID = g.PARENT_ID
-    </sql>
+    <!-- =========================================================
+         [KEEP] 기존 id 유지 + 내부 리팩토링 helper 조각
+         ========================================================= -->
 
-    <sql id="BaseWhere">
-        <where>
-            <!-- mall 필터 -->
-            <if test="cond.mall != null and cond.mall != '' and cond.mall != 'ALL'">
-                AND g.MALL = #{cond.mall}
-            </if>
-
-            <!-- 검색어 분기: FULLTEXT vs LIKE -->
-            <if test="cond.keyword != null and cond.keyword != ''">
-                <choose>
-
-                    <!-- FULLTEXT -->
-                    <when test="cond.useFulltext != null and cond.useFulltext == true">
-                        <choose>
-                            <when test="cond.field == 'TITLE'">
-                                AND (
-                                <if test="cond.ftKeyword != null and cond.ftKeyword != ''">
-                                    MATCH(b.BOOK_TITLE, b.AUTHORS, b.PUBLISHER) AGAINST (#{cond.ftKeyword} IN BOOLEAN MODE)
-                                </if>
-
-                                <if test="cond.ftJoined != null and cond.ftJoined != ''">
-                                    <if test="cond.ftKeyword != null and cond.ftKeyword != ''"> OR </if>
-                                    MATCH(b.BOOK_TITLE, b.AUTHORS, b.PUBLISHER) AGAINST (#{cond.ftJoined} IN BOOLEAN MODE)
-                                </if>
-                                )
-
-                            </when>
-
-                            <when test="cond.field == 'AUTHOR'">
-                                AND (
-                                MATCH(b.AUTHORS) AGAINST (#{cond.ftKeyword} IN BOOLEAN MODE)
-                                <if test="cond.ftJoined != null and cond.ftJoined != ''">
-                                    OR MATCH(b.AUTHORS) AGAINST (#{cond.ftJoined} IN BOOLEAN MODE)
-                                </if>
-                                )
-                            </when>
-
-                            <when test="cond.field == 'PUBLISHER'">
-                                AND (
-                                MATCH(b.PUBLISHER) AGAINST (#{cond.ftKeyword} IN BOOLEAN MODE)
-                                <if test="cond.ftJoined != null and cond.ftJoined != ''">
-                                    OR MATCH(b.PUBLISHER) AGAINST (#{cond.ftJoined} IN BOOLEAN MODE)
-                                </if>
-                                )
-                            </when>
-
-                            <otherwise>
-                                AND (
-                                MATCH(b.BOOK_TITLE, b.AUTHORS, b.PUBLISHER) AGAINST (#{cond.ftKeyword} IN BOOLEAN MODE)
-                                <if test="cond.ftJoined != null and cond.ftJoined != ''">
-                                    OR MATCH(b.BOOK_TITLE, b.AUTHORS, b.PUBLISHER) AGAINST (#{cond.ftJoined} IN BOOLEAN MODE)
-                                </if>
-                                )
-                            </otherwise>
-                        </choose>
-                    </when>
-
-                    <!-- ✅ LIKE -->
-                    <otherwise>
-                        <choose>
-                            <when test="cond.field == 'TITLE'">
-                                AND (
-                                b.BOOK_TITLE LIKE CONCAT('%', #{cond.keyword}, '%')
-                                <if test="cond.keywordNs != null and cond.keywordNs != '' and cond.keywordNs != cond.keyword">
-                                    OR b.BOOK_TITLE LIKE CONCAT('%', #{cond.keywordNs}, '%')
-                                </if>
-                                )
-                            </when>
-
-                            <when test="cond.field == 'AUTHOR'">
-                                AND (
-                                b.AUTHORS LIKE CONCAT('%', #{cond.keyword}, '%')
-                                <if test="cond.keywordNs != null and cond.keywordNs != '' and cond.keywordNs != cond.keyword">
-                                    OR b.AUTHORS LIKE CONCAT('%', #{cond.keywordNs}, '%')
-                                </if>
-                                )
-                            </when>
-
-                            <when test="cond.field == 'PUBLISHER'">
-                                AND (
-                                b.PUBLISHER LIKE CONCAT('%', #{cond.keyword}, '%')
-                                <if test="cond.keywordNs != null and cond.keywordNs != '' and cond.keywordNs != cond.keyword">
-                                    OR b.PUBLISHER LIKE CONCAT('%', #{cond.keywordNs}, '%')
-                                </if>
-                                )
-                            </when>
-                            <otherwise>
-                                AND (
-                                b.BOOK_TITLE LIKE CONCAT('%', #{cond.keyword}, '%')
-                                OR b.AUTHORS LIKE CONCAT('%', #{cond.keyword}, '%')
-                                OR b.PUBLISHER LIKE CONCAT('%', #{cond.keyword}, '%')
-                                )
-                            </otherwise>
-                        </choose>
-                    </otherwise>
-
-                </choose>
-            </if>
-
-            <!-- 소분류 -->
-            <if test="cond.genreId != null and cond.genreId > 0">
-                AND b.GENRE_ID = #{cond.genreId}
-            </if>
-
-            <!-- 대분류(소분류 미선택 시) -->
-            <if test="(cond.genreId == null or cond.genreId &lt;= 0) and cond.parentGenreId != null">
-                <choose>
-
-                    <when test="cond.mall != null and cond.mall.trim() == '국내도서'">
-                        AND b.GENRE_ID IN (
-                        SELECT GENRE_ID
-                        FROM GENRE
-                        WHERE PARENT_ID = #{cond.parentGenreId}
-                        )
-                    </when>
-
-                    <when test="cond.mall != null and cond.mall.trim() == '외국도서'">
-                        <choose>
-                            <!-- 기타(<0): Top19 제외 -->
-                            <when test="cond.parentGenreId &lt; 0">
-                                AND NOT EXISTS (
-                                SELECT 1
-                                FROM (
-                                SELECT parent_id
-                                FROM (
-                                SELECT
-                                COALESCE(p2.GENRE_ID, g2.GENRE_ID) AS parent_id,
-                                COUNT(*) AS cnt
-                                FROM BOOK_ISBN b2
-                                JOIN GENRE g2 ON g2.GENRE_ID = b2.GENRE_ID
-                                LEFT JOIN GENRE p2 ON p2.GENRE_ID = g2.PARENT_ID
-                                WHERE g2.MALL = '외국도서'
-                                AND b2.EBOOK_YN = 'N'
-                                GROUP BY COALESCE(p2.GENRE_ID, g2.GENRE_ID)
-                                ) x
-                                ORDER BY x.cnt DESC, x.parent_id ASC
-                                LIMIT 19
-                                ) t
-                                WHERE t.parent_id = COALESCE(p.GENRE_ID, g.GENRE_ID)
-                                )
-                            </when>
-
-                            <!-- Top19 대분류 선택 -->
-                            <otherwise>
-                                AND COALESCE(p.GENRE_ID, g.GENRE_ID) = #{cond.parentGenreId}
-                            </otherwise>
-                        </choose>
-                    </when>
-
-                    <otherwise>
-                        <!-- mall ALL/NULL이면 대분류 필터 생략 -->
-                    </otherwise>
-                </choose>
-            </if>
-
-            <!-- 전자책 필터 -->
-            <if test="cond.ebookYn != null and cond.ebookYn.trim() != '' and cond.ebookYn.trim() != 'ALL'">
-                AND b.EBOOK_YN = #{cond.ebookYn}
-            </if>
-
-        </where>
-    </sql>
-
-    <select id="searchBooks" resultType="com.booknara.booknaraPrj.bookSearch.dto.BookSearchDTO">
-        SELECT
+    <!-- (helper) 책 기본 컬럼 -->
+    <sql id="SelectBookCols">
         b.ISBN13           AS isbn13,
         b.BOOK_TITLE       AS bookTitle,
         b.AUTHORS          AS authors,
@@ -186,34 +21,434 @@
         b.ALADIN_IMAGE_BIG AS aladinImageBig,
         b.EBOOK_YN         AS ebookYn,
         b.GENRE_ID         AS genreId,
-        CASE
-        WHEN LEFT(g.GENRE_NM, 1) = '_' THEN SUBSTRING(g.GENRE_NM, 2)
-        ELSE g.GENRE_NM
-        END AS genreNm
-        <include refid="BaseFrom"/>
-        <include refid="BaseWhere"/>
+        g.GENRE_NM         AS genreNm,
+        rs.RATING_AVG      AS ratingAvg,
+        IFNULL(rs.REVIEW_CNT, 0) AS reviewCnt
+    </sql>
 
+    <!-- (helper) 유저 플래그 컬럼 -->
+    <sql id="SelectUserFlagsCols">
         <choose>
-            <when test="cond.sort == 'NEW'">
-                ORDER BY b.PUBDATE DESC
-            </when>
-            <when test="cond.sort == 'RATING'">
-                ORDER BY b.PUBDATE DESC
-            </when>
-            <when test="cond.sort == 'REVIEW'">
-                ORDER BY b.PUBDATE DESC
+            <when test="userId != null and userId != ''">
+                , CASE WHEN bm.USER_ID IS NULL THEN 'N' ELSE 'Y' END AS bookmarkedYn
+                , CASE WHEN bc.CART_ID IS NULL THEN 'N' ELSE 'Y' END AS myCartYn
+                , bc.CART_ID AS myCartId
             </when>
             <otherwise>
-                ORDER BY b.PUBDATE DESC
+                , 'N'  AS bookmarkedYn
+                , 'N'  AS myCartYn
+                , NULL AS myCartId
             </otherwise>
         </choose>
+    </sql>
 
-        LIMIT #{page.size} OFFSET #{page.offset}
+    <!-- =========================================================
+         (helper) 정렬 표현식 (한 곳에서만 관리)
+         - tie-breaker로 ISBN13 추가(페이징 안정성)
+         ========================================================= -->
+    <sql id="SortExpr">
+        <choose>
+            <when test="cond.sort == 'RATING'">
+                (rs.RATING_AVG IS NULL) ASC, rs.RATING_AVG DESC, b.PUBDATE DESC, b.ISBN13 ASC
+            </when>
+            <when test="cond.sort == 'REVIEW'">
+                IFNULL(rs.REVIEW_CNT,0) DESC, b.PUBDATE DESC, b.ISBN13 ASC
+            </when>
+            <otherwise>
+                b.PUBDATE DESC, b.ISBN13 ASC
+            </otherwise>
+        </choose>
+    </sql>
+
+
+    <!-- =========================================================
+         ✅ [KEEP] base 정렬 (id 유지)
+         ========================================================= -->
+    <sql id="OrderByBase">
+        ORDER BY <include refid="SortExpr"/>
+    </sql>
+
+    <!-- =========================================================
+         ✅ [KEEP] BaseBookmarkJoin (id 그대로)
+         ========================================================= -->
+    <sql id="BaseBookmarkJoin">
+        <if test="userId != null and userId != ''">
+            LEFT JOIN BOOKMARK bm
+            ON bm.ISBN13 = b.ISBN13
+            AND bm.USER_ID = #{userId}
+        </if>
+    </sql>
+
+    <!-- =========================================================
+         ✅ [KEEP] BaseCartJoin (id 그대로)
+         - DDL: BOOKS_CART에 UNIQUE(USER_ID, ISBN13) 있으므로
+           MAX/GROUP BY 서브쿼리 제거 → 단순 JOIN
+         ========================================================= -->
+    <sql id="BaseCartJoin">
+        <if test="userId != null and userId != ''">
+            LEFT JOIN BOOKS_CART bc
+            ON bc.ISBN13 = b.ISBN13
+            AND bc.USER_ID = #{userId}
+        </if>
+    </sql>
+
+    <!-- =========================================================
+         ✅ [KEEP] BaseFrom (id 그대로)
+         ========================================================= -->
+    <sql id="BaseFrom">
+        FROM BOOK_ISBN b
+        JOIN GENRE g ON g.GENRE_ID = b.GENRE_ID
+        LEFT JOIN GENRE p ON p.GENRE_ID = g.PARENT_ID
+        <include refid="BaseBookmarkJoin"/>
+        <include refid="BaseCartJoin"/>
+    </sql>
+
+    <!-- =========================================================
+         ✅ [KEEP] ReviewStatJoin (id 그대로)
+         ========================================================= -->
+    <sql id="ReviewStatJoin">
+        LEFT JOIN REVIEW_STAT rs
+          ON rs.ISBN13 = b.ISBN13
+    </sql>
+
+    <!-- =========================================================
+         [helper] WhereKeyword / WhereDomesticParent / WhereForeignParent
+         ========================================================= -->
+    <sql id="WhereKeyword">
+        <if test="cond.keyword != null and cond.keyword != ''">
+            <choose>
+                <when test="cond.useFulltext != null and cond.useFulltext == true">
+                    <choose>
+                        <when test="cond.field == 'TITLE'">
+                            AND (
+                            <if test="cond.ftKeyword != null and cond.ftKeyword != ''">
+                                MATCH(b.BOOK_TITLE, b.AUTHORS, b.PUBLISHER) AGAINST (#{cond.ftKeyword} IN BOOLEAN MODE)
+                            </if>
+                            <if test="cond.ftJoined != null and cond.ftJoined != ''">
+                                <if test="cond.ftKeyword != null and cond.ftKeyword != ''"> OR </if>
+                                MATCH(b.BOOK_TITLE, b.AUTHORS, b.PUBLISHER) AGAINST (#{cond.ftJoined} IN BOOLEAN MODE)
+                            </if>
+                            )
+                        </when>
+
+                        <when test="cond.field == 'AUTHOR'">
+                            AND (
+                            MATCH(b.AUTHORS) AGAINST (#{cond.ftKeyword} IN BOOLEAN MODE)
+                            <if test="cond.ftJoined != null and cond.ftJoined != ''">
+                                OR MATCH(b.AUTHORS) AGAINST (#{cond.ftJoined} IN BOOLEAN MODE)
+                            </if>
+                            )
+                        </when>
+
+                        <when test="cond.field == 'PUBLISHER'">
+                            AND (
+                            MATCH(b.PUBLISHER) AGAINST (#{cond.ftKeyword} IN BOOLEAN MODE)
+                            <if test="cond.ftJoined != null and cond.ftJoined != ''">
+                                OR MATCH(b.PUBLISHER) AGAINST (#{cond.ftJoined} IN BOOLEAN MODE)
+                            </if>
+                            )
+                        </when>
+
+                        <otherwise>
+                            AND (
+                            MATCH(b.BOOK_TITLE, b.AUTHORS, b.PUBLISHER) AGAINST (#{cond.ftKeyword} IN BOOLEAN MODE)
+                            <if test="cond.ftJoined != null and cond.ftJoined != ''">
+                                OR MATCH(b.BOOK_TITLE, b.AUTHORS, b.PUBLISHER) AGAINST (#{cond.ftJoined} IN BOOLEAN MODE)
+                            </if>
+                            )
+                        </otherwise>
+                    </choose>
+                </when>
+
+                <otherwise>
+                    <choose>
+                        <when test="cond.field == 'TITLE'">
+                            AND (
+                            b.BOOK_TITLE LIKE CONCAT('%', #{cond.keyword}, '%')
+                            <if test="cond.keywordNs != null and cond.keywordNs != '' and cond.keywordNs != cond.keyword">
+                                OR b.BOOK_TITLE LIKE CONCAT('%', #{cond.keywordNs}, '%')
+                            </if>
+                            )
+                        </when>
+
+                        <when test="cond.field == 'AUTHOR'">
+                            AND (
+                            b.AUTHORS LIKE CONCAT('%', #{cond.keyword}, '%')
+                            <if test="cond.keywordNs != null and cond.keywordNs != '' and cond.keywordNs != cond.keyword">
+                                OR b.AUTHORS LIKE CONCAT('%', #{cond.keywordNs}, '%')
+                            </if>
+                            )
+                        </when>
+
+                        <when test="cond.field == 'PUBLISHER'">
+                            AND (
+                            b.PUBLISHER LIKE CONCAT('%', #{cond.keyword}, '%')
+                            <if test="cond.keywordNs != null and cond.keywordNs != '' and cond.keywordNs != cond.keyword">
+                                OR b.PUBLISHER LIKE CONCAT('%', #{cond.keywordNs}, '%')
+                            </if>
+                            )
+                        </when>
+
+                        <otherwise>
+                            AND (
+                            b.BOOK_TITLE LIKE CONCAT('%', #{cond.keyword}, '%')
+                            OR b.AUTHORS LIKE CONCAT('%', #{cond.keyword}, '%')
+                            OR b.PUBLISHER LIKE CONCAT('%', #{cond.keyword}, '%')
+                            )
+                        </otherwise>
+                    </choose>
+                </otherwise>
+            </choose>
+        </if>
+    </sql>
+
+    <sql id="WhereDomesticParent">
+        AND b.GENRE_ID IN (
+            SELECT GENRE_ID
+            FROM GENRE
+            WHERE PARENT_ID = #{cond.parentGenreId}
+        )
+    </sql>
+
+    <sql id="WhereForeignParent">
+        <choose>
+            <!-- 기타(-1): Top19 목록 제외 -->
+            <when test="cond.parentGenreId &lt; 0">
+                <if test="cond.foreignTopParentIds != null and cond.foreignTopParentIds.size() &gt; 0">
+                    AND COALESCE(p.GENRE_ID, g.GENRE_ID) NOT IN
+                    <foreach collection="cond.foreignTopParentIds" item="id" open="(" separator="," close=")">
+                        #{id}
+                    </foreach>
+                </if>
+                <!-- 방어: Top19 목록이 비어있으면 '기타' 의미가 애매하니 조건을 안 붙여서 전체가 나오게(또는 1=0으로 막기) -->
+            </when>
+
+            <!-- Top19/그 외 특정 parent -->
+            <otherwise>
+                AND COALESCE(p.GENRE_ID, g.GENRE_ID) = #{cond.parentGenreId}
+            </otherwise>
+        </choose>
+    </sql>
+
+
+    <!-- =========================================================
+         ✅ [KEEP] BaseWhere (id 그대로)
+         ========================================================= -->
+    <sql id="BaseWhere">
+        <where>
+            <if test="cond.mall != null and cond.mall != '' and cond.mall != 'ALL'">
+                AND g.MALL = #{cond.mall}
+            </if>
+
+            <include refid="WhereKeyword"/>
+
+            <if test="cond.genreId != null and cond.genreId &gt; 0">
+                AND b.GENRE_ID = #{cond.genreId}
+            </if>
+
+            <if test="(cond.genreId == null or cond.genreId &lt;= 0) and cond.parentGenreId != null">
+                <choose>
+                    <when test="cond.mall != null and cond.mall.trim() == '국내도서'">
+                        <include refid="WhereDomesticParent"/>
+                    </when>
+
+                    <when test="cond.mall != null and cond.mall.trim() == '외국도서'">
+                        <include refid="WhereForeignParent"/>
+                    </when>
+
+                    <otherwise>
+                    </otherwise>
+                </choose>
+            </if>
+
+            <if test="cond.ebookYn != null and cond.ebookYn.trim() != '' and cond.ebookYn.trim() != 'ALL'">
+                AND b.EBOOK_YN = #{cond.ebookYn}
+            </if>
+        </where>
+    </sql>
+
+    <!-- =========================================================
+         [helper] availability + user detail CTE (페이지 ISBN만 집계)
+         ========================================================= -->
+    <sql id="CteAvailability">
+        owned AS (
+            SELECT bo.ISBN13, COUNT(*) AS ownedCnt
+            FROM BOOKS bo
+            JOIN base ON base.isbn13 = bo.ISBN13
+            WHERE bo.BOOK_STATE = 'N'
+            GROUP BY bo.ISBN13
+        ),
+        lending AS (
+            SELECT bx.ISBN13, COUNT(*) AS lendingCnt
+            FROM LENDS l
+            JOIN BOOKS bx ON bx.BOOK_ID = l.BOOK_ID
+            JOIN base ON base.isbn13 = bx.ISBN13
+            WHERE l.RETURN_DONE_AT IS NULL
+            GROUP BY bx.ISBN13
+        ),
+        rsv AS (
+            SELECT
+                r.ISBN13,
+                COUNT(*) AS rsvActiveCnt,
+                CASE WHEN COUNT(*) &gt;= 10 THEN 'Y' ELSE 'N' END AS rsvLimitYn
+            FROM RESERVATIONS r
+            JOIN base ON base.isbn13 = r.ISBN13
+            WHERE r.RSV_STATUS = 'ACTIVE'
+            GROUP BY r.ISBN13
+        )
+    </sql>
+
+    <!-- =========================================================
+         [helper] user-related CTE
+         ========================================================= -->
+    <sql id="CteUserDetails">
+        <if test="userId != null and userId != ''">
+            ,
+            my_lend_detail AS (
+            SELECT
+            bx.ISBN13,
+            MAX(l.LEND_ID) AS myLendId,
+            'Y' AS myLendYn,
+            CASE
+            WHEN MAX(l.EXTEND_CNT) = 0
+            AND MAX(l.RETURN_DUE_DATE) &lt;= (NOW() + INTERVAL 7 DAY)
+            THEN 'Y' ELSE 'N'
+            END AS myExtendYn
+            FROM LENDS l
+            JOIN BOOKS bx ON bx.BOOK_ID = l.BOOK_ID
+            JOIN base ON base.isbn13 = bx.ISBN13
+            WHERE l.USER_ID = #{userId}
+            AND l.RETURN_DONE_AT IS NULL
+            GROUP BY bx.ISBN13
+            ),
+            my_rsv_detail AS (
+            SELECT
+            r.ISBN13,
+            MAX(r.RSV_ID) AS myRsvId,
+            'Y' AS myRsvYn
+            FROM RESERVATIONS r
+            JOIN base ON base.isbn13 = r.ISBN13
+            WHERE r.USER_ID = #{userId}
+            AND r.RSV_STATUS = 'ACTIVE'
+            GROUP BY r.ISBN13
+            ),
+            user_flags AS (
+            SELECT
+            CASE WHEN u.USER_STATE IN (3,4) THEN 'Y' ELSE 'N' END AS userBlockedYn,
+            CASE WHEN EXISTS (
+            SELECT 1
+            FROM LENDS l2
+            WHERE l2.USER_ID = #{userId}
+            AND l2.RETURN_DONE_AT IS NULL
+            AND l2.OVER_DUE = 'Y'
+            ) THEN 'Y' ELSE 'N' END AS userOverdueYn
+            FROM USERS u
+            WHERE u.USER_ID = #{userId}
+            )
+        </if>
+    </sql>
+
+    <sql id="SelectFinalUserCols">
+        <choose>
+            <when test="userId != null and userId != ''">
+                IFNULL(my_lend_detail.myLendYn, 'N')       AS myLendYn,
+                IFNULL(my_lend_detail.myExtendYn, 'N')     AS myExtendYn,
+                my_lend_detail.myLendId                   AS myLendId,
+
+                IFNULL(my_rsv_detail.myRsvYn, 'N')         AS myRsvYn,
+                my_rsv_detail.myRsvId                     AS myRsvId,
+
+                user_flags.userBlockedYn                  AS userBlockedYn,
+                user_flags.userOverdueYn                  AS userOverdueYn
+            </when>
+            <otherwise>
+                'N' AS myLendYn,
+                'N' AS myExtendYn,
+                NULL AS myLendId,
+                'N' AS myRsvYn,
+                NULL AS myRsvId,
+                'N' AS userBlockedYn,
+                'N' AS userOverdueYn
+            </otherwise>
+        </choose>
+    </sql>
+
+    <!-- =========================================================
+         ✅ [KEEP] searchBooks (id 그대로)
+         - Late Materialization:
+           1) base_ids_raw: 필터/정렬/limit으로 ISBN만 먼저 잘라냄
+           2) base_ids: 페이지 크기만 rn 부여 (정렬 순서 유지용)
+           3) base: 페이지 ISBN에 대해서만 상세 조인
+         ========================================================= -->
+    <select id="searchBooks" resultType="com.booknara.booknaraPrj.bookSearch.dto.BookSearchDTO">
+
+        WITH
+        base_ids_raw AS (
+        SELECT b.ISBN13
+        FROM BOOK_ISBN b
+        JOIN GENRE g ON g.GENRE_ID = b.GENRE_ID
+        LEFT JOIN GENRE p ON p.GENRE_ID = g.PARENT_ID
+        LEFT JOIN REVIEW_STAT rs ON rs.ISBN13 = b.ISBN13
+        <include refid="BaseWhere"/>
+        <include refid="OrderByBase"/>
+        LIMIT #{page.offset}, #{page.size}
+        ),
+        base_ids AS (
+        SELECT x.ISBN13, (@rn := @rn + 1) AS rn
+        FROM base_ids_raw x
+        CROSS JOIN (SELECT @rn := 0) r
+        ),
+        base AS (
+        SELECT
+        <include refid="SelectBookCols"/>
+        <include refid="SelectUserFlagsCols"/>,
+        ids.rn AS rn
+        FROM base_ids ids
+        JOIN BOOK_ISBN b ON b.ISBN13 = ids.ISBN13
+        JOIN GENRE g ON g.GENRE_ID = b.GENRE_ID
+        LEFT JOIN REVIEW_STAT rs ON rs.ISBN13 = b.ISBN13
+        <include refid="BaseBookmarkJoin"/>
+        <include refid="BaseCartJoin"/>
+        ),
+        <include refid="CteAvailability"/>
+        <include refid="CteUserDetails"/>
+
+        SELECT
+        base.*,
+        IFNULL(owned.ownedCnt, 0)      AS ownedCnt,
+        IFNULL(lending.lendingCnt, 0)  AS lendingCnt,
+        IFNULL(rsv.rsvActiveCnt, 0)    AS rsvActiveCnt,
+        GREATEST(IFNULL(owned.ownedCnt,0) - IFNULL(lending.lendingCnt,0), 0) AS availableCnt,
+        IFNULL(rsv.rsvLimitYn, 'N')    AS rsvLimitYn,
+        <include refid="SelectFinalUserCols"/>
+
+        FROM base
+        LEFT JOIN owned   ON owned.ISBN13   = base.isbn13
+        LEFT JOIN lending ON lending.ISBN13 = base.isbn13
+        LEFT JOIN rsv     ON rsv.ISBN13     = base.isbn13
+
+        <if test="userId != null and userId != ''">
+            LEFT JOIN my_lend_detail ON my_lend_detail.ISBN13 = base.isbn13
+            LEFT JOIN my_rsv_detail  ON my_rsv_detail.ISBN13  = base.isbn13
+            CROSS JOIN user_flags
+        </if>
+
+        ORDER BY base.rn
+
     </select>
+
+    <!-- =========================================================
+         ✅ [KEEP] CountFrom / countBooks (id 그대로)
+         ========================================================= -->
+    <sql id="CountFrom">
+        FROM BOOK_ISBN b
+        JOIN GENRE g ON g.GENRE_ID = b.GENRE_ID
+        LEFT JOIN GENRE p ON p.GENRE_ID = g.PARENT_ID
+    </sql>
 
     <select id="countBooks" resultType="long">
         SELECT COUNT(*)
-        <include refid="BaseFrom"/>
+        <include refid="CountFrom"/>
         <include refid="BaseWhere"/>
     </select>
 

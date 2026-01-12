@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.booknara.booknaraPrj.mypage.info.MyInfoMapper">
+
+    <select id="selectMyInfo"
+            parameterType="string"
+            resultType="com.booknara.booknaraPrj.mypage.info.MyInfoDto">
+        SELECT
+            USER_ID     AS userId,
+            USER_NM     AS userNm,
+            PROFILE_NM  AS profileNm,
+            BIRTHDAY    AS birthday,
+            GENDER      AS gender,
+            ADDR        AS addr
+        FROM USERS
+        WHERE USER_ID = #{userId}
+    </select>
+
+    <update id="updateMyInfo"
+            parameterType="com.booknara.booknaraPrj.mypage.info.MyInfoDto">
+        UPDATE USERS
+        SET
+            PROFILE_NM = #{profileNm},
+            ADDR       = #{addr}
+        WHERE USER_ID = #{userId}
+    </update>
+
+</mapper>

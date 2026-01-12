@@ -13,11 +13,13 @@ public interface BookSearchMapper {
 
     List<BookSearchDTO> searchBooks(
             @Param("cond") BookSearchConditionDTO cond,
-            @Param("page") PageInsertDTO page
+            @Param("page") PageInsertDTO page,
+            @Param("userId") String userId
     );
 
     long countBooks(
-            @Param("cond") BookSearchConditionDTO cond
+            @Param("cond") BookSearchConditionDTO cond,
+            @Param("userId") String userId
     );
 }
 

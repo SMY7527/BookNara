@@ -1,0 +1,140 @@
+* {
+    box-sizing: border-box;
+    font-family: "Apple SD Gothic Neo", Arial, sans-serif;
+}
+
+body {
+    margin: 0;
+    background: #f5f5f5;
+}
+
+/* ===== 전체 영역 ===== */
+.inquiry-container {
+    width: 900px;
+    margin: 40px auto;
+    background: #fff;
+    border-radius: 8px;
+    padding: 24px;
+}
+
+/* ===== 제목 ===== */
+.inquiry-title {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 16px;
+}
+
+/* ===== 검색 영역 ===== */
+.search-box {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 16px;
+}
+
+.search-input {
+    position: relative;
+    width: 260px;
+}
+
+.search-input input {
+    width: 100%;
+    padding: 8px 36px 8px 10px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+}
+
+.search-input button {
+    position: absolute;
+    right: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+/* ===== 문의 리스트 ===== */
+.inquiry-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.inquiry-card {
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 14px;
+}
+
+.question {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: bold;
+    margin-bottom: 6px;
+}
+
+.question-text {
+    font-size: 14px;
+}
+
+.question-meta {
+    font-size: 12px;
+    color: #666;
+    text-align: right;
+}
+
+.answer {
+    margin-top: 8px;
+    font-size: 13px;
+    color: #444;
+    padding-left: 10px;
+    border-left: 3px solid #ddd;
+}
+
+/* ===== 체크 아이콘 자리 ===== */
+.check-icon {
+    font-size: 16px;
+    color: #000;
+    margin-left: 10px;
+}
+
+/* ===== 페이지네이션 ===== */
+.pagination {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 20px;
+}
+
+.page-btn {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    border: 1px solid #ccc;
+    background: #fff;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.page-btn.active {
+    background: #333;
+    color: #fff;
+    border-color: #333;
+}
+
+.write-btn {
+    float: right;
+    font-size: 13px;
+    text-decoration: none;
+    color: #333;
+    border: 1px solid #ccc;
+    padding: 4px 10px;
+    border-radius: 4px;
+}
+
+.write-btn:hover {
+    background: #333;
+    color: #fff;
+}

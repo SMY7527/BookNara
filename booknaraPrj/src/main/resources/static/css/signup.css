@@ -1,0 +1,173 @@
+  body {
+  margin: 0;
+  height: 100vh;
+}
+
+.signup-page {
+  display: flex;
+  height: 100vh;
+}
+
+/* 왼쪽 */
+.signup-visual {
+  flex: 6.5;
+  background: #f5f1ea;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+}
+
+.signup-visual img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* 오른쪽 */
+.signup-area {
+  flex: 3.5;
+  display: flex;
+  align-items: center;   /* ⭐ 가운데 말고 위로 */
+
+  justify-content: center;
+  background: #fff;
+}
+
+
+
+.signup-wrap {
+            width: 100%;
+            max-width: 480px;
+            justify-self: center;
+            align-items: center;
+            padding: 0 40px;
+            box-sizing: border-box;
+        }
+
+
+        .logo {
+            text-align: center;
+            font-size: 26px;
+            font-weight: 700;
+        }
+
+        .title {
+            text-align: center;
+            font-size: 14px;
+            margin: 8px 0 24px;
+            color: #555;
+        }
+
+        /* ===== 공통 행 ===== */
+        .short-box{
+          display: flex;
+          flex-direction: column; /* 세로로 쌓기 */
+          gap: 5px;               /* ⭐ form-short 사이 간격 */
+        }
+        .form-short input {
+            width: 180px;
+            height: 43px;
+            padding: 0 12px;
+            font-size: 13px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .form-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        /* ===== 입력칸 사이즈 통일 ===== */
+        .form-row input[type="text"],
+        .form-row input[type="password"],
+        .form-row input[type="email"],
+        .form-row input[type="tel"],
+        .form-row input[type="date"] {
+            flex: 1;
+            height: 43px;
+            padding: 0 12px;
+            font-size: 13px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+
+        .check-btn {
+            width: 60px;
+            height: 43px;
+            font-size: 12px;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        /* ===== 메시지 ===== */
+        .msg {
+            min-width: 200px;
+            font-size: 12px;
+        }
+        .msg.error { color: red; }
+        .msg.success { color: green; }
+
+        /* ===== 비밀번호 확인 아이콘 ===== */
+        .icon {
+            font-size: 18px;
+            font-weight: bold;
+            min-width: 20px;
+        }
+        .icon.ok { color: green; }
+        .icon.no { color: red; }
+
+        /* ===== 성별 ===== */
+        .gender-group {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            height: 42px;
+            padding-left: 6px;
+            font-size: 13px;
+        }
+
+        .gender-group label {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+        }
+
+        .signup-btn {
+            width: 100%;
+            height: 50px;
+            margin-top: 18px;
+            border: none;
+            border-radius: 25px;
+            background: #111;
+            color: #fff;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .sub-links {
+            margin-top: 18px;
+            text-align: center;
+            font-size: 13px;
+        }
+
+        .sub-links a {
+            color: #333;
+            text-decoration: none;
+        }
+
+        /*에러메시지*/
+        .error-msg {
+          margin: 10px 0 6px;
+          font-size: 11px;
+          color: #e74c3c;
+          text-align: center;
+          white-space: nowrap;
+        }

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>문의 작성</title>
+    <link rel="stylesheet" href="/css/InquiryHistory.css">
+</head>
+<body>
+
+<div class="inquiry-container">
+
+    <div class="inquiry-title">문의 작성</div>
+
+    <form method="post" action="/my/inquiry">
+
+        <div style="margin-bottom:12px;">
+            <select name="inqType" required>
+                <option value="1">도서관리</option>
+                <option value="2">대여/반납</option>
+                <option value="3">시스템</option>
+                <option value="4">계정</option>
+                <option value="5">신고</option>
+                <option value="6">기타</option>
+            </select>
+        </div>
+
+        <div style="margin-bottom:12px;">
+            <input type="text" name="inqTitle" placeholder="제목"
+                   style="width:100%;" required>
+        </div>
+
+        <div style="margin-bottom:12px;">
+            <textarea name="inqContent" rows="6"
+                      placeholder="문의 내용을 입력하세요"
+                      style="width:100%;" required></textarea>
+        </div>
+
+        <button type="submit">등록</button>
+        <a href="/my/inquiry">취소</a>
+    </form>
+
+</div>
+
+</body>
+</html>

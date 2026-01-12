@@ -5,20 +5,18 @@
 
 <mapper namespace="com.booknara.booknaraPrj.mainpage.mapper.MallangPickMapper">
 
-    <select id="selectMallangPickBooks"
-            parameterType="int"
+    <select id="findRandomBooksByGenre"
             resultType="com.booknara.booknaraPrj.mainpage.dto.MallangPickDTO">
-
         SELECT
         ISBN13        AS isbn13,
         BOOK_TITLE    AS bookTitle,
         AUTHORS       AS authors,
         PUBLISHER     AS publisher,
-        NAVER_IMAGE   AS bookImg
+        COALESCE(NAVER_IMAGE, ALADIN_IMAGE_BIG) AS bookImg
         FROM BOOK_ISBN
         WHERE GENRE_ID = #{genreId}
         ORDER BY RAND()
-        LIMIT 3
-
+        LIMIT #{limit}
     </select>
+
 </mapper>

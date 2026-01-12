@@ -34,65 +34,54 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 
+/* ===============================
+   말랑이픽 (해시태그 + 도서)
+   =============================== */
 document.addEventListener("DOMContentLoaded", () => {
-
-  /* ===============================
-     1️⃣ 내가 정한 해시태그 9개 (GENRE_ID + 텍스트)
-     =============================== */
-  const MALLANG_HASHTAGS = [
-    { genreId: 1,    label: "#이야기에빠지다" },
-    { genreId: 55889, label: "#마음이따뜻해지는" },
-    { genreId: 336,  label: "#나를키우는시간" },
-    { genreId: 656,  label: "#생각이깊어지는" },
-    { genreId: 74,   label: "#세상을읽다" },
-    { genreId: 170,  label: "#돈과인생이야기" },
-    { genreId: 987,  label: "#호기심폭발" },
-    { genreId: 517,  label: "#취향저격" },
-    { genreId: 1108, label: "#꿈이자라는" }
-  ];
 
   const hashtagBox = document.getElementById("recommendHashtags");
   const bookCards = document.querySelectorAll(".book-card");
 
-  /* ===============================
-     2️⃣ 배열 섞어서 랜덤 3개 뽑기
-     =============================== */
-  function pickRandom3(arr) {
-    return [...arr].sort(() => Math.random() - 0.5).slice(0, 3);
-  }
+  // 1️⃣ 해시태그 3개 서버에서 가져오기
+  fetch("/api/main/mallang-pick/hashtags")
+    .then(res => res.json())
+    .then(tags => {
+      hashtagBox.innerHTML = "";
 
-  /* ===============================
-     3️⃣ 해시태그 랜덤 3개 렌더링
-     =============================== */
-  function renderHashtags() {
-    const picked = pickRandom3(MALLANG_HASHTAGS);
-    hashtagBox.innerHTML = "";
-
-    picked.forEach((tag, idx) => {
-      const btn = document.createElement("button");
-      btn.className = "hashtag";
-      btn.innerText = tag.label;
-      btn.dataset.genreId = tag.genreId;
-
-      btn.addEventListener("click", () => {
-        document.querySelectorAll(".hashtag").forEach(b => b.classList.remove("active"));
-        btn.classList.add("active");
-        loadBooks(tag.genreId);
-      });
-
-      hashtagBox.appendChild(btn);
-
-      // 첫 해시태그 자동 선택
-      if (idx === 0) {
-        btn.classList.add("active");
-        loadBooks(tag.genreId);
+      if (!tags || tags.length === 0) {
+        hashtagBox.innerHTML = "<p>추천 해시태그 준비 중</p>";
+        return;
       }
-    });
-  }
 
-  /* ===============================
-     4️⃣ 해시태그 클릭 → DB에서 랜덤 3권
-     =============================== */
+      tags.forEach((tag, idx) => {
+        const btn = document.createElement("button");
+        btn.className = "hashtag";
+        btn.innerText = tag.label;
+
+        btn.addEventListener("click", () => {
+          document
+            .querySelectorAll("#recommendHashtags .hashtag")
+            .forEach(b => b.classList.remove("active"));
+
+          btn.classList.add("active");
+          loadBooks(tag.genreId);
+        });
+
+        hashtagBox.appendChild(btn);
+
+        // 첫 번째 해시태그 자동 선택
+        if (idx === 0) {
+          btn.classList.add("active");
+          loadBooks(tag.genreId);
+        }
+      });
+    })
+    .catch(err => {
+      console.error("말랑이픽 해시태그 로딩 실패", err);
+      hashtagBox.innerHTML = "<p>추천 해시태그를 불러오지 못했어요</p>";
+    });
+
+  // 2️⃣ 해시태그 클릭 → 도서 3권 로딩
   function loadBooks(genreId) {
     fetch(`/api/main/mallang-pick/books?genreId=${genreId}`)
       .then(res => res.json())
@@ -100,28 +89,32 @@ document.addEventListener("DOMContentLoaded", () => {
         bookCards.forEach((card, idx) => {
           const book = books[idx];
 
+          // 데이터 없을 때
           if (!book) {
-            card.querySelector("img").src = "/images/placeholder_book.png";
+            card.querySelector(".book-img").src = "/images/placeholder_book.png";
             card.querySelector(".book-title").innerText = "추천 도서 준비 중";
             card.querySelector(".book-author").innerText = "";
+            card.querySelector(".book-link").href = "#";
             return;
           }
 
-          card.querySelector("img").src = book.bookImg;
-          card.querySelector("img").alt = book.bookTitle;
+          card.querySelector(".book-img").src = book.bookImg;
+          card.querySelector(".book-img").alt = book.bookTitle;
           card.querySelector(".book-title").innerText = book.bookTitle;
           card.querySelector(".book-author").innerText =
             `${book.authors} · ${book.publisher}`;
+
+          // ⭐ 상세 페이지 이동
+          card.querySelector(".book-link").href =
+            `/book/detail/${book.isbn13}`;
         });
+      })
+      .catch(err => {
+        console.error("말랑이픽 도서 로딩 실패", err);
       });
   }
-
-  /* ===============================
-     5️⃣ 시작
-     =============================== */
-  renderHashtags();
-
 });
+
 
 
 //사서추천
@@ -136,9 +129,9 @@ document.addEventListener("DOMContentLoaded", () => {
       list.innerHTML = ""; // 기존 더미 제거
 
       books.forEach(book => {
-        const card = document.createElement("div");
+        const card = document.createElement("a");
         card.className = "librarian-book-card";
-
+        card.href = `/book/detail/${book.isbn13}`;
         card.innerHTML = `
           <div class="book-cover">
             <img src="${book.bookImg}" alt="${book.bookTitle}">
@@ -174,7 +167,7 @@ document.addEventListener("DOMContentLoaded", () => {
         card.className = "librarian-book-card";
 
         card.innerHTML = `
-          <a href="/books/${book.isbn13}" class="new-book-link">
+          <a href="/book/detail/${book.isbn13}" class="new-book-link">
             <div class="book-cover">
               <img src="${book.bookImg}" alt="${book.bookTitle}">
             </div>

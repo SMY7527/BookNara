@@ -207,6 +207,7 @@
 </div>
 
 <script th:inline="javascript">
+
     const initialBookmarkedYn = /*[[${view.bookmarkedYn}]]*/ "N";
     const isbn13 = /*[[${view.bookDetailDTO.isbn13}]]*/ "";
 
@@ -214,6 +215,24 @@
     const iconEl = document.getElementById('bookmarkIcon');
     const textEl = document.getElementById('bookmarkText');
     const cntEl  = document.getElementById('bookmarkCnt');
+    //최근본책 저장
+
+    document.addEventListener("DOMContentLoaded", () => {
+  saveRecentBook({
+    isbn13: isbn13,
+    bookImg: document.querySelector(".cover img")?.src
+  });
+});
+    function saveRecentBook(book) {
+  let recent = JSON.parse(localStorage.getItem("recentBooks")) || [];
+
+  recent = recent.filter(item => item.isbn13 !== book.isbn13);
+  recent.unshift(book);
+
+  if (recent.length > 3) recent.length = 3;
+
+  localStorage.setItem("recentBooks", JSON.stringify(recent));
+}
 
     function renderBookmark(yn){
         if(yn === 'Y'){

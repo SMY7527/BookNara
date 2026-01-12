@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.booknara.booknaraPrj.login_signup.mapper.UserMallangMapper">
+
+    <!--
+        회원가입 시 랜덤 말랑이 1개 지급
+        - MALLANG 테이블에 있는 말랑이 중 1개
+        - USER_MALLANG에 대표 말랑이로 등록 (IS_CHOICE = 'Y')
+    -->
+    <insert id="insertRandomMallang" parameterType="string">
+        INSERT INTO USER_MALLANG (USER_ID, MALLANG_NM, IS_CHOICE)
+        SELECT
+        #{userId},
+        MALLANG_NM,
+        'Y'
+        FROM MALLANG
+        ORDER BY RAND()
+        LIMIT 1
+    </insert>
+
+
+    <select id="selectProfileImage" resultType="string">
+        SELECT
+        CASE
+        WHEN U.USE_IMG = 1 THEN U.PROFILE_IMG
+        ELSE M.MALLANG_IMG
+        END
+        FROM USERS U
+        LEFT JOIN USER_MALLANG UM
+        ON U.USER_ID = UM.USER_ID
+        AND UM.IS_CHOICE = 'Y'
+        LEFT JOIN MALLANG M
+        ON UM.MALLANG_NM = M.MALLANG_NM
+        WHERE U.USER_ID = #{userId}
+    </select>
+
+
+</mapper>

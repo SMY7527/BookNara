@@ -13,4 +13,6 @@ public class RecommendController {
     public String recommendPage() {
         return "recommend";   // templates/recommend.html
     }
+
+
 }

@@ -130,17 +130,28 @@ public class AccountFindController {
         String userId = (String) session.getAttribute("PW_RESET_USER");
 
         if (verified == null || !verified || userId == null) {
-            return Map.of("success", false, "message", "잘못된 접근이여");
+            return Map.of("success", false, "message", "잘못된 접근입니다");
         }
 
-        userService1.resetPassword(userId, req.get("password"));
+        try {
+            // ⭐ 여기만 try로 감싸면 됨
+            userService1.resetPassword(userId, req.get("password"));
 
-        // 🔐 보안상 세션 정리
-        session.removeAttribute("PW_VERIFIED");
-        session.removeAttribute("PW_RESET_USER");
-        session.removeAttribute("PW_VERIFY_CODE");
-        session.removeAttribute("PW_VERIFY_TIME");
+            // 🔐 성공했을 때만 세션 정리
+            session.removeAttribute("PW_VERIFIED");
+            session.removeAttribute("PW_RESET_USER");
+            session.removeAttribute("PW_VERIFY_CODE");
+            session.removeAttribute("PW_VERIFY_TIME");
 
-        return Map.of("success", true, "message", "비밀번호 변경됐어유");
+            return Map.of("success", true, "message", "비밀번호 변경되었습니다");
+
+        } catch (IllegalArgumentException e) {
+            // 👉 형식 오류 / 동일 비밀번호
+            return Map.of("success", false, "message", e.getMessage());
+
+        } catch (Exception e) {
+            // 👉 그 외 서버 오류
+            return Map.of("success", false, "message", "비밀번호 변경 중 오류가 발생했습니다");
+        }
     }
 }

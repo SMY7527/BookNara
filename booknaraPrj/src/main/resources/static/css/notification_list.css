@@ -46,8 +46,8 @@
 }
 .btn:disabled { opacity: .5; cursor: not-allowed; }
 .btn-primary {
-  border-color: #222;
-  background: #222;
+  border-color: #DCA244;
+  background: #DCA244;
   color: #fff;
 }
 
@@ -70,8 +70,8 @@
   cursor: pointer;
 }
 .tab.is-active {
-  border-color: #222;
-  background: #222;
+  border-color: #bfe5c8;
+  background: #bfe5c8;
   color: #fff;
 }
 

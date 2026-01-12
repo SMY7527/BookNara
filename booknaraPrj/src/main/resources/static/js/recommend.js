@@ -1,50 +1,118 @@
-/* [1] 평점 섹션 로직 */
+document.addEventListener("DOMContentLoaded", () => {
+
   const track = document.getElementById("sliderTrack");
   const prevBtn = document.getElementById("prevBtn");
   const nextBtn = document.getElementById("nextBtn");
+
   let index = 0;
-  const maxIndex = 6; // 10권 - 4권 노출
+  let maxIndex = 0;
+
+/* =========================
+   최근 본 책 사이드바
+========================= */
+
+function renderRecentBooks() {
+  const container = document.getElementById("recentBookList");
+  if (!container) return;
+
+  const recent = JSON.parse(localStorage.getItem("recentBooks")) || [];
+  container.innerHTML = "";
+
+  recent.forEach(book => {
+    const item = document.createElement("a");
+    item.className = "side-item";
+    item.href = `/book/detail/${book.isbn13}`;
+
+    item.innerHTML = `
+      <img src="${book.bookImg}" alt="최근 본 책">
+    `;
+
+    container.appendChild(item);
+  });
+}
+
+  renderRecentBooks();
+
 
   function updateSlider() {
     track.style.transform = `translateX(-${index * (260 + 24)}px)`;
     prevBtn.disabled = index === 0;
     nextBtn.disabled = index === maxIndex;
   }
-  prevBtn.onclick = () => { if (index > 0) { index--; updateSlider(); }};
-  nextBtn.onclick = () => { if (index < maxIndex) { index++; updateSlider(); }};
-  updateSlider();
 
-  /* [2] ⭐ 연령대/성별 섹션 로직 (최종 완성) */
-  const ageData = [
-    { age: "10대 남성", books: ["정의란 무엇인가", "사피엔스", "군주론", "죽음의 수용소에서", "차라투스트라", "인문학"] },
-    { age: "10대 여성", books: ["데미안", "어린왕자", "호밀밭의 파수꾼", "참을 수 없는", "채식주의자", "소년이 온다"] },
-    { age: "20대 남성", books: ["정의란 무엇인가", "사피엔스", "군주론", "죽음의 수용소에서", "차라투스트라", "인문학"] },
-    { age: "20대 여성", books: ["달러구트", "불편한 편의점", "미드나잇", "우리가 빛의", "시선으로부터", "물고기는"] },
-    { age: "30대 남성", books: ["머니 트렌드", "역행자", "부의 시나리오", "타이탄의 도구들", "지적 대화", "생각에 관한"] },
-    { age: "30대 여성", books: ["보건교사", "친밀한 이방인", "밝은 밤", "가재가 노래하는", "쇼코의 미소", "오늘 밤"] },
-    { age: "40대 남성", books: ["총 균 쇠", "코스모스", "명상록", "손자병법", "이기적 유전자", "역사의 쓸모"] },
-    { age: "40대 여성", books: ["마흔에 읽는 니체", "모든 삶은 흐른다", "인생의 기술", "파친코", "아몬드", "어떤 죽음이"] },
-    { age: "50대 남성", books: ["백년을 살아보니", "징비록", "서양미술사", "삼국지", "로마인 이야기", "칼의 노래"] },
-    { age: "50대 여성", books: ["토지", "혼불", "태백산맥", "나의 문화유산", "장자", "논어"] },
-    { age: "60대 남성", books: ["그리스 로마", "목민심서", "난중일기", "대한민국 100년", "세계사 편력", "국가란 무엇인가"] },
-    { age: "60대 여성", books: ["시집", "수필집", "성경", "불교 성전", "정원 가꾸기", "건강 백과"] }
-  ];
+  prevBtn.onclick = () => {
+    if (index > 0) {
+      index--;
+      updateSlider();
+    }
+  };
+
+  nextBtn.onclick = () => {
+    if (index < maxIndex) {
+      index++;
+      updateSlider();
+    }
+  };
+
+  // ⭐ 평점 TOP 도서 불러오기
+  fetch("/api/recommend/rating")
+    .then(res => res.json())
+    .then(books => {
+
+      track.innerHTML = "";
+      index = 0;
+
+      books.forEach(book => {
+        const card = document.createElement("a");
+        card.className = "book-card";
+        card.href = `/book/detail/${book.isbn13}`;
+        card.innerHTML = `
+          <img src="${book.naverImage}"
+               alt="${book.bookTitle}"
+               title="${book.bookTitle} · 평점 ${book.ratingAvg}">
+        `;
+
+        track.appendChild(card);
+      });
+
+      //
+      const visibleCount = 4;
+      maxIndex = Math.max(0, books.length - visibleCount);
+
+      updateSlider(); //
+    });
+
+});
+
+  /* [2]  연령대/성별 섹션 로직  */
 
   const ageTrack = document.getElementById('ageTrack');
   const ageDotsContainer = document.getElementById('ageDots');
   const agePrevBtn = document.getElementById('agePrevBtn');
   const ageNextBtn = document.getElementById('ageNextBtn');
 
+  let ageData = [];
   let currentIdx = 2; // 20대 남성 초기 설정
+
 
   function initAgeSlider() {
     ageData.forEach((item, i) => {
       // 카드 생성
       const card = document.createElement('div');
       card.className = `age-card`;
-      card.innerHTML = `<h3>${item.age}</h3><ul>${item.books.map(b => `<li>${b}</li>`).join('')}</ul>`;
-      ageTrack.appendChild(card);
-
+card.innerHTML = `
+  <h3>${item.age}</h3>
+  <ul>
+    ${item.books.map(book => `
+      <li>
+        <a href="/book/detail/${book.isbn}">
+          ${book.title}
+        </a>
+      </li>
+    `).join("")}
+  </ul>
+`;      ageTrack.appendChild(card);
+console.log(ageData);
       // 점 생성
       const dot = document.createElement('div');
       dot.className = `dot`;
@@ -62,7 +130,7 @@
     const cardWidth = 260; // 카드(230) + 마진(15*2)
     const viewportWidth = 1300;
 
-    // ⭐ 중앙 정렬 계산 공식
+    // 중앙 정렬 계산 공식
     // 뷰포트 절반(650)에서 카드 절반(130)을 뺀 위치가 "0번 카드가 중앙에 올 때"의 기준점입니다.
     const centerOffset = (viewportWidth / 2) - (cardWidth / 2);
     const moveX = centerOffset - (index * cardWidth);
@@ -83,4 +151,67 @@
   agePrevBtn.onclick = () => { if(currentIdx > 0) moveAge(currentIdx - 1); };
   ageNextBtn.onclick = () => { if(currentIdx < ageData.length - 1) moveAge(currentIdx + 1); };
 
-  initAgeSlider();
+  fetch("/api/recommend/age-gender")
+    .then(res => res.json())
+    .then(res => {
+      ageData = res.data;      //  전역 변수에 주입
+      initAgeSlider();         //  데이터 받은 뒤 슬라이더 초기화
+    })
+    .catch(err => {
+      console.error("연령대/성별 추천 불러오기 실패", err);
+    });
+
+
+    /*대여순*/
+    fetch("/api/recommend/rental")
+      .then(res => res.json())
+      .then(books => {
+        const list = document.getElementById("rentalList");
+        list.innerHTML = "";
+
+        books.forEach(book => {
+          const item = document.createElement("a");
+          item.href = `/book/detail/${book.isbn13}`;
+          item.className = "rental-item";
+
+          item.innerHTML = `
+            <div class="book-cover">
+              <img src="${book.bookImg}" alt="${book.bookTitle}">
+            </div>
+            <div class="book-info">
+              <p class="title">${book.bookTitle}</p>
+              <p class="author">${book.authors}·${book.publisher}</p>
+            </div>
+          `;
+
+          list.appendChild(item);
+        });
+      });
+
+
+      /*월간베스트셀러*/
+      fetch("/api/recommend/bestseller")
+        .then(res => res.json())
+        .then(books => {
+          const list = document.getElementById("bestsellerList");
+          list.innerHTML = "";
+
+          books.forEach(book => {
+            const item = document.createElement("a");
+            item.href = `/book/detail/${book.isbn13}`;
+            item.className = "rental-item"; //  통일
+
+            item.innerHTML = `
+              <div class="book-cover">
+                <img src="${book.bookImg}" alt="${book.bookTitle}">
+              </div>
+              <div class="book-info">
+                <p class="title">${book.bookTitle}</p>
+                <p class="author">${book.authors} · ${book.publisher}</p>
+              </div>
+            `;
+
+            list.appendChild(item);
+          });
+        });
+

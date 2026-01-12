@@ -82,7 +82,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const email = findIdEmail.value.trim();
 
       if (!name || !email) {
-        findIdMsg.textContent = "이름이랑 이메일 다 입력혀유";
+        findIdMsg.textContent = "이름이랑 이메일 다 입력해주세요";
         findIdMsg.className = "msg";
         return;
       }
@@ -113,7 +113,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const email = findPwEmail.value.trim();
 
       if (!userId || !email) {
-        sendCodeMsg.textContent = "아이디랑 이메일 다 써유";
+        sendCodeMsg.textContent = "아이디랑 이메일 모두 입력해주세요";
         sendCodeMsg.className = "msg";
         return;
       }
@@ -131,7 +131,7 @@ document.addEventListener("DOMContentLoaded", () => {
           startTimer();
         })
         .catch(() => {
-          sendCodeMsg.textContent = "요청 실패";
+          sendCodeMsg.textContent = "정보를 찾을 수 없습니다";
           sendCodeMsg.className = "msg";
         });
     });
@@ -145,7 +145,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const code = verifyCode.value.trim();
 
       if (!code) {
-        verifyMsg.textContent = "인증코드 입력혀유";
+        verifyMsg.textContent = "인증코드 입력하세요";
         verifyMsg.className = "msg";
         return;
       }
@@ -165,7 +165,7 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         })
         .catch(() => {
-          verifyMsg.textContent = "요청 실패";
+          verifyMsg.textContent = "인증번호가 다릅니다";
           verifyMsg.className = "msg";
         });
     });
@@ -202,14 +202,14 @@ document.addEventListener("DOMContentLoaded", () => {
           resetPwMsg.className = data.success ? "msg success" : "msg";
 
           if (data.success) {
-            alert("비밀번호 변경 완료!");
+            alert("비밀번호 변경 완료");
             location.href = "/users/login";
           }
         })
-        .catch(() => {
-          resetPwMsg.textContent = "요청 실패";
-          resetPwMsg.className = "msg";
-        });
+//        .catch(() => {
+//          resetPwMsg.textContent = "올바른 형식이 아닙니다";
+//          resetPwMsg.className = "msg";
+//        });
     });
   }
 

@@ -12,13 +12,9 @@
 <!-- 패널 -->
 <aside id="addressPanel" class="side-panel" aria-hidden="true">
     <div class="side-panel__header">
-        <h3 class="side-panel__title">주소를 추가할까유?</h3>
+        <h3 class="side-panel__title">주소를 추가하시겠습니까?</h3>
         <button type="button" class="side-panel__close" onclick="closeAddressPanel()" aria-label="닫기">✕</button>
     </div>
-
-    <p class="side-panel__desc">
-        선택사항이여유. 나중에 마이페이지에서도 언제든 추가할 수 있어유.
-    </p>
 
     <form class="side-panel__form"
           onsubmit="event.preventDefault(); submitAddress();">
@@ -26,17 +22,17 @@
 
         <label class="field">
             <span class="field__label">우편번호</span>
-            <input class="field__input" type="text" name="zipcode" placeholder="예) 12345">
+            <input class="field__input" type="text" name="zipcode" placeholder="예) 12345" readonly>
         </label>
 
         <label class="field">
             <span class="field__label">주소</span>
-            <input class="field__input" type="text" name="addr" placeholder="예) 대전광역시 ...">
+            <input class="field__input" type="text" name="addr" placeholder="예) 대전광역시 ..." readonly>
         </label>
 
         <label class="field">
             <span class="field__label">상세주소</span>
-            <input class="field__input" type="text" name="detailAddr" placeholder="예) 101동 202호">
+            <input class="field__input" type="text" name="detailAddr" placeholder="예) 101동 202호" required>
         </label>
 
         <div class="side-panel__actions">
@@ -48,11 +44,8 @@
 
 <!-- 선호 장르 영역 -->
 <section id="genreSection" class="genre-section" hidden>
-        <h2 class="genre-title">선호 장르 골라봐유 📚</h2>
-        <p class="genre-desc">
-            최대 3개까지 선택할 수 있어유.<br>
-            다시 누르면 취소도 돼유 🙂
-        </p>
+        <h2 class="genre-title">선호하는 장르 선택 (최대 3개) 📚</h2>
+
 
         <div class="genre-grid">
             <div class="genre-card" data-genre-id="1">소설</div>

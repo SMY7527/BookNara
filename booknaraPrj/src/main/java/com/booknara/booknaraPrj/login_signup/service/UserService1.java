@@ -4,6 +4,7 @@ import com.booknara.booknaraPrj.login_signup.User;
 import com.booknara.booknaraPrj.login_signup.dto.SignupRequest;
 import com.booknara.booknaraPrj.login_signup.dto.SocialAccount;
 import com.booknara.booknaraPrj.login_signup.mapper.SocialAccountMapper;
+import com.booknara.booknaraPrj.login_signup.mapper.UserMallangMapper;
 import com.booknara.booknaraPrj.login_signup.mapper.UserMapper;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,7 @@ import static com.booknara.booknaraPrj.security.oauth.SocialLinkSessionKey.*;
 public class UserService1 {
 
     private final UserMapper userMapper;
+    private final UserMallangMapper userMallangMapper;
     private final PasswordEncoder passwordEncoder;
     private final SocialAccountMapper socialAccountMapper;
     //회원가입
@@ -57,6 +59,7 @@ public class UserService1 {
 
 
         userMapper.insertUser(user);
+        userMallangMapper.insertRandomMallang(user.getUserId());
     }
 
 
@@ -84,23 +87,23 @@ public class UserService1 {
                 "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{8,16}$";
 
         if (!password.matches(pwRegex)) {
-            throw new IllegalArgumentException("비밀번호 규칙이 안 맞아유");
+            throw new IllegalArgumentException("비밀번호 형식이 올바르지 않습니다");
         }
 
         // 3. 이름 필수
         if (name == null || name.isBlank()) {
-            throw new IllegalArgumentException("이름은 필수여유");
+            throw new IllegalArgumentException("이름은 필수입니다");
         }
 
         // 4. 아이디 중복 (⭐ 서버에서 최종)
         if (userMapper.countByUserId(userId) > 0) {
-            throw new IllegalArgumentException("이미 사용 중인 아이디여유");
+            throw new IllegalArgumentException("이미 사용 중인 아이디입니다");
         }
 
         // 5. 이메일 (선택이면 형식만)
         if (email != null && !email.isBlank()) {
             if (!email.matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
-                throw new IllegalArgumentException("이메일 형식이 이상해유");
+                throw new IllegalArgumentException("이메일 형식이 올바르지 않습니다");
             }
         }
 
@@ -124,11 +127,11 @@ public class UserService1 {
         User user = userMapper.findByUserId(userId);
 
         if (user == null) {
-            throw new IllegalArgumentException("아이디가 없어요");
+            throw new IllegalArgumentException("존재하지 않는 아이디입니다");
         }
 
         if (!passwordEncoder.matches(rawPassword, user.getPassword())) {
-            throw new IllegalArgumentException("비밀번호가 틀려유");
+            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다");
         }
 
         return user;
@@ -217,15 +220,28 @@ public class UserService1 {
 
     public void resetPassword(String userId, String password) {
 
-        // 비밀번호 유효성 검사
+        // 1️⃣ 비밀번호 유효성 검사 (기존 거 그대로 사용 👍)
         String regex = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{8,16}$";
         if (!password.matches(regex)) {
-            throw new IllegalArgumentException("비밀번호 형식 오류");
+            throw new IllegalArgumentException("올바르지 않은 형식입니다");
         }
 
-        String encoded = passwordEncoder.encode(password);
+        // 2️⃣ 기존 암호화 비밀번호 조회
+        String oldEncodedPw = userMapper.findPasswordByUserId(userId);
 
+        if (oldEncodedPw == null) {
+            throw new IllegalStateException("사용자 정보가 없습니다");
+        }
+
+        // ⭐ 3️⃣ 기존 비밀번호와 동일한지 체크 (핵심)
+        if (passwordEncoder.matches(password, oldEncodedPw)) {
+            throw new IllegalArgumentException("기존 비밀번호와 동일한 비밀번호는 사용할 수 없습니다");
+        }
+
+        // 4️⃣ 암호화 후 업데이트
+        String encoded = passwordEncoder.encode(password);
         int updated = userMapper.updatePassword(userId, encoded);
+
         if (updated != 1) {
             throw new IllegalStateException("비밀번호 변경 실패");
         }

@@ -588,28 +588,56 @@
 </div>
 
 <script th:inline="javascript">
+
+    const initialBookmarkedYn = /*[[${view.bookmarkedYn}]]*/ "N";
+    const isbn13 = /*[[${view.bookDetailDTO.isbn13}]]*/ "";
+
+    const btn = document.getElementById('btnBookmark');
+    const iconEl = document.getElementById('bookmarkIcon');
+    const textEl = document.getElementById('bookmarkText');
+    const cntEl  = document.getElementById('bookmarkCnt');
+    //최근본책 저장
+
     document.addEventListener("DOMContentLoaded", () => {
+  saveRecentBook({
+    isbn13: isbn13,
+    bookImg: document.querySelector(".cover img")?.src
+  });
+});
+    function saveRecentBook(book) {
+  let recent = JSON.parse(localStorage.getItem("recentBooks")) || [];
 
-        let lastReviewItems = [];
+  recent = recent.filter(item => item.isbn13 !== book.isbn13);
+  recent.unshift(book);
 
-        const isbn13 = /*[[${view.bookDetailDTO.isbn13}]]*/ "";
-        const initialBookmarkedYn = /*[[${view.bookmarkedYn}]]*/ "N";
+  if (recent.length > 3) recent.length = 3;
 
-        let reviewPage = 1;
-        const reviewSize = 5;
+  localStorage.setItem("recentBooks", JSON.stringify(recent));
+}
 
-        // -----------------------------
-        // 공통
-        // -----------------------------
-        function goLoginReturnHere() {
-            const returnUrl = location.pathname + location.search + location.hash;
-            location.href = "/users/login?redirect=" + encodeURIComponent(returnUrl);
+    function renderBookmark(yn){
+        if(yn === 'Y'){
+            iconEl.textContent = '★';
+            textEl.textContent = '북마크됨';
+        }else{
+            iconEl.textContent = '☆';
+            textEl.textContent = '북마크';
         }
+    }
+    renderBookmark(initialBookmarkedYn);
 
-        async function fetchJson(url, options = {}, onAuth = "silent") {
-            const res = await fetch(url, {
-                headers: {"Accept": "application/json", ...(options.headers || {})},
-                ...options
+    function goLoginReturnHere(){
+        const returnUrl = location.pathname + location.search + location.hash;
+        location.href = "/users/login?redirect=" + encodeURIComponent(returnUrl);
+    }
+
+    async function toggleBookmark(){
+        btn.disabled = true;
+
+        try{
+            const res = await fetch(`/api/bookmarks/${encodeURIComponent(isbn13)}/toggle`, {
+                method: 'POST',
+                headers: { 'Accept': 'application/json' }
             });
 
             const ct = res.headers.get("content-type") || "";

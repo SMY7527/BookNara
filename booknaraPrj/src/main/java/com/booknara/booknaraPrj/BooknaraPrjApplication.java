@@ -33,7 +33,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
         "com.booknara.booknaraPrj.mypage.event",
         "com.booknara.booknaraPrj.mypage.info",
         "com.booknara.booknaraPrj.mypage.myinquiry",
-        "com.booknara.booknaraPrj.mypage.withdraw"
+        "com.booknara.booknaraPrj.mypage.withdraw",
+        "com.booknara.booknaraPrj.recommend.mapper",
 })
 public class BooknaraPrjApplication {
 

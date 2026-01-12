@@ -5,16 +5,32 @@
 
 <mapper namespace="com.booknara.booknaraPrj.login_signup.mapper.UserPreferGenreMapper">
 
+    <!-- =========================
+         회원가입 시 선호 장르 저장
+         ========================= -->
     <insert id="insert">
         INSERT INTO USER_PREFER_GENRE (
         USER_ID,
         GENRE_ID,
-        USE_YN
+        USE_YN,
+        CREATED_AT
         ) VALUES (
         #{userId},
         #{genreId},
-        'Y'
+        'Y',
+        NOW()
         )
     </insert>
+
+    <!-- =========================
+         로그인 후 말랑이픽용 조회
+         ========================= -->
+    <select id="findActiveGenreIdsByUserId" resultType="int">
+        SELECT GENRE_ID
+        FROM USER_PREFER_GENRE
+        WHERE USER_ID = #{userId}
+        AND USE_YN = 'Y'
+        ORDER BY CREATED_AT ASC
+    </select>
 
 </mapper>

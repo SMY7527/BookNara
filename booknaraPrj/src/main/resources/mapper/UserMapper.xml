@@ -143,4 +143,11 @@ WHERE PROFILE_NM = #{profileNm}
         SET PASSWORD = #{password}
         WHERE USER_ID = #{userId}
     </update>
+
+    <!--비밀번호 업데이트-->
+    <select id="findPasswordByUserId" resultType="string">
+        SELECT PASSWORD
+        FROM USERS
+        WHERE USER_ID = #{userId}
+    </select>
 </mapper>

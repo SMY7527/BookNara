@@ -10,7 +10,29 @@
 .header {
   width: 100%;
   border-bottom: 1px solid #ddd;
+  position: sticky;
+    top: 0;
+    z-index: 9999;
+
+    width: 100%;
+    border-bottom: 1px solid #ddd;
+    background: #fff;   /* ⭐ 중요 (투명 방지) */
+  }
+  .header.scrolled {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
 }
+a{
+  text-decoration: none;
+  color: inherit;
+  }
+  a,
+  a:link,
+  a:visited,
+  a:hover,
+  a:active {
+    text-decoration: none !important;
+  }
 
 .header-inner {
   width:100%;
@@ -39,8 +61,9 @@
   left: 50%;
   transform: translateX(-50%);
   display: flex;
-  gap: 43px;
+  gap: clamp(10px, 3vw, 43px);
   font-size: 15px;
+  white-space: nowrap;
 }
 .nav a {
   text-decoration: none;  /* 밑줄 제거 */
@@ -180,6 +203,14 @@
 .profile-row:hover .user-dropdown {
   display: block;
 }
+.profile-img img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;   /* ⭐ 핵심 */
+  display: block;
+}
+
 
 /* 구분선 */
 .divider {
@@ -230,8 +261,9 @@ gap:15px
   flex: 1;
   border: none;
   background: transparent;
-  font-size: 16px;
+  font-size: 11px;
   outline: none;
+  background-color: transparent;
 }
 .search-btn {
   width: 15px;
@@ -471,4 +503,46 @@ gap:15px
   border: none;
   cursor: pointer;
   color: #333;
+}
+
+
+@media (max-width: 768px) {
+  .header-inner {
+    flex-direction: column; /* 세로 정렬 */
+    gap: 20px;
+    padding: 10px;
+    margin-top:15px;
+  }
+
+  .nav {
+    order: 2; /* 메뉴를 아래로 */
+    width: 100%;
+    justify-content: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+
+  .logo {
+    padding-left: 0;
+    order: 1;
+    margin-top:15px;
+  }
+
+  .right {
+    order: 3;
+    width: 100%;
+    align-items: center;
+  }
+
+  .search-bar {
+    width: 100%; /* 검색바를 가득 채움 */
+    max-width: 300px;
+  }
+
+  .alarm-panel {
+    width: 90vw; /* 알림창 너비를 화면 너비에 맞춤 */
+    position: fixed;
+    top: 60px;
+    right: 5vw;
+  }
 }

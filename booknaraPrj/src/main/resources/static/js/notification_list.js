@@ -59,19 +59,19 @@ const NOTI_META = {
     tab: 'SYSTEM',
     icon: 'lend_expiration_noti',
     title: '반납 기한',
-    href: () => '/my/library'
+    href: () => '/my/booklist'
   },
   PAST_DUE: {
     tab: 'SYSTEM',
     icon: 'past_due_noti',
     title: '연체',
-    href: () => '/my/library'
+    href: () => '/my/booklist'
   },
   RESERVATION_AVAILABLE: {
     tab: 'SYSTEM',
     icon: 'resv_noti',
     title: '예약 도서',
-    href: (n) => `/books/${n.targetId}`
+    href: (n) => `/book/detail/${n.targetId}`
   },
   FEED_COMMENT: {
     tab: 'COMMUNITY',

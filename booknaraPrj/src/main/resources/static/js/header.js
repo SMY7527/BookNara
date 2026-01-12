@@ -138,21 +138,21 @@ const NOTI_META = {
     tab: 'SYSTEM',
     icon: 'lend_expiration_noti',
     title: '반납 기한',
-    href: () => '/my/library' // 내 서재
+    href: () => '/my/booklist' // 내 서재
   },
 
   PAST_DUE: {
     tab: 'SYSTEM',
     icon: 'past_due_noti',
     title: '연체',
-    href: () => '/my/library' // 내 서재
+    href: () => '/my/booklist' // 내 서재
   },
 
   RESERVATION_AVAILABLE: {
     tab: 'SYSTEM',
     icon: 'resv_noti',
     title: '예약 도서',
-    href: (n) => `/books/${n.targetId}` // 도서 상세 페이지
+    href: (n) => `/book/detail/${n.targetId}` // 도서 상세 페이지
   },
 
   FEED_COMMENT: {
@@ -180,7 +180,7 @@ const NOTI_META = {
     tab: 'SYSTEM',
     icon: 'restricted_noti',
     title: '계정 제한',
-    href: () => '#' // 밴 사유 페이지
+    href: () => '#' // 밴 사유 페이지 - 추가 예정
   },
 
   ADMIN_MESSAGE: {

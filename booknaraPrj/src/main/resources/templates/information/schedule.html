@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>배송/반납 일정 안내</title>
+
+    <link rel="stylesheet" th:href="@{/css/common.css}" />
+    <link rel="stylesheet" th:href="@{/css/schedule.css}" />
+  </head>
+  <body>
+    <header id="siteHeader"></header>
+
+    <main class="container">
+      <h2 class="page-title">배송/반납 일정 안내</h2>
+
+      <section class="card top">
+        <div class="top-left">
+          <div class="top-title">지역/방법에 따라 회수·배송 일정이 달라요</div>
+          <div class="top-sub">
+            아래에서 지역을 선택하면 “발송일/회수일”을 한눈에 볼 수 있어요.
+          </div>
+        </div>
+
+        <div class="top-right">
+          <div class="mini">
+            <div class="mini-k">기본 규칙</div>
+            <div class="mini-v">
+              평일 기준<br />
+              <b>발송 마감 15:00</b><br />
+              (공휴일/택배사 사정에 따라 변동)
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card controls">
+        <div class="row">
+          <div class="seg" id="seg">
+            <button type="button" class="seg-btn active" data-mode="ship">
+              배송(발송)
+            </button>
+            <button type="button" class="seg-btn" data-mode="pickup">
+              반납(회수)
+            </button>
+          </div>
+
+          <div class="select">
+            <label class="label">지역</label>
+            <select id="regionSel"></select>
+          </div>
+        </div>
+
+        <div class="note" id="note"></div>
+      </section>
+
+      <section class="grid">
+        <div class="card info">
+          <div class="sec-title">이번 주 일정</div>
+          <div id="weekList" class="week"></div>
+        </div>
+
+        <div class="card info">
+          <div class="sec-title">자주 생기는 상황</div>
+          <ul class="bullets">
+            <li>공휴일 전후에는 1~2일 지연될 수 있어요.</li>
+            <li>반납 접수 후 회수는 지역/기사 일정에 따라 변동될 수 있어요.</li>
+            <li>수거함 반납은 “수거함 수거일” 기준으로 처리돼요.</li>
+          </ul>
+          <div class="actions">
+            <a class="ghost-btn" href="/root/guide-page/flow.html"
+              >대여·반납 한눈에 보기</a
+            >
+            <a class="primary-btn" href="/root/inquiry-page/inquiry.html"
+              >1:1 문의</a
+            >
+          </div>
+        </div>
+      </section>
+
+      <section class="card table-card">
+        <div class="sec-title">지역별 예시(기본값)</div>
+        <div class="muted">
+          * 실제 운영에서는 관리자 페이지/DB로 관리하는 영역입니다. 지금은 샘플
+          데이터예요.
+        </div>
+
+        <div class="table-wrap">
+          <table class="tbl">
+            <thead>
+              <tr>
+                <th>지역</th>
+                <th>배송(발송)</th>
+                <th>반납(회수)</th>
+                <th>수거함 수거</th>
+              </tr>
+            </thead>
+            <tbody id="tblBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <div class="bottom-actions">
+        <a class="ghost-btn" href="/root/guide-page/guide.html">이용안내로</a>
+      </div>
+    </main>
+
+    <script th:src="@{/js/common.js}" defer></script>
+    <script th:src="@{/js/schedule.js}" defer></script>
+  </body>
+</html>

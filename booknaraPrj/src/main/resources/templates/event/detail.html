@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>이벤트 상세</title>
+
+    <link rel="stylesheet" th:href="@{/css/common.css}" />
+    <link rel="stylesheet" th:href="@{/css/eventDetail.css}" />
+</head>
+
+<body>
+<header class="site-header">
+    <div class="header-inner">헤더</div>
+</header>
+
+<main class="container">
+    <h2 class="page-title">이벤트 상세</h2>
+
+    <section class="card" id="detail">
+        <!-- ✅ 배너(상세 이미지) -->
+        <div class="hero">
+            <img
+                    th:src="${(event.images != null and !event.images.isEmpty()) ? event.images[0].imgUrl : '/images/default-event.jpg'}"
+                    th:alt="${event.eventTitle}" />
+        </div>
+
+        <!-- ✅ 본문 -->
+        <div class="content">
+            <div class="kicker">
+                <!-- tab을 상세에서 안 넘겨도 기본 진행중 -->
+                <span class="badge"
+                      th:text="${tab != null ? (tab == 'ongoing' ? '진행중' : (tab == 'closing' ? '마감임박' : '마감')) : '진행중'}">
+          진행중
+        </span>
+
+                <span class="meta"
+                      th:text="${#temporals.format(event.startAt,'yyyy.MM.dd')} + ' ~ ' + ${#temporals.format(event.endAt,'MM.dd')}">
+          2026.01.01 ~ 01.31
+        </span>
+            </div>
+
+            <h3 class="title" th:text="${event.eventTitle}">이벤트 제목</h3>
+
+            <p class="text" th:text="${event.eventContent}">
+                이벤트 설명
+            </p>
+        </div>
+    </section>
+
+    <div class="actions">
+        <button class="ghost-btn" type="button" onclick="history.back()">
+            목록으로
+        </button>
+    </div>
+</main>
+
+</body>
+</html>

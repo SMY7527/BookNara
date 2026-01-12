@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>이용안내</title>
+    <link rel="stylesheet" th:href="@{/css/common.css}" />
+    <link rel="stylesheet" th:href="@{/css/guide.css}" />
+    
+  </head>
+  <body>
+    <header id="siteHeader"></header>
+
+    <main class="container">
+      <h2 class="page-title">이용안내</h2>
+
+      <section class="guide-card">
+        <div class="guide-top">
+          <div class="search">
+            <input id="searchInput" type="text" placeholder="검색어 입력" />
+            <button id="searchBtn" type="button" aria-label="검색">🔍</button>
+          </div>
+        </div>
+
+        <ul id="guideList" class="guide-list"></ul>
+
+        <div id="paging" class="paging"></div>
+      </section>
+    </main>
+
+    <script th:src="@{/js/common.js}" defer></script>
+
+    <script th:src="@{/js/guide.js}" defer></script>
+  </body>
+</html>

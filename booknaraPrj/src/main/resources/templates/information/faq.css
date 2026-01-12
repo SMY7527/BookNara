@@ -1,0 +1,258 @@
+:root {
+  --bg: #f6f7fb;
+  --card: #ffffff;
+  --line: #e6e8ef;
+  --text: #111827;
+  --muted: #6b7280;
+  --brand: #d7a24a;
+  --accent: #2563eb;
+  --radius: 16px;
+}
+
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans KR",
+    sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* 헤더 */
+.site-header {
+  background: linear-gradient(90deg, var(--brand), #e7b35a);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+.header-inner {
+  max-width: var(--wrap);
+  margin: 0 auto;
+  padding: 18px 16px;
+  font-weight: 900;
+  text-align: center;
+}
+
+/* 레이아웃 */
+.container {
+  max-width: var(--wrap);
+  margin: 28px auto;
+  padding: 0 16px 60px;
+}
+.page-title {
+  margin: 6px 0 18px;
+  text-align: center;
+  font-size: 28px;
+  font-weight: 900;
+}
+
+/* 카드 */
+.faq-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: 0 8px 30px rgba(17, 24, 39, 0.06);
+  padding: 18px;
+}
+
+/* 검색 */
+.faq-top {
+  display: flex;
+  justify-content: center;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--line);
+}
+.search {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.search input {
+  width: 360px;
+  padding: 12px 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  outline: none;
+  background: #fff;
+}
+.search input:focus {
+  border-color: rgba(37, 99, 235, 0.35);
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+}
+.search button {
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #fff;
+  cursor: pointer;
+  transition: 0.15s ease;
+}
+.search button:hover {
+  background: #f3f4f6;
+  transform: translateY(-1px);
+}
+
+/* 리스트 */
+.faq-list {
+  list-style: none;
+  padding: 14px 0 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* FAQ 아이템(아코디언) */
+.faq-item {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #fff;
+  overflow: hidden;
+  transition: 0.15s ease;
+}
+.faq-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(17, 24, 39, 0.08);
+  border-color: rgba(37, 99, 235, 0.25);
+}
+
+.faq-q {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 14px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+}
+
+.q-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.badge {
+  font-weight: 900;
+  font-size: 12px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(215, 162, 74, 0.15);
+  color: #8a5a12;
+  border: 1px solid rgba(215, 162, 74, 0.25);
+  white-space: nowrap;
+}
+.q-title {
+  font-weight: 900;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chev {
+  color: var(--muted);
+  font-weight: 900;
+  transition: transform 0.15s ease;
+}
+
+/* 답변 영역 */
+.faq-a {
+  display: none;
+  padding: 0 14px 14px;
+  color: #374151;
+  line-height: 1.6;
+}
+.faq-a .answer-box {
+  border-top: 1px dashed var(--line);
+  padding-top: 12px;
+  margin-top: 2px;
+}
+
+/* 열림 상태 */
+.faq-item.open .faq-a {
+  display: block;
+}
+.faq-item.open .chev {
+  transform: rotate(180deg);
+}
+
+/* 더보기 */
+.more-btn {
+  width: 100%;
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: #fff;
+  font-weight: 900;
+  cursor: pointer;
+  transition: 0.15s ease;
+}
+.more-btn:hover {
+  background: #f9fafb;
+  transform: translateY(-1px);
+}
+.more-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* 모바일 */
+@media (max-width: 520px) {
+  .page-title {
+    font-size: 22px;
+  }
+  .search input {
+    width: 220px;
+  }
+}
+.top-wrap {
+  margin-top: 14px;
+  padding: 14px;
+  border: 1px solid rgba(215, 162, 74, 0.35);
+  background: rgba(215, 162, 74, 0.1);
+  border-radius: 14px;
+}
+
+.top-title {
+  font-weight: 900;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.paging {
+  margin-top: 16px;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  user-select: none;
+}
+.page-btn {
+  min-width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #fff;
+  cursor: pointer;
+  font-weight: 900;
+  color: #111;
+  transition: 0.15s ease;
+}
+.page-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(17, 24, 39, 0.06);
+}
+.page-btn.active {
+  background: rgba(37, 99, 235, 0.1);
+  border-color: rgba(37, 99, 235, 0.25);
+  color: var(--accent);
+}

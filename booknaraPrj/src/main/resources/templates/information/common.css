@@ -1,0 +1,198 @@
+:root {
+  --wrap: 1280px;
+  --bg: #f6f7fb;
+  --card: #ffffff;
+  --text: #111827;
+  --muted: #6b7280;
+  --line: #e5e7eb;
+
+  /* 말랑 톤 */
+  --brand: #d4a24d; /* 헤더 골드 */
+  --brand-dark: #b98733;
+  --accent: #2563eb; /* 버튼/링크 */
+  --radius: 18px;
+}
+
+* {
+  box-sizing: border-box;
+}
+html,
+body {
+  height: 100%;
+}
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans KR",
+    sans-serif;
+  color: var(--text);
+  background: var(--bg);
+}
+.container {
+  max-width: var(--wrap);
+  margin: 28px auto;
+  padding: 0 16px 60px;
+}
+
+/* ===== 공통 헤더 ===== */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: var(--brand);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+.header-inner {
+  max-width: var(--wrap);
+  margin: 0 auto;
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: #111827;
+  font-weight: 900;
+}
+.brand-badge {
+  width: 38px;
+  height: 38px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 1000;
+}
+.brand-name {
+  font-size: 16px;
+  letter-spacing: -0.2px;
+}
+
+.gnb {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+.gnb a {
+  text-decoration: none;
+  color: #111827;
+  font-weight: 900;
+  font-size: 13px;
+  padding: 9px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.35);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  transition: transform 0.12s ease, background 0.12s ease;
+}
+.gnb a:hover {
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.55);
+}
+.gnb a.active {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.1);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+}
+
+/* ===== 토스트 ===== */
+.toast-root {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  pointer-events: none;
+}
+
+.toast {
+  pointer-events: auto;
+  width: min(360px, calc(100vw - 32px));
+  background: #111827;
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 12px 12px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.25);
+  animation: toastIn 0.18s ease-out;
+}
+
+.toast-msg {
+  font-weight: 800;
+  font-size: 13px;
+  line-height: 1.35;
+  white-space: pre-wrap;
+}
+
+.toast-x {
+  border: none;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  border-radius: 12px;
+  width: 34px;
+  height: 34px;
+  cursor: pointer;
+  font-weight: 900;
+}
+
+.toast-info {
+  background: #111827;
+}
+.toast-success {
+  background: #065f46;
+}
+.toast-warn {
+  background: #92400e;
+}
+.toast-error {
+  background: #991b1b;
+}
+
+.toast.out {
+  animation: toastOut 0.18s ease-in forwards;
+}
+
+@keyframes toastIn {
+  from {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+@keyframes toastOut {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+}
+.home-only {
+  background: transparent !important;
+  border: none !important;
+  padding: 6px !important;
+}
+
+.home-icon {
+  width: 28px;
+  height: 28px;
+  display: block;
+}

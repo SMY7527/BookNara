@@ -98,7 +98,14 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
           }
 
-          card.querySelector(".book-img").src = book.bookImg;
+          console.log(book.naverImage);
+          console.log(book.aladinImageBig);
+
+          if(book.naverImage)
+            card.querySelector(".book-img").src = book.naverImage;
+          else
+            card.querySelector(".book-img").src = book.aladinImageBig;
+          //card.querySelector(".book-img").src = book.bookImg;
           card.querySelector(".book-img").alt = book.bookTitle;
           card.querySelector(".book-title").innerText = book.bookTitle;
           card.querySelector(".book-author").innerText =

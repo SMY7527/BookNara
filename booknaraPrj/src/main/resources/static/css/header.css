@@ -277,8 +277,8 @@ gap:15px
   display: none;
   position: absolute;
   color: #FFF;
-  top: -15%;
-  right: -20%;
+  top: -30%;
+  right: -50%;
   border: 1px solid black;
   border-radius: 50%;
   background-color: red;
@@ -426,9 +426,9 @@ gap:15px
   top: 20px;
 }
 
-.alarm-icon {
-  width: 80px;
-  height: 80px;
+.alarm-item .alarm-icon {
+  width: 60px;
+  height: 60px;
   border-radius: 8px;
   object-fit: contain;
 }

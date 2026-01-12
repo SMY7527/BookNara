@@ -69,6 +69,8 @@ public class SecurityConfig {
                                 "/images/**",
                                 "/favicon.ico",
                                 "/error/*",
+                                "/error",
+                                "/error/**",
                                 "/404"
                         ).permitAll()
                         .requestMatchers(HttpMethod.POST,

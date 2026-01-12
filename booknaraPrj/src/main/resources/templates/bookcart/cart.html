@@ -637,9 +637,15 @@
                 document.getElementById('detail')?.focus();
                 return;
             }
+            // 종이책 포함 → 결제(PAY) 페이지로
+            location.href = '/book/order'; // PAY step
+            return;
         }
-        location.href='/book/order';
+
+        // 전자책만 → 결제(PAY) 페이지로(무료 확정 플로우)
+        location.href = '/book/order'; // PAY step
     }
+
 
     // ✅ 입력될 때마다 버튼 동기화
     document.addEventListener('input', (e)=>{

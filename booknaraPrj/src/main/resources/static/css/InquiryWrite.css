@@ -1,0 +1,99 @@
+/* ===============================
+   문의 작성 (Write)
+   =============================== */
+
+.inquiry-write {
+    width: 700px;
+    margin: 40px auto;
+    background: #fff;
+    border-radius: 10px;
+    padding: 30px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+/* 제목 */
+.inquiry-write .inquiry-title {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 25px;
+    border-bottom: 2px solid #FDBA74;
+    padding-bottom: 10px;
+}
+
+/* 폼 */
+.inquiry-write .inquiry-form .form-row {
+    margin-bottom: 18px;
+}
+
+.inquiry-write .inquiry-form label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: #444;
+}
+
+/* 입력 */
+.inquiry-write .inquiry-form input,
+.inquiry-write .inquiry-form select,
+.inquiry-write .inquiry-form textarea {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    box-sizing: border-box;
+}
+
+.inquiry-write textarea {
+    resize: none;
+}
+
+.inquiry-write input:focus,
+.inquiry-write select:focus,
+.inquiry-write textarea:focus {
+    outline: none;
+    border-color: #FDBA74;
+    box-shadow: 0 0 0 2px rgba(253,186,116,0.2);
+}
+
+/* 버튼 */
+.inquiry-write .form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 25px;
+}
+
+.inquiry-write .btn {
+    min-width: 80px;
+    padding: 8px 16px;
+    font-size: 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+    text-align: center;
+}
+
+/* 취소 */
+.inquiry-write .btn.cancel {
+    background: #f3f3f3;
+    color: #555;
+}
+
+.inquiry-write .btn.cancel:hover {
+    background: #ddd;
+}
+
+/* 등록 */
+.inquiry-write .btn.submit {
+    background: #f59e42;
+
+    color: #fff;
+    font-weight: 600;
+}
+
+.inquiry-write .btn.submit:hover {
+    background: #FDBA74;
+}

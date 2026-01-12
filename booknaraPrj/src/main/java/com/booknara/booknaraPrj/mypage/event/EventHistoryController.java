@@ -32,7 +32,8 @@ public class EventHistoryController {
 
         model.addAttribute("eventList", eventList);
         model.addAttribute("activeEvent", type);
+        model.addAttribute("content", "mypage/eventHistory");
+        return "mypage/mypagelayout";
 
-        return "mypage/eventHistory";
     }
 }

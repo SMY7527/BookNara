@@ -27,15 +27,19 @@ public class MyInquiryController {
         model.addAttribute("inquiryList",
                 inquiryService.getMyInquiry(userId, keyword));
         model.addAttribute("keyword", keyword);
+        model.addAttribute("content", "mypage/InquiryHistory");
+        return "mypage/mypagelayout";
 
-        return "mypage/InquiryHistory";
+
     }
 
     // 문의 작성 화면
     @GetMapping("/write")
-    public String writeForm() {
-        return "mypage/InquiryWrite";
+    public String writeForm(Model model) {
+        model.addAttribute("content", "mypage/InquiryWrite");
+        return "mypage/mypagelayout";
     }
+
 
     // 문의 저장
     @PostMapping

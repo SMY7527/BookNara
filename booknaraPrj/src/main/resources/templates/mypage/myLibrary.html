@@ -1,12 +1,4 @@
-<!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>내 서재</title>
-    <link rel="stylesheet" href="/css/mybooklist.css">
-</head>
-<body>
-
+<th:block th:fragment="content" xmlns:th="http://www.thymeleaf.org">
 <section class="library-wrap">
 
     <!-- 🔹 탭 -->
@@ -93,5 +85,4 @@
     });
 </script>
 
-</body>
-</html>
+</th:block>

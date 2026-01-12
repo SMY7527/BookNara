@@ -37,6 +37,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 //        "com.booknara.booknaraPrj.mypage.myinquiry",
 //        "com.booknara.booknaraPrj.mypage.withdraw"
 //})
+
 public class BooknaraPrjApplication {
 
 	public static void main(String[] args) {

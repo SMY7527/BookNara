@@ -23,4 +23,6 @@ public interface BookDetailMapper {
      * - 반환 Map keys: mall, genreId, genreNm, parentId, parentNm
      */
     Map<String, Object> selectGenreSelfAndParent(@Param("genreId") Integer genreId);
+    int existsByIsbn(@Param("isbn13") String isbn13);
+
 }

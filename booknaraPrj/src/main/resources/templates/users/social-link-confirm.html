@@ -1,22 +1,30 @@
 <!doctype html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
+    <link rel="stylesheet" th:href="@{/css/social-link-confirm.css}">
     <meta charset="UTF-8">
     <title>소셜 연동</title>
 </head>
 <body>
-<h2>🔐 기존 계정이 있어유</h2>
-<p>이메일: <b th:text="${email}"></b></p>
-<p>이 계정과 소셜 로그인을 연동할까요?</p>
+<div class="container">
+<!--    <div>-->
+<!--        <img th:src="@{/images/mallang/socialmallang.png}" alt="상단 배너" class="banner-img">-->
+<!--    </div>-->
 
-<form th:action="@{/users/social/link}" method="post" style="display:inline;">
-    <button type="submit">연동하기</button>
-</form>
+    <h2>🔐 기존 계정이 있습니다</h2>
 
-<form th:action="@{/users/social/link-cancel}" method="post" style="display:inline;">
-    <button type="submit">취소</button>
-</form>
+    <p>이메일: <b th:text="${email}">example@mail.com</b></p>
+    <p>이 계정과 소셜 로그인을 연동할까요?</p>
+
+    <div class="button-group">
+        <form th:action="@{/users/social/link}" method="post" style="display:inline;">
+            <button type="submit">연동하기</button>
+        </form>
+
+        <form th:action="@{/users/social/link-cancel}" method="post" style="display:inline;">
+            <button type="submit" class="cancel-btn">취소</button>
+        </form>
+    </div>
+</div>
 </body>
 </html>
-
-

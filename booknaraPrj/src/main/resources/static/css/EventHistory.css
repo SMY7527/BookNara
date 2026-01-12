@@ -1,17 +1,11 @@
-* {
-    box-sizing: border-box;
-    font-family: "Apple SD Gothic Neo", Arial, sans-serif;
-}
+/* ===============================
+   이벤트 참여 내역 (mypage 우측 조각 전용)
+   - mypagelayout.css를 침범하지 않음
+   =============================== */
 
-body {
-    margin: 0;
-    background: #f5f5f5;
-}
-
-/* ===== 전체 영역 ===== */
+/* 전체 래퍼 */
 .event-container {
-    width: 900px;
-    margin: 40px auto;
+    width: 100%;
     background: #fff;
     border-radius: 8px;
     padding: 24px;
@@ -20,7 +14,7 @@ body {
 /* ===== 제목 ===== */
 .event-title {
     font-size: 20px;
-    font-weight: bold;
+    font-weight: 700;
     margin-bottom: 16px;
 }
 
@@ -36,18 +30,33 @@ body {
     gap: 16px;
     font-size: 14px;
     margin-bottom: 20px;
-    color: #555;
 }
 
 .event-filter a {
-    cursor: pointer;
     text-decoration: none;
     color: #555;
+    cursor: pointer;
 }
 
 .event-filter a.active {
-    font-weight: bold;
+    font-weight: 700;
     color: #000;
+}
+
+/* ===== 스크롤 영역 ===== */
+.event-scroll {
+    max-height: 360px;
+    overflow-y: auto;
+    padding-right: 6px;
+}
+
+.event-scroll::-webkit-scrollbar {
+    width: 6px;
+}
+
+.event-scroll::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 3px;
 }
 
 /* ===== 리스트 ===== */
@@ -57,7 +66,7 @@ body {
     gap: 16px;
 }
 
-/* 카드 */
+/* ===== 카드 ===== */
 .event-card {
     position: relative;
     height: 90px;
@@ -76,7 +85,7 @@ body {
     opacity: 0.35;
 }
 
-/* 카드 안 내용 */
+/* 카드 내용 */
 .event-card-content {
     position: relative;
     z-index: 1;
@@ -89,8 +98,8 @@ body {
 }
 
 .event-card-title {
-    font-weight: 700;
     font-size: 15px;
+    font-weight: 700;
 }
 
 .event-card-date {
@@ -101,20 +110,4 @@ body {
 .event-card-status {
     font-size: 13px;
     font-weight: 700;
-}
-
-/* 스크롤 */
-.event-scroll {
-    max-height: 360px;
-    overflow-y: auto;
-    padding-right: 6px;
-}
-
-.event-scroll::-webkit-scrollbar {
-    width: 6px;
-}
-
-.event-scroll::-webkit-scrollbar-thumb {
-    background: #ccc;
-    border-radius: 3px;
 }

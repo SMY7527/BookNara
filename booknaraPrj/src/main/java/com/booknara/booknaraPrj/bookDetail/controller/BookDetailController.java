@@ -20,6 +20,7 @@ public class BookDetailController {
     private final BookDetailService bookDetailService;
     private final BookmarkService bookmarkService;
 
+
     @GetMapping("/book/detail/{isbn13}")
     public String bookDetail(@PathVariable String isbn13, Authentication auth, Model model) {
 

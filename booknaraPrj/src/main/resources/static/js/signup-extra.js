@@ -36,6 +36,18 @@
     const addr = document.querySelector('input[name="addr"]').value;
     const detailAddr = document.querySelector('input[name="detailAddr"]').value;
 
+
+      if (!zipcode || !addr) {
+        alert("주소 찾기를 먼저 해주세요");
+        return;
+      }
+
+      if (!detailAddr) {
+        alert("상세주소를 입력해주세요");
+        document.querySelector('input[name="detailAddr"]').focus();
+        return;
+      }
+
     fetch("/users/extra-address", {
       method: "POST",
       headers: {
@@ -89,7 +101,7 @@ genreCards.forEach(card => {
         // 새로 선택
         else {
             if (selectedGenres.length >= 3) {
-                alert("장르는 최대 3개까지 선택할 수 있어요🙂");
+                alert("장르는 최대 3개까지 선택할 수 있어요");
                 return;
             }
             card.classList.add("active");
@@ -114,7 +126,7 @@ function updateDisabledState() {
 
 function submitGenres() {
     if (selectedGenres.length === 0) {
-        alert("장르를 하나 이상 선택하세요 🙂");
+        alert("장르를 하나 이상 선택하세요 ");
         return;
     }
 
@@ -132,9 +144,14 @@ function submitGenres() {
         location.href = "/home";
     })
     .catch(() => {
-        alert("장르 저장 중 오류가 났슈 ㅠ");
+        alert("장르 저장 중 오류가 났습니다");
     });
 }
 function skipGenres() {
-    location.href = "/home";
+     fetch("/users/extra-complete", {
+            method: "POST"
+        })
+        .then(() => {
+            location.href = "/home";
+        });
 }

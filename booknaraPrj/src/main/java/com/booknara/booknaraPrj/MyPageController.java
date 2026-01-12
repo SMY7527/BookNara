@@ -2,12 +2,11 @@ package com.booknara.booknaraPrj;
 
 import com.booknara.booknaraPrj.admin.users.UserService;
 import com.booknara.booknaraPrj.login_signup.User;
+import com.booknara.booknaraPrj.login_signup.service.UserService1;
 import com.booknara.booknaraPrj.mypage.mylibrary.MyLendDto;
 import com.booknara.booknaraPrj.mypage.mylibrary.MyLibraryService;
 import com.booknara.booknaraPrj.security.CustomUserDetails;
-import com.booknara.booknaraPrj.security.CustomUserDetailsService;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,13 +17,11 @@ import java.util.*;
 @Controller
 public class MyPageController {
 
-//    private final UserService userService;
-    private final CustomUserDetailsService customUserDetailsService;
+    private final UserService1 userService1;
     private final MyLibraryService myLibraryService;
 
-    public MyPageController(UserService userService, CustomUserDetailsService customUserDetailsService, MyLibraryService myLibraryService) {
-        this.customUserDetailsService = customUserDetailsService;
-//        this.userService = userService;
+    public MyPageController(UserService1 userService1, MyLibraryService myLibraryService) {
+        this.userService1 = userService1;
         this.myLibraryService = myLibraryService;
     }
 
@@ -36,7 +33,7 @@ public class MyPageController {
         String userId = principal.getUserId();
 
         // 1) 유저 기본 정보
-        UserDetails user = customUserDetailsService.loadUserByUsername(userId);
+        User user = userService1.findByUserId(userId);
         model.addAttribute("user", user);
 
         // 2) 프로필
@@ -65,7 +62,12 @@ public class MyPageController {
         model.addAttribute("statusValue", status.get("statusValue"));
         model.addAttribute("statusLevel", status.get("statusLevel"));
 
-        return "mypage/mypage";
+        // ✅ 핵심: 우측 조각 지정
+        model.addAttribute("content", "mypage/mypage");
+
+
+        // ✅ 핵심: 레이아웃 리턴
+        return "mypage/mypagelayout";
     }
 
     // (옵션) FullCalendar 이벤트 API

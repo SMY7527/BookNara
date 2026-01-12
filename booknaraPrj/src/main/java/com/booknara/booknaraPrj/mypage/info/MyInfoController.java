@@ -35,9 +35,8 @@ public class MyInfoController {
 
         model.addAttribute("myInfo", myInfo);
         model.addAttribute("loginUser", userDetails);
-
-
-        return "mypage/myinfo";
+        model.addAttribute("content", "mypage/myinfo");
+        return "mypage/mypagelayout";
     }
 
     @PostMapping("/update")

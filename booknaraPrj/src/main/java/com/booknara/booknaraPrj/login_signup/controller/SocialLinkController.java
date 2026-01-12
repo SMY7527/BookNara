@@ -56,7 +56,7 @@ public class SocialLinkController {
         String userId = (String) session.getAttribute(SocialLinkSessionKey.LINK_USER_ID);
 
         if (provider == null || providerId == null || userId == null) {
-            ra.addFlashAttribute("errorMessage", "연동 정보가 만료됐어유. 다시 시도해줘유.");
+            ra.addFlashAttribute("errorMessage", "연동 정보가 만료되었습니다. 다시 시도해주세요.");
             return "redirect:/users/login";
         }
 
@@ -83,13 +83,13 @@ public class SocialLinkController {
 
         HttpSession session = request.getSession(false);
         if (session == null) {
-            ra.addFlashAttribute("errorMessage", "세션이 만료됐어유. 다시 로그인해줘유.");
+            ra.addFlashAttribute("errorMessage", "세션이 만료되었습니다. 다시 로그인해주세요.");
             return "redirect:/users/login";
         }
 
         String provider = (String) session.getAttribute(SocialLinkSessionKey.LINK_PROVIDER);
         if (provider == null) {
-            ra.addFlashAttribute("errorMessage", "소셜 제공자 정보가 없슈. 다시 시도해줘유.");
+            ra.addFlashAttribute("errorMessage", "소셜 제공자 정보가 없습니다. 다시 시도해주세요.");
             return "redirect:/users/login";
         }
 

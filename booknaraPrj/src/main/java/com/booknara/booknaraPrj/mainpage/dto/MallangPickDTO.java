@@ -11,6 +11,8 @@ public class MallangPickDTO {
     private String bookTitle;
     private String authors;
     private String publisher;
+    private String naverImage;
+    private String aladinImageBig;
     private String bookImg;
 }
 

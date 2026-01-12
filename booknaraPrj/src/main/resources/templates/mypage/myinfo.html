@@ -1,184 +1,162 @@
-<!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
-<head>
-  <meta charset="UTF-8" />
-  <title>내 정보</title>
-  <link rel="stylesheet" href="/css/myinfo.css" />
+<th:block th:fragment="content" xmlns:th="http://www.thymeleaf.org">
 
-  <meta name="_csrf" th:content="${_csrf != null ? _csrf.token : ''}"/>
-  <meta name="_csrf_header" th:content="${_csrf != null ? _csrf.headerName : ''}"/>
-
-
-  <!-- 다음 주소 API -->
+<!-- 다음 주소 API -->
   <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 
   <!-- myinfo js -->
   <script src="/js/myinfo.js" defer></script>
 
-</head>
-<body>
 
-<div class="myinfo-container">
-  <h2 class="page-title">내 정보</h2>
+  <!-- ===== 우측 콘텐츠 영역 ===== -->
+  <main class="content">
 
-  <!-- ===== 회원 정보 ===== -->
-  <section class="info-section">
-    <div class="section-header">
-      <h3>회원 정보</h3>
-      <div class="btn-group">
-        <button type="button" class="btn btn-outline">비밀번호 변경</button>
-        <button type="button" class="btn btn-primary" id="editBtn">수정</button>
-      </div>
-    </div>
-
-    <!-- ✅ (Spring Security 사용 중이면 CSRF 필요할 수 있음) -->
-    <form class="info-form" th:action="@{/mypage/myinfo/update}" method="post">
-      <!-- <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"> -->
-
-      <input type="hidden" name="userId" th:value="${myInfo.userId}" />
-
-      <div class="form-row">
-        <label>성명</label>
-        <input type="text" th:value="${myInfo.userNm}" disabled />
-      </div>
-
-      <div class="form-row">
-        <label>아이디</label>
-        <input type="text" th:value="${myInfo.userId}" disabled />
-      </div>
-
-      <div class="form-row">
-        <label>프로필명</label>
-        <input type="text" name="profileNm"
-               th:value="${myInfo.profileNm}"
-               disabled class="editable" />
-      </div>
-
-      <div class="form-row">
-        <label>생년월일</label>
-        <input type="date" th:value="${myInfo.birthday}" disabled />
-      </div>
-
-      <div class="form-row">
-        <label>성별</label>
-        <input type="text" th:value="${myInfo.gender}" disabled />
-      </div>
-
-      <div class="form-row">
-        <label>주소</label>
-        <div class="address-row">
-          <input type="text" name="addr"
-                 th:value="${myInfo.addr}"
-                 disabled class="editable" />
-          <button type="button"
-                  class="btn btn-outline small"
-                  id="addressBtn"
-                  onclick="execDaumPostcode()"
-                  disabled>
-            주소변경
-          </button>
+    <!-- ===== 회원 정보 ===== -->
+    <section class="info-section">
+      <div class="section-header">
+        <h3>회원 정보</h3>
+        <div class="btn-group">
+          <button type="button" class="btn btn-outline">비밀번호 변경</button>
+          <button type="button" class="btn btn-primary" id="editBtn">수정</button>
         </div>
       </div>
 
-      <div class="form-row right">
-        <button type="submit" class="btn btn-primary"
-                id="saveBtn" style="display:none;">
-          저장
-        </button>
-      </div>
-    </form>
-  </section>
-</div>
+      <!-- ✅ (Spring Security 사용 중이면 CSRF 필요할 수 있음) -->
+      <form class="info-form" th:action="@{/mypage/myinfo/update}" method="post">
+        <!-- <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"> -->
 
-<!-- ================= 결제 버튼 ================= -->
+        <input type="hidden" name="userId" th:value="${myInfo.userId}" />
+
+        <div class="form-row">
+          <label>성명</label>
+          <input type="text" th:value="${myInfo.userNm}" disabled />
+        </div>
+
+        <div class="form-row">
+          <label>아이디</label>
+          <input type="text" th:value="${myInfo.userId}" disabled />
+        </div>
+
+        <div class="form-row">
+          <label>프로필명</label>
+          <input type="text" name="profileNm"
+                 th:value="${myInfo.profileNm}"
+                 disabled class="editable" />
+        </div>
+
+        <div class="form-row">
+          <label>생년월일</label>
+          <input type="date" th:value="${myInfo.birthday}" disabled />
+        </div>
+
+        <div class="form-row">
+          <label>성별</label>
+          <input type="text" th:value="${myInfo.gender}" disabled />
+        </div>
+
+        <div class="form-row">
+          <label>주소</label>
+          <div class="address-row">
+            <input type="text" name="addr"
+                   th:value="${myInfo.addr}"
+                   disabled class="editable" />
+            <button type="button"
+                    class="btn btn-outline small"
+                    id="addressBtn"
+                    onclick="execDaumPostcode()"
+                    disabled>
+              주소변경
+            </button>
+          </div>
+        </div>
+
+        <div class="form-row right">
+          <button type="submit" class="btn btn-primary"
+                  id="saveBtn" style="display:none;">
+            저장
+          </button>
+        </div>
+      </form>
+    </section>
 <button id="payBtn" style="display:none;" type="button">
   결제하기
 </button>
+
+  </main>
+</div>
+
+
+
 
 <!-- ================= Bootpay ================= -->
 <script src="https://js.bootpay.co.kr/bootpay-4.2.0.min.js"></script>
 
 <!-- ================= 로그인 사용자 정보 (안전하게) ================= -->
-<script th:inline="javascript">
-  // loginUser가 null이어도 JS가 깨지지 않도록 안전 처리
-  const loginUser = {
-    id: /*[[${loginUser != null ? '\'' + loginUser.userId + '\'' : '\'\''}]]*/ '',
-    username: /*[[${loginUser != null ? '\'' + loginUser.username + '\'' : '\'\''}]]*/ ''
-    // ⚠️ 만약 네 DTO가 username이 아니라 userNm/profileNm이면 여기 필드명 바꿔야 함
-    // 예: loginUser.userNm -> myInfo.userNm 등을 넣는 방식으로
-  };
-</script>
+  <script th:inline="javascript">
+    const loginUser = {
+      id: [[${loginUser != null ? loginUser.userId : ''}]],
+    username: [[${loginUser != null ? loginUser.username : ''}]]
+    };
+  </script>
+
 
 <!-- ================= 로그인 체크 + 결제 버튼 연결 ================= -->
-<script>
-  document.addEventListener("DOMContentLoaded", function () {
-    if (!loginUser.id || loginUser.id.trim() === "") {
-      alert("로그인이 필요합니다.");
-      location.href = "/login";
-      return;
-    }
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      if (!loginUser.id || loginUser.id.trim() === "") {
+        alert("로그인이 필요합니다.");
+        location.href = "/login";
+        return;
+      }
 
-    const payBtn = document.getElementById("payBtn");
-    if (payBtn) {
-      payBtn.style.display = "inline-block";
-      payBtn.addEventListener("click", requestPayment);
-    }
-  });
+      const payBtn = document.getElementById("payBtn");
+      if (payBtn) {
+        payBtn.style.display = "inline-block";
+        payBtn.addEventListener("click", requestPayment);
+      }
+    });
 
-  function requestPayment() {
-    const username = (loginUser.username && loginUser.username.trim() !== "")
-            ? loginUser.username
-            : loginUser.id;
+    function requestPayment() {
+      const username =
+              (loginUser.username && loginUser.username.trim() !== "")
+                      ? loginUser.username
+                      : loginUser.id;
 
-    Bootpay.requestPayment({
-      application_id: "696053425fd7d0429f0ad118",
-      price: 3000,
-      order_name: "도서 연체료",
-      order_id: "ORDER_" + Date.now(),
+      Bootpay.requestPayment({
+        application_id: "696053425fd7d0429f0ad118",
+        price: 3000,
+        order_name: "도서 배송비",
+        order_id: "ORDER_" + Date.now(),
+        user: {
+          id: loginUser.id,
+          username: username
+        }
+      })
+              .then(function (response) {
+                // ✅ 결제 완료 시점
+                alert("결제 완료");
 
+                const receiptId =
+                        response?.receipt_id ||
+                        response?.receipt_data?.receipt_id ||
+                        null;
 
-      redirect_url: "http://localhost:8080/payment/redirect",
-
-
-      user: { id: loginUser.id, username }
-
-
-
-    })
-            .then(function (response) {
-              const receiptId = response?.receipt_data?.receipt_id || response?.receipt_id;
-              if (!receiptId) throw new Error("Bootpay 응답에 receipt_id가 없습니다.");
-
-              const token = document.querySelector('meta[name="_csrf"]')?.content;
-              const headerName = document.querySelector('meta[name="_csrf_header"]')?.content;
-
-              const headers = { "Content-Type": "application/json" };
-              if (token && headerName) headers[headerName] = token;
-
-              return fetch("/payment/verify", {
-                method: "POST",
-                headers,
-                body: JSON.stringify({ receiptId })
+                // ✅ 서버에 결제 완료 저장 요청
+                fetch("/payment/complete", {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json"
+                  },
+                  body: JSON.stringify({
+                    userId: loginUser.id,
+                    receiptId: receiptId
+                  })
+                });
+              })
+              .catch(function (e) {
+                console.error("Bootpay error:", e);
+                alert("결제 중 오류가 발생했습니다.");
               });
-            })
-            .then(async (res) => {
-              if (!res.ok) {
-                const text = await res.text();
-                throw new Error("verify 실패: " + res.status + " / " + text);
-              }
-              return res.json();
-            })
-            .then(data => {
-              alert(data && data.success ? "결제 완료!" : "결제 검증 실패");
-            })
-            .catch(error => {
-              console.error(error);
-              alert("결제 실패: " + (error?.message || error));
-            });
-  }
-</script>
+    }
+  </script>
 
-
-
-</body>
-</html>
+</th:block>

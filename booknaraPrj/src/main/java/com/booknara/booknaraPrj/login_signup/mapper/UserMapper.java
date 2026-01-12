@@ -17,10 +17,10 @@ public interface UserMapper {
 
     // 프로필명 중복 체크
     int countByProfileNm(String profileNm);
-    
+
     //이메일 조회
     User findByEmail(String email);
-    
+
     //이메일중복체크
     int countByEmail(String email);
 
@@ -37,6 +37,8 @@ public interface UserMapper {
                        @Param("zipcode") String zipcode,
                        @Param("addr") String addr,
                        @Param("detailAddr") String detailAddr);
+
+    String findPasswordByUserId(@Param("userId") String userId);
 
     //아이디비밀번호 찾기
     String findLocalUserIdByNameAndEmail(

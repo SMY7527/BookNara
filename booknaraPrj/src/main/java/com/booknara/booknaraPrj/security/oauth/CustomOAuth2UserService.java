@@ -3,6 +3,7 @@ package com.booknara.booknaraPrj.security.oauth;
 import com.booknara.booknaraPrj.login_signup.*;
 import com.booknara.booknaraPrj.login_signup.dto.SocialAccount;
 import com.booknara.booknaraPrj.login_signup.mapper.SocialAccountMapper;
+import com.booknara.booknaraPrj.login_signup.mapper.UserMallangMapper;
 import com.booknara.booknaraPrj.login_signup.mapper.UserMapper;
 import com.booknara.booknaraPrj.login_signup.service.NicknameGenerator;
 import com.booknara.booknaraPrj.login_signup.service.SocialUserIdGenerator;
@@ -26,6 +27,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     private final SocialAccountMapper socialAccountMapper;
     private final UserMapper userMapper;
+    private final UserMallangMapper userMallangMapper;
 
     private static final String SOCIAL_PASSWORD = "{noop}SOCIAL_LOGIN";
 
@@ -125,6 +127,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                         .build();
 
                 userMapper.insertUser(user);
+                userMallangMapper.insertRandomMallang(user.getUserId());
 
                 // 4️⃣ social_account 연동 insert
                 SocialAccount newSocial = SocialAccount.builder()

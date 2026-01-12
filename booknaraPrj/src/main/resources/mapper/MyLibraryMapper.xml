@@ -195,5 +195,67 @@
         ]]>
 </select>
 
+    <!-- 북마크 목록: 보이는 것만(Y) -->
+    <select id="selectMyBookmarks" resultType="com.booknara.booknaraPrj.mypage.mylibrary.MyBookmarkDto">
+        SELECT
+            b.ISBN13 AS isbn13,
+            i.BOOK_TITLE AS bookTitle,
+            i.AUTHORS AS authors,
+            COALESCE(i.ALADIN_IMAGE_BIG, i.NAVER_IMAGE) AS coverImg,
+            b.BOOKMARK_YN AS bookmarkYn,
+            b.CREATED_AT AS createdAt,
+            b.UPDATED_AT AS updatedAt
+        FROM BOOKMARK b
+                 JOIN BOOK_ISBN i ON b.ISBN13 = i.ISBN13
+        WHERE b.USER_ID = #{userId}
+          AND b.BOOKMARK_YN = 'Y'
+        ORDER BY b.CREATED_AT DESC
+    </select>
+
+    <!-- 북마크 상태 조회 -->
+    <select id="selectBookmarkYn" resultType="string">
+        SELECT BOOKMARK_YN
+        FROM BOOKMARK
+        WHERE USER_ID = #{userId}
+          AND ISBN13 = #{isbn13}
+    </select>
+
+    <!-- 북마크 최초 추가(Y) -->
+    <insert id="insertBookmark">
+        INSERT INTO BOOKMARK (ISBN13, USER_ID, BOOKMARK_YN, CREATED_AT)
+        VALUES (#{isbn13}, #{userId}, 'Y', NOW())
+    </insert>
+
+    <!-- 북마크 Y/N 업데이트(숨김/복구) -->
+    <update id="updateBookmarkYn">
+        UPDATE BOOKMARK
+        SET BOOKMARK_YN = #{bookmarkYn},
+            UPDATED_AT = NOW()
+        WHERE USER_ID = #{userId}
+          AND ISBN13 = #{isbn13}
+    </update>
+
+    <select id="selectMyReservations" resultType="com.booknara.booknaraPrj.mypage.mylibrary.MyReserveDto">
+        SELECT
+            R.RSV_ID      AS rsvId,
+            R.ISBN13      AS isbn13,
+            I.BOOK_TITLE  AS bookTitle,
+            I.AUTHORS     AS authors,
+            I.NAVER_IMAGE AS coverImg,
+            R.RSV_DATE    AS rsvDate,
+            DATE_ADD(R.RSV_DATE, INTERVAL 3 DAY) AS availableAt
+        FROM RESERVATIONS R
+                 JOIN BOOK_ISBN I ON I.ISBN13 = R.ISBN13
+        WHERE R.USER_ID = #{userId}
+        ORDER BY R.RSV_DATE DESC
+    </select>
+
+    <delete id="deleteReservation">
+        DELETE FROM RESERVATIONS
+        WHERE USER_ID = #{userId}
+          AND RSV_ID  = #{rsvId}
+    </delete>
+
+
 
 </mapper>

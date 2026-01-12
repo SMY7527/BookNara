@@ -165,10 +165,10 @@
 
         /* 전자책 배지 */
         .badge-ebook {
-            position: absolute; right: 15px; top: -4px; width: 28px; height: 45px;
+            position: absolute; right: 15px; top: -4px; width: 35px; height: 55px;
             border-radius: 2px 2px 10px 10px; display: flex; align-items: center; justify-content: center;
             background: #63BCD9; color: #fff; writing-mode: vertical-rl; text-orientation: upright;
-            font-family: 'Gamja Flower', cursive; font-weight: bold; font-size: 26px;
+            font-family: 'Gamja Flower', cursive; font-weight: bold; font-size: 35px;
             letter-spacing: 1px; box-shadow: 0 3px 5px rgba(0,0,0,0.2);
         }
 
@@ -365,6 +365,30 @@
     const $toolbar    = document.querySelector(".toolbar");
 
     // ====== 유틸 ======
+    async function postForm(url, bodyObj) {
+        const body = new URLSearchParams(bodyObj).toString();
+
+        const res = await fetch(url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "Accept": "application/json"
+            },
+            body
+        });
+
+        const ct = (res.headers.get("content-type") || "");
+
+        // ✅ 로그인 페이지로 리다이렉트 되었거나 HTML이면 => 로그인으로 보내기
+        if (res.status === 401 || res.status === 403 || ct.includes("text/html") || res.redirected) {
+            goLoginReturnHere();
+            return null;
+        }
+
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        return res;
+    }
+
     const esc = (s) => {
         if (s == null) return "";
         return String(s)
@@ -816,24 +840,51 @@
             });
 
             const ct = (res.headers.get("content-type") || "");
+
+            // 로그인 체크
             if (res.status === 401 || res.status === 403 || ct.includes("text/html")) {
                 goLoginReturnHere();
-                return { ok: false, needLogin: true };
+                return { needLogin: true };
             }
 
             if (!res.ok) throw new Error("HTTP " + res.status);
 
-            if (ct.includes("application/json")) {
-                const data = await res.json();
-                return { ok: true, data };
-            }
             return { ok: true };
         } catch (e) {
             console.error(e);
-            alert("장바구니 처리 중 오류가 발생했습니다.");
-            return { ok: false, error: e };
+            alert("장바구니 담기 중 오류가 발생했습니다.");
+            return { ok: false };
         }
     }
+
+    // [토글 API를 사용하여 추가/삭제를 한 번에 처리
+    async function toggleCart(isbn13) {
+        try {
+            // 컨트롤러의 @PostMapping("/{isbn13}/toggle") 호출
+            const res = await fetch(`/book/cart/${encodeURIComponent(isbn13)}/toggle`, {
+                method: "POST",
+                headers: { "Accept": "application/json" }
+            });
+
+            const ct = (res.headers.get("content-type") || "");
+
+            // 로그인 안 된 상태면 리다이렉트 처리
+            if (res.status === 401 || res.status === 403 || ct.includes("text/html")) {
+                goLoginReturnHere();
+                return { needLogin: true };
+            }
+
+            if (!res.ok) throw new Error("HTTP " + res.status);
+
+            // 결과: { "inCart": true } 또는 { "inCart": false }
+            return await res.json();
+        } catch (e) {
+            console.error(e);
+            alert("장바구니 처리 중 오류가 발생했습니다.");
+            return null;
+        }
+    }
+
 
     // ====== 대여 버튼 ======
     function buildRentButton(it) {
@@ -961,17 +1012,20 @@
             if (btnCart) {
                 e.preventDefault();
                 e.stopPropagation();
+
                 if (btnCart.disabled) return;
                 btnCart.disabled = true;
 
                 try {
-                    const inCart = (btnCart.dataset.incart === "true");
-                    if (!inCart) {
-                        const result = await addToCart(isbn13);
-                        if (result?.needLogin) return;
-                        setCartUI(btnCart, true);
-                    } else {
-                        location.href = "/book/cart";
+                    // 1. 토글 API 호출 (추가면 삭제되고, 삭제면 추가됨)
+                    const result = await toggleCart(isbn13);
+
+                    // 2. 로그인 필요시 중단
+                    if (result?.needLogin) return;
+
+                    // 3. 서버 응답(inCart)에 따라 버튼 UI 즉시 업데이트
+                    if (result) {
+                        setCartUI(btnCart, result.inCart);
                     }
                 } finally {
                     btnCart.disabled = false;
@@ -996,31 +1050,14 @@
                 }
                 return;
             }
-            async function postFormJson(url, paramsObj) {
-                const body = new URLSearchParams();
-                Object.entries(paramsObj || {}).forEach(([k, v]) => body.set(k, v));
-
-                return await fetchJson(url, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                    body: body.toString()
-                });
-            }
-
-
-
 
             // ===== 예약 / 취소 / 연장 =====
             if (e.target.classList.contains("btn-rsv")) {
                 e.preventDefault();
                 e.stopPropagation();
 
-                const res = await postFormJson(`/book/circulation/reserve`, {
-                    method: "POST",
-                    headers: {"Content-Type":"application/x-www-form-urlencoded"},
-                    body: `isbn13=${encodeURIComponent(isbn13)}`
-                });
-                if (res.ok) load();
+                const res = await postForm("/book/circulation/reserve", { isbn13 });
+                if (res) load();
                 return;
             }
 
@@ -1029,12 +1066,8 @@
                 e.stopPropagation();
 
                 const rsvId = e.target.dataset.rsvId;
-                const res = await postFormJson(`/book/circulation/reserve/cancel`, {
-                    method: "POST",
-                    headers: {"Content-Type":"application/x-www-form-urlencoded"},
-                    body: `rsvId=${encodeURIComponent(rsvId)}`
-                });
-                if (res.ok) load();
+                const res = await postForm("/book/circulation/reserve/cancel", { rsvId });
+                if (res) load();
                 return;
             }
 
@@ -1043,16 +1076,33 @@
                 e.stopPropagation();
 
                 const lendId = e.target.dataset.lendId;
-                const res = await postFormJson(`/book/circulation/extend`, {
-                    method: "POST",
-                    headers: {"Content-Type":"application/x-www-form-urlencoded"},
-                    body: `lendId=${encodeURIComponent(lendId)}`
-                });
-                if (res.ok) load();
+                const res = await postForm("/book/circulation/extend", { lendId });
+                if (res) load();
                 return;
             }
         });
     }
+
+    function applyInitialKeywordFromUrl() {
+        const params = new URLSearchParams(location.search);
+        const kw = (params.get("keyword") || "").trim();
+        const field = (params.get("field") || "").trim();
+
+        if (kw) {
+            state.keyword = kw;
+            $keyword.value = kw;
+        }
+
+        if (field) {
+            state.field = field;
+            $field.value = field;
+        }
+    }
+
+
+
+
+
 
     // ====== 초기화 ======
     (async function init() {
@@ -1065,6 +1115,7 @@
         try { await loadParentGenres(); } catch (e) { console.error(e); }
 
         setView("PARENT");
+        applyInitialKeywordFromUrl();
         renderBreadcrumb();
         load();
     })();

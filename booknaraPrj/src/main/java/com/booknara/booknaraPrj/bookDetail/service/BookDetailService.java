@@ -46,18 +46,51 @@ public class BookDetailService {
         view.setInventory(inventory);
         view.setGenrePath(genrePath);
 
-        // 5) 리뷰
+        // 5) 전자책/종이책  링크
+        // 5) 전자책/종이책 링크 계산
+        String pairIsbn = calcPairIsbn(detail.getIsbn13(), detail.getEbookYn());
+
+        if (pairIsbn != null && !pairIsbn.equals(detail.getIsbn13())) {
+            int cnt = bookDetailMapper.existsByIsbn(pairIsbn);
+            if (cnt > 0) {
+                view.setPairYn("Y");
+                view.setPairIsbn13(pairIsbn);
+            } else {
+                view.setPairYn("N");
+            }
+        } else {
+            view.setPairYn("N");
+        }
+
+        // 6) 리뷰
         ReviewStatusDTO rs = reviewStatusService.getByIsbn(isbn13);
         ReviewSummaryDTO summary = new ReviewSummaryDTO();
         summary.setReviewCnt(rs == null ? 0 : rs.getReviewCnt());
         summary.setRatingAvg(rs == null ? 0.0 : rs.getRatingAvg());
         view.setReviewSummary(summary);
-
-        // ✅ 미리보기: 기존대로 유지(원하면 이것도 REVIEW_STAT 기반으로는 못 함)
         view.setReviewPreview(feedReviewService.getTop(isbn13, 5));
 
         return view;
     }
+
+
+    //전자책 링크 조회 매서드
+    private String calcPairIsbn(String isbn13, String ebookYn){
+        if(isbn13 == null) return null;
+
+        boolean isEbook = "Y".equalsIgnoreCase(ebookYn);
+
+        if(isEbook){
+            // ebook -> paper
+            if(isbn13.endsWith("_e")) return isbn13.substring(0, isbn13.length()-2);
+            return isbn13;
+        }else{
+            // paper -> ebook
+            if(isbn13.endsWith("_e")) return isbn13;
+            return isbn13 + "_e";
+        }
+    }
+
 
     private GenrePathDTO buildGenrePath(Integer genreId) {
         GenrePathDTO path = new GenrePathDTO();

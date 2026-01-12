@@ -60,4 +60,14 @@
         WHERE g.GENRE_ID = #{genreId}
     </select>
 
+    <!-- 4) 전자책 확인 -->
+    <select id="existsByIsbn"
+            parameterType="string"
+            resultType="int">
+        SELECT COUNT(1)
+        FROM BOOK_ISBN
+        WHERE ISBN13 = #{isbn13}
+    </select>
+
+
 </mapper>

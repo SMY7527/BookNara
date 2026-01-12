@@ -56,4 +56,111 @@
             LIMIT #{offset}, #{size}
     </select>
 
+
+    <select id="existsReturnedLend" resultType="int">
+        SELECT CASE WHEN EXISTS (
+            SELECT 1
+            FROM LENDS
+            WHERE USER_ID = #{userId}
+              AND ISBN13  = #{isbn13}
+              AND RETURN_DONE_AT IS NOT NULL
+        ) THEN 1 ELSE 0 END
+    </select>
+
+    <select id="selectMyReviewFeedId" resultType="string">
+        SELECT FEED_ID
+        FROM FEEDS
+        WHERE USER_ID = #{userId}
+          AND ISBN13  = #{isbn13}
+          AND FEED_CATEGORY = 'REVIEW'
+          AND IS_DELETED = 'N'
+          AND IS_BLIND   = 'N'
+            LIMIT 1
+    </select>
+
+    <insert id="insertReviewFeed">
+        INSERT INTO FEEDS (
+            FEED_ID, USER_ID, ISBN13, FEED_CATEGORY,
+            FEED_TITLE, CONTENT, FEED_STATUS,
+            IS_BLIND, IS_DELETED, CREATED_AT
+        ) VALUES (
+                     #{feedId}, #{userId}, #{isbn13}, 'REVIEW',
+                     #{title}, #{content}, 0,
+                     'N', 'N', NOW()
+                 )
+    </insert>
+
+    <insert id="insertReviewDetail">
+        INSERT INTO REVIEW_DETAIL (FEED_ID, RATE)
+        VALUES (#{feedId}, #{rate})
+    </insert>
+
+    <update id="updateReviewFeedByOwner">
+        UPDATE FEEDS
+        SET FEED_TITLE = #{title},
+            CONTENT    = #{content},
+            UPDATED_AT = NOW()
+        WHERE FEED_ID = #{feedId}
+          AND USER_ID = #{userId}
+          AND FEED_CATEGORY = 'REVIEW'
+          AND IS_DELETED = 'N'
+    </update>
+
+    <update id="updateReviewDetail">
+        UPDATE REVIEW_DETAIL
+        SET RATE = #{rate}
+        WHERE FEED_ID = #{feedId}
+    </update>
+
+    <select id="selectPageByIsbnWithMine"
+            resultType="com.booknara.booknaraPrj.feed.review.dto.ReviewItemDTO">
+        SELECT
+            f.FEED_ID     AS feedId,
+            f.ISBN13      AS isbn13,
+            f.USER_ID     AS userId,
+            rd.RATE       AS rate,
+            f.FEED_TITLE  AS title,
+            f.CONTENT     AS content,
+            u.PROFILE_NM  AS profileNm,
+            u.PROFILE_IMG AS profileImg,
+            u.USE_IMG     AS useImg,
+            f.CREATED_AT  AS createdAt,
+            CASE
+                WHEN f.USER_ID = #{userId} THEN 'Y'
+                ELSE 'N'
+                END AS mineYn
+        FROM FEEDS f
+                 JOIN REVIEW_DETAIL rd ON rd.FEED_ID = f.FEED_ID
+                 JOIN USERS u ON u.USER_ID = f.USER_ID
+        WHERE f.FEED_CATEGORY='REVIEW'
+          AND f.IS_DELETED='N'
+          AND f.IS_BLIND='N'
+          AND f.ISBN13 = #{isbn13}
+        ORDER BY f.CREATED_AT DESC
+            LIMIT #{offset}, #{size}
+    </select>
+
+
+
+    <select id="selectIsbnByFeedId" resultType="string">
+        SELECT f.ISBN13
+        FROM FEEDS f
+        WHERE f.FEED_ID = #{feedId}
+          AND f.FEED_CATEGORY = 'REVIEW'
+            LIMIT 1
+    </select>
+
+    <update id="deleteReviewFeedByOwner">
+        UPDATE FEEDS
+        SET IS_DELETED = 'Y',
+            UPDATED_AT = NOW()
+        WHERE FEED_ID = #{feedId}
+          AND USER_ID = #{userId}
+          AND FEED_CATEGORY = 'REVIEW'
+          AND IS_DELETED = 'N'
+    </update>
+
+
+
+
 </mapper>

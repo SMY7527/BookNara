@@ -46,6 +46,17 @@ public class BookCirculationCommandService {
         requireLogin(userId);
         requireNotBlockedOrOverdue(userId);
 
+        Integer maxObj = mapper.selectMaxLendCount();
+        int max = (maxObj == null ? 5 : maxObj);
+        if (max <= 0) max = 5;
+
+        int cur = mapper.countMyActiveLends(userId);
+        if (cur >= max) {
+            throw new IllegalStateException("대여 가능 권수를 초과했습니다. (최대 " + max + "권)");
+        }
+
+
+
         // 1) 유저 동일 ISBN 활성 대여 여부 (정책)
         if (mapper.existsActiveLendByUserAndIsbn(userId, isbn13) == 1) {
             throw new IllegalStateException("이미 대여 중인 도서입니다.");

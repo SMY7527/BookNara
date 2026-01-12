@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.booknara.booknaraPrj.mypage.mylibrary.PaymentMapper">
+
+    <insert id="insertPayment"
+            parameterType="com.booknara.booknaraPrj.mypage.mylibrary.PaymentDto">
+
+        INSERT INTO PAYMENTS (
+            USER_ID,
+            RECEIPT_ID,
+            STATUS,
+            PAID_AT,
+            CREATED_AT
+        ) VALUES (
+                     #{userId},
+                     #{receiptId},
+                     #{status},
+                     #{paidAt},
+                     NOW()
+                 )
+
+    </insert>
+
+</mapper>

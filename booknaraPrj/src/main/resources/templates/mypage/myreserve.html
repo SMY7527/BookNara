@@ -1,15 +1,8 @@
-<!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>내 서재 - 예약</title>
-    <link rel="stylesheet" href="/css/mybooklist.css">
-</head>
-<body>
+<th:block th:fragment="content" xmlns:th="http://www.thymeleaf.org">
 
 <div class="mypage-container">
 
-    <!-- 상단 탭 -->
+    <!-- 탭 -->
     <div class="mypage-tabs">
         <a th:href="@{/my/booklist}" class="mypage-tab"
            th:classappend="${activeTab=='rent'} ? ' active' : ''">대여</a>
@@ -20,25 +13,106 @@
     </div>
 
     <div class="section">
-        <div class="section-title">예약 도서</div>
+        <div class="reserve-header">
+            <div class="section-title">
+                예약도서 목록 :
+                <span id="reserveCount"
+                      th:text="${#lists.size(reserveList)}">0</span>
+            </div>
 
-        <div th:if="${#lists.isEmpty(reserveList)}">
-            예약 중인 도서가 없습니다.
+            <!-- (옵션) “도서 대여 가능” 안내 자리 -->
+            <div class="reserve-notice">
+                <span class="notice-dot"></span>
+                <span>도서 대여 가능시 알림</span>
+            </div>
         </div>
 
-        <div class="book-row" th:if="${!#lists.isEmpty(reserveList)}">
-            <div class="book-card" th:each="book : ${reserveList}">
-                <img class="book-img" th:src="${book.coverImg}">
-                <div class="book-title" th:text="${book.bookTitle}"></div>
+        <div th:if="${#lists.isEmpty(reserveList)}" class="empty-text">
+            예약한 도서가 없습니다.
+        </div>
+
+        <!-- ✅ 예약 카드 리스트 (북마크와 같은 그리드 UI) -->
+        <div class="book-list" th:if="${!#lists.isEmpty(reserveList)}">
+            <div class="book-card reserve-card"
+                 th:each="book : ${reserveList}"
+                 th:attr="data-rsv=${book.rsvId}, data-isbn=${book.isbn13}">
+
+                <a class="book-link" th:href="@{/book/detail(isbn13=${book.isbn13})}">
+                    <img class="book-img" th:src="${book.coverImg}" alt="도서 표지">
+                </a>
+
+                <div class="book-title" th:text="${book.bookTitle}">도서명</div>
+                <div class="book-meta" th:text="${book.authors}">저자</div>
+
                 <div class="book-meta">
-                    예약일 :
+                    예약일자 :
                     <span th:text="${#temporals.format(book.rsvDate,'yyyy-MM-dd')}"></span>
                 </div>
+
+                <div class="book-meta">
+                    예상 대출 가능일 :
+                    <span th:text="${#temporals.format(book.availableAt,'yyyy-MM-dd')}"></span>
+                </div>
+
+                <button type="button" class="reserve-cancel-btn">
+                    예약 취소
+                </button>
             </div>
         </div>
     </div>
 
 </div>
 
-</body>
-</html>
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const csrf = document.querySelector('meta[name="_csrf"]')?.getAttribute("content");
+        const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.getAttribute("content");
+
+        const countEl = document.getElementById("reserveCount");
+
+        function decCount() {
+            if (!countEl) return;
+            const n = parseInt(countEl.textContent || "0", 10);
+            countEl.textContent = String(Math.max(0, n - 1));
+        }
+
+        document.addEventListener("click", async (e) => {
+            const btn = e.target.closest(".reserve-cancel-btn");
+            if (!btn) return;
+
+            const card = btn.closest(".reserve-card");
+            const rsvId = card?.dataset?.rsv;
+            if (!rsvId) return;
+
+            const ok = confirm("정말 취소하시겠습니까?");
+            if (!ok) return;
+
+            try {
+                const headers = { "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8" };
+                if (csrf && csrfHeader) headers[csrfHeader] = csrf;
+
+                const res = await fetch("/my/reserve/cancel", {
+                    method: "POST",
+                    headers,
+                    body: "rsvId=" + encodeURIComponent(rsvId)
+                });
+
+                const data = await res.json();
+
+                if (!data.success) {
+                    alert(data.message || "예약 취소 실패");
+                    return;
+                }
+
+                // ✅ 화면에서 제거 + 카운트 감소
+                card.remove();
+                decCount();
+
+            } catch (err) {
+                console.error(err);
+                alert("서버 통신 오류");
+            }
+        });
+    });
+</script>
+</th:block>

@@ -1,22 +1,13 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>결제 결과</title>
+    <title>결제 완료</title>
 </head>
 <body>
+<h2>결제가 완료되었습니다 🎉</h2>
+<p>이용해 주셔서 감사합니다.</p>
 
-<h2>결제 결과</h2>
-
-<div th:if="${success}">
-    <p>✅ 결제가 정상적으로 완료되었습니다.</p>
-</div>
-
-<div th:if="${!success}">
-    <p>❌ 결제에 실패했습니다.</p>
-</div>
-
-<pre th:text="${result}"></pre>
-
+<a href="/mypage">마이페이지로 이동</a>
 </body>
 </html>

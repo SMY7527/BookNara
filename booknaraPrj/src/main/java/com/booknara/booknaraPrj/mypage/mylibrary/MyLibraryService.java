@@ -196,6 +196,39 @@ public class MyLibraryService {
 
         return events;
     }
+    // 북마크 목록(보이는 것만)
+    public List<MyBookmarkDto> getMyBookmarks(String userId) {
+        List<MyBookmarkDto> list = myLibraryMapper.selectMyBookmarks(userId);
+        return list == null ? List.of() : list;
+    }
+
+    // 북마크 토글: Y -> N(숨김), N/없음 -> Y(표시)
+    public String toggleBookmark(String userId, String isbn13) {
+        String yn = myLibraryMapper.selectBookmarkYn(userId, isbn13);
+
+        // 없으면 새로 생성(Y)
+        if (yn == null) {
+            myLibraryMapper.insertBookmark(userId, isbn13);
+            return "Y";
+        }
+
+        // 있으면 토글
+        String next = "Y".equalsIgnoreCase(yn) ? "N" : "Y";
+        myLibraryMapper.updateBookmarkYn(userId, isbn13, next);
+        return next;
+    }
+
+    public List<MyReserveDto> getMyReservations(String userId) {
+        List<MyReserveDto> list = myLibraryMapper.selectMyReservations(userId);
+        return list == null ? List.of() : list;
+    }
+
+    public boolean cancelReservation(String userId, String rsvId) {
+        // ✅ 본인 예약만 삭제되게 userId 같이 조건 걸기
+        return myLibraryMapper.deleteReservation(userId, rsvId) > 0;
+    }
+
+
 
 
 

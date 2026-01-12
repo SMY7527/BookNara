@@ -1,11 +1,6 @@
-<!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>내 서재 - 북마크</title>
-    <link rel="stylesheet" href="/css/mybooklist.css">
-</head>
-<body>
+<th:block th:fragment="content" xmlns:th="http://www.thymeleaf.org">
+
+
 
 <div class="mypage-container">
 
@@ -26,16 +21,77 @@
             북마크한 도서가 없습니다.
         </div>
 
+        <!-- ✅ bookmarkList가 있을 때 -->
         <div class="book-row" th:if="${!#lists.isEmpty(bookmarkList)}">
-            <div class="book-card" th:each="book : ${bookmarkList}">
-                <img class="book-img" th:src="${book.coverImg}">
+
+            <!-- ✅ 여기 th:each 추가 (book 변수가 여기서 생김) -->
+            <div class="book-card"
+                 th:each="book : ${bookmarkList}"
+                 th:attr="data-isbn=${book.isbn13}">
+
+                <!-- 북마크 해제 버튼 -->
+                <button type="button"
+                        class="bookmark-ribbon"
+                        th:attr="data-isbn=${book.isbn13}"
+                        aria-label="북마크 해제"></button>
+
+                <!-- 책 이미지 클릭 -> 도서 상세 이동 -->
+                <a class="book-link" th:href="@{/book/detail(isbn13=${book.isbn13})}">
+                    <img class="book-img" th:src="${book.coverImg}" alt="도서 표지" />
+                </a>
+
                 <div class="book-title" th:text="${book.bookTitle}"></div>
                 <div class="book-meta" th:text="${book.authors}"></div>
             </div>
+
         </div>
     </div>
 
 </div>
 
-</body>
-</html>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const csrf = document.querySelector('meta[name="_csrf"]')?.getAttribute("content");
+        const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.getAttribute("content");
+
+        document.addEventListener("click", async (e) => {
+            const btn = e.target.closest(".bookmark-ribbon");
+            if (!btn) return;
+
+            // ✅ 아이콘 클릭이 상세 링크로 전파되지 않게
+            e.preventDefault();
+            e.stopPropagation();
+
+            const isbn13 = btn.dataset.isbn;
+            if (!isbn13) return;
+
+            try {
+                const headers = { "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8" };
+                if (csrf && csrfHeader) headers[csrfHeader] = csrf;
+
+                const res = await fetch("/my/bookmark/toggle", {
+                    method: "POST",
+                    headers,
+                    body: "isbn13=" + encodeURIComponent(isbn13)
+                });
+
+                const data = await res.json();
+
+                if (!data.success) {
+                    alert(data.message || "처리 실패");
+                    return;
+                }
+
+                if (data.bookmarkYn === "N") {
+                    btn.closest(".book-card")?.remove();
+                }
+            } catch (err) {
+                console.error(err);
+                alert("서버 통신 오류");
+            }
+        });
+    });
+</script>
+
+</th:block>>

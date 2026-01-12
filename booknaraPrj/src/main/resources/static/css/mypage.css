@@ -1,201 +1,202 @@
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-    font-family: Arial, sans-serif;
+/* 공통 */
+*{box-sizing:border-box;margin:0;padding:0;font-family:Arial,sans-serif;}
+body{background:#f5f5f5;}
+
+.container{
+    display:flex;
+    max-width:1200px;
+    margin:30px auto;
+    gap:20px;
+    padding:0 28px;
 }
 
-body {
-    background: #f5f5f5;
-    margin: 0;
-    font-family: Arial, sans-serif;
+/* 좌측 */
+.mypage-sidebar{
+    width:260px;
+    flex:0 0 260px;
 }
-
-/* ================= 헤더 ================= */
-.header {
-    height: 80px;
-    background: #ddd;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 20px;
+.profile-box{
+    background:#fff;
+    padding:20px;
+    border-radius:10px;
 }
-
-/* ================= 레이아웃 ================= */
-.container {
-    display: flex;
-    max-width: 1200px;
-    margin: 30px auto;
-    gap: 20px;
-
-    /* ✅ 추가 */
-    padding: 0 28px;  /* 좌우 숨쉴 공간 */
-
-}
-
-/* ================= 프로필 ================= */
-.profile-box {
-    width: 260px;
-    background: #fff;
-    padding: 20px;
-    border-radius: 10px;
-}
-
 .profile-img{
-    border: 1px solid black;
-    margin: 0 auto;
-    width:72px; height:72px;
+    width:72px;height:72px;margin:0 auto;
     border-radius:10%;
     background-size:cover;
-    background-position:center;
-    background-repeat:no-repeat;
+}
+.profile-name{text-align:center;font-weight:bold;}
+.profile-menu ul{list-style:none;margin-top:20px;}
+.profile-menu li{padding:10px 0;border-bottom:1px solid #eee;}
+.profile-menu a{text-decoration:none;color:inherit;}
+
+
+/* 우측 */
+.mypage-content{
+    flex:1;
+    min-width:0;
+    display:flex;
+    flex-direction:column;
+    gap:20px;
 }
 
-
-.profile-name {
-    text-align: center;
-    font-weight: bold;
-}
-
-.profile-desc {
-    text-align: center;
-    font-size: 13px;
-    color: #777;
-    margin-bottom: 15px;
-}
-
-.edit-btn {
-    width: 100%;
-    padding: 8px;
-    margin-bottom: 15px;
-}
-
-.profile-menu ul {
-    list-style: none;
-}
-
-.profile-menu li {
-    padding: 8px 0;
-    font-size: 14px;
-    cursor: pointer;
-}
-
-/* ================= 콘텐츠 ================= */
-.content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
-
+/* 카드 */
 .calendar-box,
 .rental-box,
-.history-box {
-    background: #fff;
-    padding: 20px;
-    border-radius: 10px;
+.history-box{
+    background:#fff;
+    padding:20px;
+    border-radius:10px;
 }
 
-/* 캘린더 */
-.calendar-body {
-    height: 200px;
-    background: #fafafa;
-    margin-top: 10px;
+/* 도서 */
+.book-list{display:flex;gap:15px;flex-wrap:wrap;}
+.book-item{width:120px;display:flex;flex-direction:column;gap:6px;}
+.book-thumb{width:120px;height:160px;background:#ddd;border-radius:8px;}
+.book-title{font-size:13px;font-weight:bold;}
+.book-date{font-size:12px;color:#666;}
+.book-status{color:#ff6b6b;font-weight:bold;}
+.empty-text{padding:12px;color:#666;font-size:13px;}
+
+/* 상태 */
+.status-message{
+    margin-top:20px;
+    background:#fff;
+    padding:12px;
+    border-radius:10px;
 }
+.status-badge{padding:4px 10px;border-radius:999px;font-size:12px;}
+.status-badge.red{background:#ffe5e5;color:#c62828;}
+.status-badge.green{background:#e6f6ea;color:#1b7a3a;}
+.status-badge.orange{background:#fff1d6;color:#b26a00;}
 
-/* 대여 도서 */
-.section-header {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 10px;
-}
+/* =========================
+   FullCalendar (내서재 연동 막대형)
+   - 서버에서 내려오는 기간 이벤트(대여중/연체/이력) 그대로 표시
+   - hover 시 막대 위에 도서명/기간 텍스트가 더 보이도록
+========================= */
 
-.book-list {
-    display: flex;
-    gap: 15px;
-}
-
-.book-item {
-    width: 100px;
-    height: 140px;
-    background: #ddd;
-    border-radius: 6px;
-}
-
-/* 이력 */
-.history-item {
-    display: flex;
-    gap: 15px;
-}
-
-.book-thumb {
-    width: 80px;
-    height: 110px;
-    background: #ddd;
-}
-
-.book-title {
-    font-weight: bold;
-}
-
-.book-status {
-    font-size: 13px;
-    color: #ff6b6b;
-}
-/* ================= 프로필 메뉴 보완 ================= */
-
-.write-btn {
-    width: 100%;
-    margin: 15px 0;
-    padding: 8px;
-    border-radius: 20px;
-    border: none;
-    background: #000;
-    color: #fff;
-    cursor: pointer;
-}
-
-.profile-menu {
-    margin-top: 20px;
-}
-
-.profile-menu li {
-    padding: 10px 0;
-    border-bottom: 1px solid #eee;
-}
-
-
-/* ================= 상태 강조 ================= */
-.book-status {
-    margin-top: 10px;
-    font-weight: bold;
-    color: #ff6b6b;
-}
-
-
-/* FullCalendar */
-#calendar {
-    font-size: 13px;
-}
-
-.fc-toolbar-title {
-    font-size: 16px;
-    font-weight: bold;
-}
-
-#calendar {
+/* 캘린더 기본 */
+#calendar{
     height: 350px;
+    font-size: 13px;
 }
 
-
-.profile-menu a {
-    text-decoration: none;
-    color: inherit;
-    display: block;
+/* ✅ hover 확장/텍스트가 칸 밖으로 나가도 안 잘리게 */
+#calendar .fc,
+#calendar .fc-view-harness,
+#calendar .fc-scroller,
+#calendar .fc-daygrid-body,
+#calendar .fc-daygrid-day-frame,
+#calendar .fc-daygrid-day-events,
+#calendar .fc-daygrid-event-harness,
+#calendar .fc-daygrid-event-harness-abs{
+    overflow: visible !important;
 }
 
-.profile-menu li.active a {
-    font-weight: bold;
+/* (선택) 날짜 숫자 가운데 */
+#calendar .fc-daygrid-day-top{
+    justify-content: center;
+}
+#calendar .fc-daygrid-day-number{
+    padding: 6px 0 0 0 !important;
+    font-weight: 600;
 }
 
+/* ✅ 기본 이벤트 테두리/그림자 제거 */
+#calendar .fc-daygrid-event{
+    border: 0 !important;
+    box-shadow: none !important;
+}
 
+/* =========================
+   막대(기간 이벤트) 스타일
+   - JS에서 eventClassNames로 lend-bar + bar-active/bar-overdue/bar-returned 부여 전제
+========================= */
+
+/* 이벤트(막대) 전체 */
+#calendar .fc-daygrid-event.lend-bar{
+    border-radius: 999px !important;
+    padding: 0 !important;
+    overflow: visible !important;
+}
+
+/* FullCalendar 내부(main) */
+#calendar .fc-daygrid-event.lend-bar .fc-event-main{
+    border-radius: 999px !important;
+    padding: 6px 10px !important;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+/* 막대 내부 텍스트 래퍼 (JS eventContent에서 넣는 구조 전제)
+   <div class="lend-bar-inner">
+     <span class="bar-date">YYYY-MM-DD ~ YYYY-MM-DD</span>
+     <span class="bar-title">도서명</span>
+   </div>
+*/
+#calendar .lend-bar-inner{
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+/* 기본: 제목 숨기고 기간만 표시(원하면 둘다 표시로 바꿔도 됨) */
+#calendar .lend-bar-inner .bar-title{
+    display: none;
+    font-weight: 700;
+}
+
+/* ✅ hover 시 막대가 위로 올라오고, 텍스트 확장 */
+#calendar .fc-daygrid-event.lend-bar:hover{
+    z-index: 9999 !important;
+}
+
+/* hover 시 잘림 없이 더 보이게 */
+#calendar .fc-daygrid-event.lend-bar:hover .fc-event-main{
+    overflow: visible;
+    padding-right: 16px !important;
+}
+
+/* hover 시 제목 표시 */
+#calendar .fc-daygrid-event.lend-bar:hover .lend-bar-inner .bar-title{
+    display: inline;
+}
+
+/* =========================
+   상태별 색상
+========================= */
+
+/* 대여중 */
+#calendar .bar-active .fc-event-main{
+    background: #26c6a5 !important;
+    color: #fff !important;
+}
+
+/* 연체 */
+#calendar .bar-overdue .fc-event-main{
+    background: #f0283e !important;
+    color: #fff !important;
+}
+
+/* 반납완료/이력 */
+#calendar .bar-returned .fc-event-main{
+    background: #9aa3af !important;
+    color: #fff !important;
+}
+
+/* =========================
+   보기 옵션(선택)
+========================= */
+
+/* 이벤트가 너무 빽빽하면 높이/폰트 약간 줄이기 */
+#calendar .fc-daygrid-event.lend-bar .fc-event-main{
+    line-height: 1.1;
+}
+
+/* 여러 막대가 같은 날에 많을 때 줄간격 */
+#calendar .fc-daygrid-day-events{
+    margin-top: 2px !important;
+}

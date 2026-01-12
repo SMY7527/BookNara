@@ -1,52 +1,57 @@
 package com.booknara.booknaraPrj.mypage.mylibrary;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
-@Controller   // ❗ RestController → Controller 로 변경
+@Controller
 @RequiredArgsConstructor
 @RequestMapping("/payment")
 public class PaymentController {
 
     private final BootpayService bootpayService;
+    private final PaymentService paymentService;
 
-    /**
-     * 1️⃣ 부트페이 결제 완료 후 redirect (GET)
-     * redirect_url 로 호출됨
-     */
     @GetMapping("/redirect")
     public String redirect(
             @RequestParam(required = false) String receipt_id,
             Model model
     ) {
 
-        if (receipt_id == null) {
-            model.addAttribute("success", false);
-            model.addAttribute("message", "결제 정보가 없습니다.");
-            return "paymentResult";
-        }
+        // ✅ 현재 로그인한 사용자 ID (서버 기준)
+        String userId = SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getName();
 
-        // 서버에서 결제 검증
-        Map<String, Object> result = bootpayService.verify(receipt_id);
+        Map<String, Object> verifyResult =
+                bootpayService.verify(receipt_id);
 
-        model.addAttribute("result", result);
-        model.addAttribute("success", result.get("success"));
+        paymentService.savePayment(userId, receipt_id, verifyResult);
 
-        return "paymentResult"; // templates/paymentResult.html
+        model.addAttribute("success", true);
+        model.addAttribute("message", "결제 완료");
+
+        return "paymentResult";
     }
 
-    /**
-     * 2️⃣ JS에서 결제 검증 요청 (POST)
-     * fetch("/payment/verify") 로 호출
-     */
+    @PostMapping("/complete")
     @ResponseBody
-    @PostMapping("/verify")
-    public Map<String, Object> verify(@RequestBody Map<String, String> req) {
-        String receiptId = req.get("receiptId");
-        return bootpayService.verify(receiptId);
+    public void complete(@RequestBody Map<String, String> body) {
+
+        // ✅ 서버에서 로그인 사용자 ID 획득
+        String userId = SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getName();
+
+        String receiptId = body.get("receiptId");
+
+        System.out.println("🔥 [PAYMENT COMPLETE HIT] userId=" + userId);
+
+        paymentService.savePayment(userId, receiptId, Map.of());
     }
 }
+

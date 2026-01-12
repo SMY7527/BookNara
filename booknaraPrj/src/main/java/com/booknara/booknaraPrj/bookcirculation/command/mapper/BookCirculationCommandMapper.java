@@ -10,6 +10,10 @@ public interface BookCirculationCommandMapper {
     String selectUserBlockedYn(@Param("userId") String userId);
     String selectUserOverdueYn(@Param("userId") String userId);
 
+    int countMyActiveLends(String userId);
+    Integer selectMaxLendCount();
+
+
     // 대여 정책
     int existsActiveLendByUserAndIsbn(@Param("userId") String userId,
                                       @Param("isbn13") String isbn13);

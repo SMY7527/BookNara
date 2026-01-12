@@ -1,7 +1,9 @@
 package com.booknara.booknaraPrj.admin.settings;
 
+import com.booknara.booknaraPrj.admin.recomBooks.AdminRecomBooks;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface AdminSettingsRepository extends JpaRepository<AdminSettings, Long> {

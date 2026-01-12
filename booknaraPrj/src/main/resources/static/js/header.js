@@ -1,3 +1,12 @@
+document.addEventListener("scroll", () => {
+  const header = document.querySelector(".header");
+  if (window.scrollY > 5) {
+    header.classList.add("scrolled");
+  } else {
+    header.classList.remove("scrolled");
+  }
+});
+
 document.addEventListener("DOMContentLoaded", () => {
   const alarmBtn = document.getElementById("alarmBtn");
   const alarmBox = document.getElementById("alarmBox");

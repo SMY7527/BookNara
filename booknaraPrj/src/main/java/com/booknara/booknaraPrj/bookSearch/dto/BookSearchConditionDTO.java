@@ -2,6 +2,9 @@ package com.booknara.booknaraPrj.bookSearch.dto;
 
 import lombok.Data;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Data
 public class BookSearchConditionDTO {
     // 검색
@@ -26,6 +29,9 @@ public class BookSearchConditionDTO {
     
     //풀 컨텍스트 대상 판정
     private Boolean useFulltext; // 또는 boolean useFulltext;
+
+    //외국도서 카테고리
+    private List<Integer> foreignTopParentIds = new ArrayList<>();
 
 }
 

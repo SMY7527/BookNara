@@ -33,10 +33,21 @@
 
         /* 배너 및 추천카드 스타일 */
         .banner-card {
+            position: relative; /* X버튼 배치를 위해 추가 */
             border: 1px solid #F3F4F6; border-radius: 16px; padding: 16px;
             display: flex; align-items: center; gap: 16px; transition: all 0.2s;
         }
         .banner-card:hover { border-color: var(--main-color); background-color: #FEFCE8; }
+
+        /* 추천도서 삭제 버튼 스타일 */
+        .remove-recom-btn {
+            position: absolute; top: -8px; right: -8px;
+            width: 24px; height: 24px; background: #EF4444; color: white;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-size: 10px; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            z-index: 10; opacity: 0; transition: all 0.2s;
+        }
+        .banner-card:hover .remove-recom-btn { opacity: 1; transform: scale(1.1); }
 
         .btn-update { background-color: var(--main-color); color: white; padding: 10px 24px; border-radius: 12px; font-weight: bold; transition: all 0.2s; border: none; cursor: pointer; }
         .btn-update:hover { background-color: var(--hover-color); transform: translateY(-1px); }
@@ -131,7 +142,7 @@
                             </div>
                         </div>
                         <div class="input-group">
-                            <label class="input-label">추가 대여 기간</label>
+                            <label class="input-label">추가 대여 기간 (연장)</label>
                             <div class="relative">
                                 <input type="number" name="defaultExtendDays" th:value="${settings?.defaultExtendDays}" class="input-control px-4 py-3">
                                 <span class="absolute right-4 top-3.5 text-gray-400 font-bold text-xs">일</span>
@@ -142,6 +153,20 @@
                             <div class="relative">
                                 <input type="number" name="lateFeePerDay" th:value="${settings?.lateFeePerDay}" class="input-control px-4 py-3">
                                 <span class="absolute right-4 top-3.5 text-gray-400 font-bold text-xs">원</span>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">연체 시 대여 제한 기간</label>
+                            <div class="relative">
+                                <input type="number" name="latePenaltyDays" th:value="${settings?.latePenaltyDays}" class="input-control px-4 py-3">
+                                <span class="absolute right-4 top-3.5 text-gray-400 font-bold text-xs">일</span>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">도서 DB 업데이트 주기</label>
+                            <div class="relative">
+                                <input type="number" name="dbUpdateCycleDays" th:value="${settings?.dbUpdateCycleDays}" class="input-control px-4 py-3">
+                                <span class="absolute right-4 top-3.5 text-gray-400 font-bold text-xs">일</span>
                             </div>
                         </div>
                     </div>
@@ -202,12 +227,12 @@
                 <p class="input-label mb-4">현재 활성화된 추천 도서 (최대 10권)</p>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="activeRecommendList">
                     <div th:each="recom : ${activeRecommends}" class="banner-card bg-blue-50/30 border-blue-100">
-                        <div class="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-blue-500 shadow-sm border border-blue-50">
-                            <i class="fas fa-book text-lg"></i>
+                        <div class="remove-recom-btn" th:onclick="removeAndSave([[${recom.isbn13}]])">
+                            <i class="fas fa-times"></i>
                         </div>
                         <div class="flex-1 min-w-0">
-                            <p class="text-sm font-bold text-gray-800 truncate" th:text="${recom.bookTitle}">추천 도서 제목</p>
-                            <p class="text-[11px] text-gray-400" th:text="${recom.isbn13}">ISBN 정보</p>
+                            <p class="text-sm font-bold text-gray-800 truncate" th:text="${recom.title}">제목</p>
+                            <p class="text-[11px] text-gray-400" th:text="|ISBN: ${recom.isbn13} / ${recom.author}|">ISBN 및 저자</p>
                         </div>
                         <span class="px-3 py-1 bg-blue-100 text-blue-700 text-[10px] font-bold rounded-full">추천중</span>
                     </div>
@@ -267,20 +292,30 @@
                     </div>
                     <button type="button" onclick="searchBooks(0)" class="bg-gray-800 text-white px-6 rounded-xl font-bold text-sm">검색</button>
                 </div>
-                <div id="recomSearchResult" class="space-y-2 min-h-[200px] max-h-[300px] overflow-y-auto pr-2">
+                <div id="recomSearchResult" class="space-y-2 min-h-[200px] max-h-[600px] overflow-y-auto pr-2">
                     <p class="text-center text-gray-400 py-20 text-sm">검색어를 입력해 주세요.</p>
                 </div>
                 <div id="recomPagination" class="mt-6 flex justify-center gap-2"></div>
             </div>
-            <div id="recomRandomArea" class="hidden py-10 text-center">
-                <div class="inline-flex items-center justify-center w-20 h-20 bg-orange-50 text-main rounded-full mb-4 text-3xl">
-                    <i class="fas fa-dice"></i>
+            <div id="recomRandomArea" class="py-4">
+                <div id="randomInitialUI" class="py-10 text-center">
+                    <div class="inline-flex items-center justify-center w-20 h-20 bg-orange-50 text-main rounded-full mb-4 text-3xl">
+                        <i class="fas fa-dice"></i>
+                    </div>
+                    <h4 class="text-lg font-bold text-gray-800 mb-2">랜덤 추출 설정</h4>
+                    <p class="text-sm text-gray-500 mb-6">전체 도서 중 무작위로 추천 목록을 구성합니다.</p>
+                    <div class="flex justify-center gap-4">
+                        <button type="button" onclick="fetchRandomBooks(5)" class="px-6 py-3 border border-gray-200 rounded-xl font-bold text-sm hover:border-main">5권 추출</button>
+                        <button type="button" onclick="fetchRandomBooks(10)" class="px-6 py-3 border border-gray-200 rounded-xl font-bold text-sm hover:border-main">10권 추출</button>
+                    </div>
                 </div>
-                <h4 class="text-lg font-bold text-gray-800 mb-2">랜덤 추출 설정</h4>
-                <p class="text-sm text-gray-500 mb-6">전체 도서 중 무작위로 추천 목록을 구성합니다.</p>
-                <div class="flex justify-center gap-4">
-                    <button type="button" onclick="fetchRandomBooks(5)" class="px-6 py-3 border border-gray-200 rounded-xl font-bold text-sm hover:border-main">5권 추출</button>
-                    <button type="button" onclick="fetchRandomBooks(10)" class="px-6 py-3 border border-gray-200 rounded-xl font-bold text-sm hover:border-main">10권 추출</button>
+
+                <div id="randomResultDisplay" class="hidden">
+                    <div id="randomListContainer" class="space-y-2 min-h-[200px] max-h-[420px] overflow-y-auto pr-2"></div>
+                    <div id="randomPagination" class="mt-6 flex justify-center gap-2"></div>
+                    <div class="mt-4 text-center">
+                        <button type="button" onclick="resetRandomUI()" class="text-xs text-gray-400 underline hover:text-main">다시 추출하기</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -294,7 +329,7 @@
     </div>
 </div>
 
-<script>
+<script th:inline="javascript">
     /* 이벤트 배너 관련 스크립트 */
     const itemsPerPage = 10;
     let currentPage = 1;
@@ -343,7 +378,13 @@
     }
 
     /* 추천 도서 관련 스크립트 */
+    // 기존 활성화된 ISBN 목록으로 초기화
     let selectedIsbns = [];
+    const initialRecommends = /*[[${activeRecommends}]]*/ [];
+    if (initialRecommends && Array.isArray(initialRecommends)) {
+        selectedIsbns = initialRecommends.map(r => r.isbn13);
+        document.getElementById('selectedCount').innerText = selectedIsbns.length;
+    }
 
     function openRecommendModal() {
         document.getElementById('recommendModal').classList.remove('hidden');
@@ -368,23 +409,37 @@
         const keyword = document.getElementById('recomSearchInput').value;
         if(!keyword) return alert("검색어를 입력하세요.");
         const container = document.getElementById('recomSearchResult');
-        container.innerHTML = '<div class="text-center py-20"><i class="fas fa-circle-notch fa-spin text-2xl text-main"></i></div>';
+        container.innerHTML = '<div class="text-center py-10"><i class="fas fa-circle-notch fa-spin text-2xl text-main"></i></div>';
 
         try {
-            const res = await fetch(`/api/books/search?keyword=${encodeURIComponent(keyword)}&page=${page}&size=5`);
+            // 필터링 후에도 5개를 유지하기 위해 서버에서 조금 더 넉넉히(size=10) 요청합니다.
+            const res = await fetch(`/admin/search?keyword=${encodeURIComponent(keyword)}&page=${page}&size=10`);
             const data = await res.json();
-            renderSearchResult(data.content);
+
+            // 1. 전자책(_e) 제외
+            // 2. 상위 5개만 추출 (slice)
+            const filteredContent = data.content
+                .filter(book => !book.isbn13.endsWith('_e'))
+                .slice(0, 5);
+
+            renderSearchResult(filteredContent);
             renderRecomPagination(data.totalPages, data.number);
-        } catch (e) { container.innerHTML = '<p class="text-center py-20 text-red-400">오류가 발생했습니다.</p>'; }
+        } catch (e) {
+            console.error(e);
+            container.innerHTML = '<p class="text-center py-10 text-red-400">오류가 발생했습니다.</p>';
+        }
     }
 
     function renderSearchResult(books) {
         const container = document.getElementById('recomSearchResult');
-        container.innerHTML = books.length ? '' : '<p class="text-center py-20 text-gray-400">결과가 없습니다.</p>';
+        container.innerHTML = (books && books.length) ? '' : '<p class="text-center py-20 text-gray-400">결과가 없습니다.</p>';
+        if(!books) return;
+
         books.forEach(book => {
             const checked = selectedIsbns.includes(book.isbn13) ? 'checked' : '';
+            // 패딩(p-3)과 간격(mb-2)을 조정하여 5개가 딱 들어오게 구성
             container.innerHTML += `
-                <label class="flex items-center gap-4 p-4 border border-gray-100 rounded-xl hover:bg-gray-50 cursor-pointer transition-all">
+                <label class="flex items-center gap-4 p-3 border border-gray-100 rounded-xl hover:bg-gray-50 cursor-pointer transition-all mb-2">
                     <input type="checkbox" onchange="toggleRecomSelection('${book.isbn13}')" ${checked} class="w-5 h-5 accent-[#DCA244] rounded">
                     <div class="flex-1 min-w-0">
                         <p class="text-sm font-bold text-gray-800 truncate">${book.title}</p>
@@ -404,27 +459,164 @@
         document.getElementById('selectedCount').innerText = selectedIsbns.length;
     }
 
+    // 추천 도서 개별 삭제 및 즉시 저장 함수
+    async function removeAndSave(isbn) {
+        if(!confirm("해당 도서를 추천 목록에서 제외하시겠습니까?")) return;
+        selectedIsbns = selectedIsbns.filter(id => id !== isbn);
+        await executeSave();
+    }
+
+    let currentRandomBooks = [];
+    const randomPageSize = 5;
+
     async function fetchRandomBooks(count) {
         if(!confirm(`${count}권을 랜덤 추출하시겠습니까?`)) return;
+
+        // 1. UI 즉시 교체
+        document.getElementById('randomInitialUI').classList.add('hidden');
+        document.getElementById('randomResultDisplay').classList.remove('hidden');
+
+        const listContainer = document.getElementById('randomListContainer');
+        listContainer.innerHTML = '<div class="text-center py-20"><i class="fas fa-circle-notch fa-spin text-2xl text-main"></i></div>';
+
         try {
-            const res = await fetch(`/api/books/random?count=${count}`);
+            // [수정] 서버에서 이미 최적화되어 오므로 필요한 개수만 요청
+            const res = await fetch(`/admin/random?count=${count}`);
             const data = await res.json();
-            selectedIsbns = data.map(b => b.isbn13);
+
+            // [수정] 서버 응답이 이미 DTO 리스트이므로 바로 할당
+            currentRandomBooks = Array.isArray(data) ? data : [];
+
+            if (currentRandomBooks.length === 0) {
+                listContainer.innerHTML = '<p class="text-center py-20 text-gray-400">데이터가 없습니다.</p>';
+                return;
+            }
+
+            // 전체 선택 상태 업데이트
+            selectedIsbns = currentRandomBooks.map(b => b.isbn13);
             document.getElementById('selectedCount').innerText = selectedIsbns.length;
-            switchRecomTab('manual');
-            renderSearchResult(data);
-        } catch (e) { alert("추출 실패"); }
+
+            renderRandomPage(0);
+
+        } catch (e) {
+            console.error(e);
+            alert("데이터를 불러오는 데 실패했습니다.");
+            resetRandomUI(); // 에러 시 초기 화면으로 복구
+        }
+    }
+
+    function renderRandomPage(pageIndex) {
+        const start = pageIndex * randomPageSize;
+        const pageContent = currentRandomBooks.slice(start, start + randomPageSize);
+
+        const listContainer = document.getElementById('randomListContainer');
+        listContainer.innerHTML = '';
+
+        pageContent.forEach(book => {
+            const checked = selectedIsbns.includes(book.isbn13) ? 'checked' : '';
+            listContainer.innerHTML += `
+                <label class="flex items-center gap-4 p-3 border border-gray-100 rounded-xl hover:bg-gray-50 cursor-pointer mb-2">
+                    <input type="checkbox" onchange="toggleRecomSelection('${book.isbn13}')" ${checked} class="w-5 h-5 accent-[#DCA244] rounded">
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-bold text-gray-800 truncate">${book.title}</p>
+                        <p class="text-[11px] text-gray-400">ISBN: ${book.isbn13} / ${book.author}</p>
+                    </div>
+                </label>`;
+        });
+
+        // 페이징 버튼 생성
+        renderRandomPagination(Math.ceil(currentRandomBooks.length / randomPageSize), pageIndex);
+    }
+
+    function renderRandomPagination(totalPages, pageIndex) {
+        const container = document.getElementById('randomPagination');
+        container.innerHTML = '';
+        if (totalPages <= 1) return;
+
+        for (let i = 0; i < totalPages; i++) {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.innerText = i + 1;
+            btn.className = `pagination-btn ${i === pageIndex ? 'active' : ''}`;
+            btn.style.margin = "0 2px";
+            btn.onclick = () => renderRandomPage(i);
+            container.appendChild(btn);
+        }
+    }
+
+    function resetRandomUI() {
+        document.getElementById('randomInitialUI').classList.remove('hidden');
+        document.getElementById('randomResultDisplay').classList.add('hidden');
+        currentRandomBooks = [];
     }
 
     async function saveRecommendations() {
         if(!selectedIsbns.length) return alert("도서를 선택하세요.");
-        const res = await fetch('/admin/updateRecommendations', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ isbns: selectedIsbns })
-        });
-        if(res.ok) { alert("저장되었습니다."); location.reload(); }
+        await executeSave();
     }
+
+    // 공통 저장 로직
+    async function executeSave() {
+        try {
+            const res = await fetch('/admin/updateRecommendations', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ isbns: selectedIsbns })
+            });
+
+            if(res.ok) {
+                location.reload();
+            } else {
+                alert("저장 중 오류가 발생했습니다.");
+            }
+        } catch (e) {
+            console.error(e);
+            alert("서버 연결에 실패했습니다.");
+        }
+    }
+
+    function renderRecomPagination(totalPages, currentPage) {
+        const container = document.getElementById('recomPagination');
+        container.innerHTML = '';
+        if (totalPages <= 1) return;
+
+        const maxButtons = 5;
+        let startPage = Math.max(0, currentPage - Math.floor(maxButtons / 2));
+        let endPage = Math.min(totalPages - 1, startPage + maxButtons - 1);
+
+        if (endPage - startPage + 1 < maxButtons) {
+            startPage = Math.max(0, endPage - maxButtons + 1);
+        }
+
+        for (let i = startPage; i <= endPage; i++) {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.innerText = i + 1;
+            btn.className = `pagination-btn ${i === currentPage ? 'active' : ''}`;
+            btn.onclick = () => searchBooks(i);
+            container.appendChild(btn);
+        }
+    }
+
+    async function removeAndSave(isbn) {
+    if(!confirm("추천 목록에서 삭제하시겠습니까?")) return;
+
+    try {
+        const response = await fetch('/admin/deactivateRecommendation', { // 경로 확인!
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ "isbn": isbn }) // 키값이 "isbn"이어야 함
+        });
+
+        if (response.ok) {
+            location.reload(); // 화면 새로고침하여 반영 확인
+        }
+    } catch (error) {
+        console.error("Error:", error);
+    }
+}
 </script>
 
 </body>

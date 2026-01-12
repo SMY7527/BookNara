@@ -21,15 +21,19 @@
             <!-- 로그인 후 -->
             <div class="top-right after-login" sec:authorize="isAuthenticated()">
                 <div class="profile-row">
-                    <div class="profile-img"></div>
+                    <div class="profile-img">
+                        <img th:src="${profileImage}"
+                             alt="프로필 이미지"
+>
+                    </div>
                     <div class="profile-name">
                         <span sec:authentication="principal.profileNm"></span> 님 🔽
                     </div>
 
                     <div class="user-dropdown">
-                        <a href="#">마이페이지</a>
-                        <a href="#">내 서재</a>
-                        <a href="#">북마크</a>
+                        <a th:href="@{/mypage}">마이페이지</a>
+                        <a th:href="@{/my/booklist}">내 서재</a>
+                        <a th:href="@{/mypage}">북마크</a>
                         <!-- ⭐ 관리자 전용 -->
                         <a th:href="@{/admin/Statistics}"
                            sec:authorize="hasRole('ADMIN')">
@@ -55,23 +59,26 @@
 
             <nav class="nav">
                 <a th:href="@{/recommend}">맞춤 추천</a><span>|</span>
-                <a href="">검색</a><span>|</span>
-                <a href="">피드</a><span>|</span>
-                <a href="">안내</a><span>|</span>
-                <a href="">이벤트</a><span>|</span>
+                <a th:href="@{/book/search}">검색</a><span>|</span>
+                <a th:href="@{/}">피드</a><span>|</span>
+                <a th:href="@{/}">안내</a><span>|</span>
+                <a th:href="@{/}">이벤트</a><span>|</span>
             </nav>
 
             <div class="right">
                 <div class="icon-row">
                     <div class="search-bar">
-                        <input type="text">
-                        <button class="search-btn">
-                            <img th:src="@{/images/icon1.png}">
-                        </button>
+                        <form th:action="@{/book/search}" method="get">
+                            <input type="text" name="keyword">
+                            <button class="search-btn" type="submit">
+                                <img th:src="@{/images/icon1.png}">
+                            </button>
+                        </form>
                     </div>
 
+
                     <div class="after-login icon-group" sec:authorize="isAuthenticated()">
-                        <div class="icon">🛒</div>
+                        <div class="icon"><a th:href="@{/book/cart}">🛒</a></div>
                         <div class="icon">
                             <button id="alarmBtn">🔔</button>
                             <span class="alarm-cnt"></span>

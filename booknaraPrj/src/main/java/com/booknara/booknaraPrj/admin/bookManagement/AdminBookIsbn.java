@@ -1,14 +1,14 @@
 package com.booknara.booknaraPrj.admin.bookManagement;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Getter
@@ -65,7 +65,13 @@ public class AdminBookIsbn {
     @Column(name = "UPDATED_AT")
     private LocalDateTime updatedAt;
 
+    @ToString.Exclude // [추가]
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "GENRE_ID", nullable = false)
     private AdminGenre adminGenre;
+
+    @ToString.Exclude
+    @OneToMany(mappedBy = "bookIsbn", fetch = FetchType.LAZY)
+    @JsonIgnore // [이것이 핵심입니다] 부모에서 자식 리스트로 다시 내려가는 루프를 방어합니다.
+    private List<AdminBooks> adminBooksList;
 }

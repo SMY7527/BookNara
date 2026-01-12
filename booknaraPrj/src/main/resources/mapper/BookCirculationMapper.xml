@@ -115,4 +115,21 @@
         </if>
     </select>
 
+    <select id="countMyActiveLends" resultType="int">
+        SELECT COUNT(*)
+        FROM LENDS
+        WHERE USER_ID = #{userId}
+          AND RETURN_DONE_AT IS NULL
+    </select>
+
+    <select id="selectMaxLendCount" resultType="int">
+        SELECT MAX_LEND_COUNT
+        FROM SETTINGS
+        ORDER BY SETTINGS_ID DESC
+            LIMIT 1
+    </select>
+
+
+
+
 </mapper>

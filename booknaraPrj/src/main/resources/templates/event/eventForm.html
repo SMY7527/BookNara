@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>이벤트 등록</title>
+
+    <!-- 기존 공통 CSS가 있으면 연결 (선택) -->
+    <!-- <link rel="stylesheet" th:href="@{/css/common.css}"> -->
+
+    <link rel="stylesheet" th:href="@{/css/eventForm.css}">
+</head>
+<body>
+
+<main class="page">
+    <section class="card">
+        <header class="card__header">
+            <div class="badge">ADMIN</div>
+            <h1 class="title">이벤트 등록</h1>
+            <p class="desc">제목, 기간, 썸네일을 등록하면 이벤트 목록에 바로 노출돼요.</p>
+        </header>
+
+        <form class="form" th:action="@{/event/register}" method="post" enctype="multipart/form-data">
+            <div class="grid">
+                <!-- 제목 -->
+                <div class="field col-12">
+                    <label class="label" for="eventTitle">제목</label>
+                    <input class="input" id="eventTitle" type="text" name="eventTitle"
+                           placeholder="예) 신년 맞이 배송비 할인 이벤트" required maxlength="60">
+                    <div class="help">최대 60자</div>
+                </div>
+
+                <!-- 기간 -->
+                <div class="field col-6">
+                    <label class="label" for="startAt">시작일</label>
+                    <input class="input" id="startAt" type="datetime-local" name="startAt" required>
+                </div>
+
+                <div class="field col-6">
+                    <label class="label" for="endAt">종료일</label>
+                    <input class="input" id="endAt" type="datetime-local" name="endAt" required>
+                    <div class="help warn" id="dateWarn" style="display:none;">종료일은 시작일 이후여야 해요.</div>
+                </div>
+
+                <!-- 내용 -->
+                <div class="field col-12">
+                    <label class="label" for="eventContent">내용</label>
+                    <textarea class="textarea" id="eventContent" name="eventContent"
+                              placeholder="이벤트 상세 안내를 작성하세요 (혜택/대상/유의사항 등)" required rows="7"></textarea>
+                </div>
+
+                <!-- 썸네일 -->
+                <div class="field col-12">
+                    <label class="label" for="thumbFile">썸네일 이미지</label>
+                    <div class="filebox">
+                        <input class="file" id="thumbFile" type="file" name="thumbFile" accept=".jpg,.jpeg,.png,image/jpeg,image/png">
+                        >
+                        <div class="file__meta">
+                            <div class="file__name" id="fileName">선택된 파일 없음</div>
+                            <div class="help">권장: 1200×675, JPG/PNG</div>
+                        </div>
+                        <div class="preview" id="preview" aria-label="thumbnail preview"></div>
+                    </div>
+                </div>
+            </div>
+
+            <footer class="actions">
+                <a class="btn btn--ghost" th:href="@{/event/list}">목록으로</a>
+                <button class="btn btn--primary" type="submit">등록</button>
+            </footer>
+        </form>
+    </section>
+
+    <input type="file" name="thumbFile" accept="image/*" onchange="checkSize(this, 10)" />
+    <input type="file" name="detailFiles" accept="image/*" multiple onchange="checkMultiSize(this, 40)" />
+    <script>
+        function checkSize(input, limitMB){
+          const f = input.files?.[0];
+          if(!f) return;
+          const mb = f.size / (1024*1024);
+          if(mb > limitMB){
+            alert(`파일이 너무 큽니다. (최대 ${limitMB}MB)`);
+            input.value = "";
+          }
+        }
+        function checkMultiSize(input, limitMB){
+          const files = [...(input.files||[])];
+          const total = files.reduce((a,f)=>a+f.size,0)/(1024*1024);
+          if(total > limitMB){
+            alert(`전체 파일 용량이 너무 큽니다. (총합 최대 ${limitMB}MB)`);
+            input.value = "";
+          }
+        }
+    </script>
+
+</main>
+
+<script>
+    // 파일명 + 미리보기
+    const fileInput = document.getElementById('thumbFile');
+    const fileName = document.getElementById('fileName');
+    const preview = document.getElementById('preview');
+
+    fileInput?.addEventListener('change', (e) => {
+      const file = e.target.files?.[0];
+      if (!file) {
+        fileName.textContent = '선택된 파일 없음';
+        preview.style.backgroundImage = '';
+        preview.classList.remove('on');
+        return;
+      }
+      fileName.textContent = file.name;
+
+      if (file.type.startsWith('image/')) {
+        const url = URL.createObjectURL(file);
+        preview.style.backgroundImage = `url('${url}')`;
+        preview.classList.add('on');
+      }
+    });
+
+    // 날짜 검증(UX)
+    const startAt = document.getElementById('startAt');
+    const endAt = document.getElementById('endAt');
+    const warn = document.getElementById('dateWarn');
+
+    function validateDates() {
+      if (!startAt.value || !endAt.value) { warn.style.display = 'none'; return; }
+      const s = new Date(startAt.value);
+      const e = new Date(endAt.value);
+      const ok = e > s;
+      warn.style.display = ok ? 'none' : 'block';
+    }
+    startAt?.addEventListener('change', validateDates);
+    endAt?.addEventListener('change', validateDates);
+</script>
+
+</body>
+</html>

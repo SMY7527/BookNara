@@ -17,4 +17,40 @@ public interface FeedReviewMapper {
     List<ReviewItemDTO> selectPageByIsbn(@Param("isbn13") String isbn13,
                                          @Param("offset") int offset,
                                          @Param("size") int size);
+
+    int existsReturnedLend(@Param("userId") String userId,
+                           @Param("isbn13") String isbn13);
+
+    String selectMyReviewFeedId(@Param("userId") String userId,
+                                @Param("isbn13") String isbn13);
+
+    int insertReviewFeed(@Param("feedId") String feedId,
+                         @Param("userId") String userId,
+                         @Param("isbn13") String isbn13,
+                         @Param("title") String title,
+                         @Param("content") String content);
+
+    int insertReviewDetail(@Param("feedId") String feedId,
+                           @Param("rate") int rate);
+
+    int updateReviewFeedByOwner(@Param("feedId") String feedId,
+                                @Param("userId") String userId,
+                                @Param("title") String title,
+                                @Param("content") String content);
+
+    int updateReviewDetail(@Param("feedId") String feedId,
+                           @Param("rate") int rate);
+
+    List<ReviewItemDTO> selectPageByIsbnWithMine(
+            @Param("isbn13") String isbn13,
+            @Param("userId") String userId,
+            @Param("offset") int offset,
+            @Param("size") int size
+    );
+
+    String selectIsbnByFeedId(@Param("feedId") String feedId);
+
+    int deleteReviewFeedByOwner(@Param("feedId") String feedId,
+                                @Param("userId") String userId);
+
 }

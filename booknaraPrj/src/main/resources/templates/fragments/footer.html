@@ -1,4 +1,10 @@
-<link rel="stylesheet" th:href="@{/css/footer.css}" xmlns:th="http://www.w3.org/1999/xhtml">
+<th:block
+        th:fragment="footer"
+        xmlns:th="http://www.thymeleaf.org"
+        xmlns:sec="http://www.thymeleaf.org/extras/spring-security6">
+
+    <!-- header 전용 CSS -->
+    <link rel="stylesheet" th:href="@{/css/footer.css}">
 
 <footer class="footer">
     <div class="footer-inner">
@@ -16,11 +22,11 @@
         <div class="footer-menu">
             <h3>서비스</h3>
             <ul>
-                <li><a href="#">맞춤 추천</a></li>
-                <li><a href="#">검색</a></li>
-                <li><a href="#">피드</a></li>
-                <li><a href="#">안내</a></li>
-                <li><a href="#">이벤트</a></li>
+                <li><a th:href="@{/recommend}">맞춤 추천</a></li>
+                <li><a th:href="@{/book/search}">검색</a></li>
+                <li><a th:href="@{/feed}">피드</a></li>
+                <li><a th:href="@{/}">안내</a></li>
+                <li><a th:href="@{/}">이벤트</a></li>
             </ul>
         </div>
 
@@ -28,10 +34,10 @@
         <div class="footer-menu">
             <h3>고객센터</h3>
             <ul>
-                <li><a href="#">FAQ</a></li>
-                <li><a href="#">1:1 문의</a></li>
-                <li><a href="#">대여·반납 안내</a></li>
-                <li><a href="#">무인반납함 위치</a></li>
+                <li><a th:href="@{/}">FAQ</a></li>
+                <li><a th:href="@{/}">1:1 문의</a></li>
+                <li><a th:href="@{/}">대여·반납 안내</a></li>
+                <li><a th:href="@{/}">무인반납함 위치</a></li>
             </ul>
         </div>
 
@@ -39,9 +45,9 @@
         <div class="footer-menu">
             <h3>정책</h3>
             <ul>
-                <li><a href="#">이용약관</a></li>
-                <li><a href="#">개인정보처리방침</a></li>
-                <li><a href="#">저작권 정책</a></li>
+                <li><a th:href="@{/}">이용약관</a></li>
+                <li><a th:href="@{/}">개인정보처리방침</a></li>
+                <li><a th:href="@{/}">저작권 정책</a></li>
             </ul>
         </div>
 
@@ -66,3 +72,4 @@
         </div>
     </div>
 </footer>
+</th:block>

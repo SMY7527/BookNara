@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>찾아오는길</title>
+
+    <!-- 공통 -->
+    <link rel="stylesheet" th:href="@{/css/common.css}" />
+    <!-- 페이지 전용 -->
+    <link rel="stylesheet" th:href="@{/css/location.css}" />
+  </head>
+
+  <body>
+    <!-- common.js가 헤더 그려줌 -->
+    <header id="siteHeader"></header>
+
+    <main class="container">
+      <h2 class="page-title">찾아오는길</h2>
+
+      <section class="card">
+        <div class="grid">
+          <!-- 지도 이미지 -->
+          <figure class="map">
+            <img
+              class="map-img"
+              th:src="@{/images/map-seogyo.png}"
+              alt="서교동 354-8 위치 지도 스크린샷"
+            />
+            <figcaption class="map-cap">
+              지도 API 없이 스크린샷으로 표시됩니다.
+            </figcaption>
+          </figure>
+
+          <!-- 안내 -->
+          <div class="info">
+            <div class="addr-box">
+              <div class="label">주소</div>
+              <div class="addr" id="addrText">서교동 354-8</div>
+
+              <div class="addr-actions">
+                <button class="btn" id="copyAddr" type="button">
+                  주소 복사
+                </button>
+                <a
+                  class="btn ghost"
+                  id="naverLink"
+                  target="_blank"
+                  rel="noopener"
+                  >네이버에서 보기</a
+                >
+                <a
+                  class="btn ghost"
+                  id="kakaoLink"
+                  target="_blank"
+                  rel="noopener"
+                  >카카오에서 보기</a
+                >
+              </div>
+            </div>
+
+            <div class="how">
+              <div class="how-title">오시는 방법</div>
+
+              <ul class="how-list">
+                <li><b>지하철</b> : (예시) 홍대입구역에서 도보 10~15분</li>
+                <li>
+                  <b>버스</b> : (예시) 홍대입구/서교동 인근 정류장 하차 후 도보
+                </li>
+                <li><b>차량</b> : (예시) 주변 유료주차장 이용 권장</li>
+              </ul>
+
+              <div class="note">
+                * 상세 경로 문구는 팀 상황에 맞게 바꿔도 되고, “지도
+                스샷”만으로도 제출 가능.
+              </div>
+            </div>
+
+            <div class="bottom">
+              <button class="back" type="button" onclick="history.back()">
+                ← 이전으로
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script th:src="@{/js/common.js}" defer></script>
+    <script th:src="@{/js/location.js}" defer></script>
+  </body>
+</html>

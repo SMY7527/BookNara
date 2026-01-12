@@ -9,14 +9,15 @@
             resultType="com.booknara.booknaraPrj.mainpage.dto.LibrarianBookDTO">
 
         SELECT
-        b.ISBN13        AS isbn13,
-        b.BOOK_TITLE    AS bookTitle,
-        b.AUTHORS       AS authors,
-        b.PUBLISHER     AS publisher,
-        b.NAVER_IMAGE   AS bookImg
+        b.ISBN13      AS isbn13,
+        b.BOOK_TITLE  AS bookTitle,
+        b.AUTHORS     AS authors,
+        b.PUBLISHER   AS publisher,
+        b.NAVER_IMAGE AS bookImg
         FROM RECOM_BOOKS r
         JOIN BOOK_ISBN b
         ON r.ISBN13 = b.ISBN13
+        WHERE r.STATE = 'active'
         ORDER BY r.CREATED_AT DESC
         LIMIT 6
 

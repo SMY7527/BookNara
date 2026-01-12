@@ -3,63 +3,596 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <link rel="stylesheet" th:href="@{/css/footer.css}">
     <title>장바구니</title>
+
     <style>
-        .wrap{max-width:1100px;margin:24px auto;padding:0 16px;display:flex;gap:24px;}
-        .left{flex:1;}
-        .right{width:320px;border:1px solid #e5e5e5;border-radius:10px;padding:16px;height:fit-content;}
-        .row{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid #eee;align-items:center;}
-        .thumb{width:70px;height:100px;object-fit:cover;border-radius:8px;background:#f3f3f3;}
-        .title{font-weight:700;}
-        .meta{color:#666;font-size:13px;margin-top:4px;}
-        .badge{display:inline-block;font-size:12px;padding:2px 8px;border:1px solid #ddd;border-radius:999px;margin-top:6px;}
-        button{cursor:pointer;}
+        :root{
+            --accent:#DCA244;
+            --accent-weak: rgba(220,162,68,.18);
+            --line:#e7e7e7;
+            --muted:#666;
+            --text:#111;
+            --chip:#f6f7fb;
+            --danger:#e5484d;
+            --bg:#fff;
+
+            --card:#ffffff;
+            --card2:#fafafa;
+        }
+
+        body{ background:var(--bg); }
+
+        .wrap{
+            max-width:1100px;
+            margin:24px auto;
+            padding:0 16px;
+        }
+        .steps-wrap{ margin: 50px 0 50px; }
+        .grid{
+            display:flex;
+            gap:24px;
+            align-items:flex-start;
+        }
+        .left{ flex:1; }
+
+        /* ===== 상단 타이틀 ===== */
+        .page-head{
+            display:flex;align-items:center;justify-content:space-between;
+            margin:6px 0 12px;
+        }
+
+        .page-title{
+            margin:0;
+            font-size:22px;
+            font-weight:900;
+            letter-spacing:-0.02em;
+            color: var(--accent);
+        }
+
+        /* ===== 단계 ===== */
+        .steps{
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            gap:16px;
+            padding:12px 0;
+        }
+        .step{
+            display:flex;align-items:center;gap:10px;
+            font-size:18px;font-weight:950;
+            color:#9a9a9a;
+        }
+        .dot{
+            width:12px;height:12px;border-radius:50%;
+            background:#d7d7d7;
+            box-shadow: inset 0 0 0 2px rgba(0,0,0,0.03);
+        }
+        .step.active{ color: var(--accent); }
+        .step.active .dot{ background: var(--accent); }
+        .sep{ font-size:18px;font-weight:900;color:#cbb58a; }
+
+        /* ===== 섹션 타이틀 ===== */
+        .section-title{
+            margin:24px 0 10px;
+            font-size:20px;
+            font-weight:950;
+            display:flex;
+            align-items:flex-end;
+            gap:10px;
+            color: var(--accent);
+        }
+
+        /* ✅ 종이책/전자책 사이 간격 */
+        .section-gap{
+            margin-top:34px;
+        }
+
+        /* ===== 아이템 ===== */
+        .row{
+            display:flex;
+            gap:14px;
+            padding:14px 0;
+            border-bottom:1px solid #f0f0f0;
+            align-items:center;
+        }
+        .thumb-wrap{
+            width:92px;
+            flex:0 0 92px;
+            border-radius:12px;
+            overflow:hidden;
+            border:1px solid #f0f0f0;
+            background:#f3f3f3;
+        }
+        .thumb{
+            width:92px;
+            height:128px;
+            object-fit:cover;
+            display:block;
+        }
+
+        .title{
+            font-weight:950;
+            font-size:15px;
+            line-height:1.3;
+            color: var(--text);
+        }
+        .meta{
+            color:var(--muted);
+            font-size:13px;
+            margin-top:6px;
+            white-space:nowrap;
+            overflow:hidden;
+            text-overflow:ellipsis;
+            max-width:420px;
+        }
+        .badge{
+            display:inline-block;
+            font-size:12px;
+            padding:3px 10px;
+            border-radius:999px;
+            margin-top:8px;
+            border:1px solid #eee;
+            background:#fff;
+            color:#666;
+            font-weight:800;
+        }
+        .badge.paper{ border-color: rgba(220,162,68,.35); background: rgba(220,162,68,.10); color:#8a6a22; }
+        .badge.ebook{ border-color: rgba(99,188,217,.35); background: rgba(99,188,217,.10); color:#2f6f86; }
+
+        /* ===== 버튼 ===== */
+        .btn{
+            border:1px solid var(--line);
+            background:#fff;
+            border-radius:10px;
+            padding:8px 12px;
+            font-weight:900;
+            font-size:13px;
+            cursor:pointer;
+            transition: transform .06s ease, background .15s ease, border-color .15s ease;
+        }
+        .btn:active{ transform: translateY(1px); }
+        .btn-ghost{
+            background: rgba(220,162,68,.10);
+            border-color: rgba(220,162,68,.35);
+            color: #8a6a22;
+        }
+        .btn-ghost:hover{
+            background: rgba(220,162,68,.16);
+            border-color: rgba(220,162,68,.45);
+        }
+        .btn-danger{
+            background:#fff5f5;
+            border-color:#ffd2d3;
+            color:#b42318;
+        }
+        .btn-danger:hover{ background:#ffe9ea; border-color:#ffb9bc; }
+
+        /* ===== 우측 ===== */
+        .right{
+            width:360px;
+            height:fit-content;
+        }
+
+        .side-card{
+            border:1px solid #efefef;
+            border-radius:18px;
+            background: var(--card);
+            padding:16px;
+        }
+
+        .side-title{
+            margin:0;
+            font-size:16px;
+            font-weight:950;
+            color:var(--text);
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+        }
+        .side-title .chip{
+            font-size:12px;
+            font-weight:950;
+            padding:6px 10px;
+            border-radius:999px;
+            border:1px solid rgba(220,162,68,.35);
+            background: rgba(220,162,68,.10);
+            color:#8a6a22;
+            white-space:nowrap;
+        }
+
+        .side-divider{
+            margin:12px 0;
+            height:1px;
+            background:#eee;
+            border:0;
+        }
+
+        .sum-list{
+            border:1px solid #eee;
+            border-radius:14px;
+            background: var(--card2);
+            overflow:hidden;
+        }
+        .sum-row{
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            padding:10px 12px;
+            border-bottom:1px solid #eee;
+            font-size:13.5px;
+        }
+        .sum-row:last-child{ border-bottom:none; }
+        .sum-k{ color:#666; font-weight:850; }
+        .sum-v{ color:var(--text); font-weight:950; }
+        .sum-v.accent{ color: var(--accent); }
+
+        .warn-box{
+            margin-top: 10px;
+            padding: 10px 12px;
+            border-radius: 12px;
+            border: 1px solid rgba(229,72,77,.25);
+            background: rgba(229,72,77,.06);
+            color: #b42318;
+            font-size: 13px;
+            font-weight: 800;
+            line-height: 1.4;
+        }
+
+        .ship-note{
+            display:flex;
+            align-items:flex-start;
+            gap:8px;
+            margin-top:10px;
+            padding:10px 12px;
+            border-radius:14px;
+            border:1px solid rgba(220,162,68,.28);
+            background: rgba(220,162,68,.08);
+            color:#6e5217;
+            font-size:12.5px;
+            line-height:1.45;
+            font-weight:850;
+        }
+        .ship-note .i{
+            width:20px;height:20px;
+            border-radius:999px;
+            display:flex;align-items:center;justify-content:center;
+            font-size:12px;
+            background: rgba(220,162,68,.18);
+            border:1px solid rgba(220,162,68,.25);
+            color:#6e5217;
+            flex:0 0 20px;
+            margin-top:1px;
+        }
+
+        .total-box{
+            margin-top:10px;
+            padding:12px;
+            border-radius:16px;
+            border:1px solid #eee;
+            background:#fff;
+        }
+        .total-top{
+            display:flex;
+            justify-content:space-between;
+            align-items:baseline;
+            gap:10px;
+        }
+        .total-label{
+            font-weight:950;
+            color:#333;
+            font-size:14px;
+        }
+        .total-amt{
+            font-weight:1000;
+            font-size:22px;
+            letter-spacing:-0.02em;
+            color: var(--accent);
+            white-space:nowrap;
+        }
+        .total-sub{
+            margin-top:6px;
+            font-size:12px;
+            color:#888;
+            line-height:1.45;
+        }
+
+        .cta{
+            margin-top:12px;
+            width:100%;
+            border:0;
+            border-radius:16px;
+            padding:14px;
+            background: var(--accent);
+            color:#fff;
+            font-weight:1000;
+            font-size:16px;
+            box-shadow: 0 10px 22px rgba(220,162,68,.25);
+            cursor:pointer;
+        }
+        .cta:hover{ filter: brightness(0.98); }
+        .cta:disabled{
+            background:#e7d4ad;
+            cursor:not-allowed;
+            box-shadow:none;
+        }
+
+        .hint{
+            margin-top:10px;
+            color:#777;
+            font-size:12.5px;
+            line-height:1.45;
+        }
+
+        .empty-note{
+            color:#666;
+            padding: 16px 0;
+        }
+
+        @media (max-width: 980px){
+            .grid{ flex-direction:column; }
+            .right{ width:100%; }
+            .meta{ max-width: 100%; }
+        }
+
+        /* ===== 배송정보 버튼 전용 ===== */
+        .ship-actions{
+            display:flex;
+            align-items:center;
+            gap:10px;
+            margin-bottom:10px;
+        }
+
+        /* 주소검색: 강조 버튼 */
+        .btn-primary{
+            border:1px solid rgba(220,162,68,.45);
+            background: var(--accent);
+            color:#fff;
+            box-shadow: 0 10px 22px rgba(220,162,68,.22);
+        }
+        .btn-primary:hover{ filter: brightness(0.98); }
+        .btn-primary:active{ transform: translateY(1px); }
+
+        /* 기본주소 사용: 텍스트 버튼(검은 글자, 배경/테두리 없음) */
+        .btn-text{
+            border:0 !important;
+            background:transparent !important;
+            color:#111 !important;
+            padding:8px 6px;         /* 너무 작지 않게 */
+            border-radius:10px;
+            font-weight:900;
+        }
+        .btn-text:hover{
+            background: rgba(0,0,0,.04) !important; /* 살짝만 호버 */
+        }
+
+        /* 기본주소로 저장: 우측으로 밀기 */
+        .btn-save-right{
+            margin-left:auto;
+        }
+
+        .save-wrap{
+            display: flex;
+            justify-content: flex-end; /* 👉 우측 끝 */
+            margin-top: 10px;
+        }
+
+
+
     </style>
+
+    <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 </head>
+
 <body>
+<div th:replace="fragments/header :: header"></div>
 
 <div class="wrap">
-    <div class="left">
-        <h2>장바구니</h2>
 
-        <div style="margin:12px 0;">
-            <button onclick="clearAll()">전체 비우기</button>
-        </div>
-
-        <div th:if="${#lists.isEmpty(items)}" style="color:#666;">
-            장바구니가 비어있습니다.
-        </div>
-
-        <div th:each="it : ${items}" class="row">
-            <!-- 네이버 우선 / 없으면 알라딘 -->
-            <img class="thumb"
-                 th:src="${#strings.isEmpty(it.naverImage) ? it.aladinImageBig : it.naverImage}"
-                 alt="cover"/>
-
-            <div style="flex:1;">
-                <div class="title" th:text="${it.bookTitle}">제목</div>
-                <div class="meta" th:text="${it.authors}">저자</div>
-                <div class="badge" th:text="${it.ebookYn == 'Y' ? '전자책' : '종이책'}">구분</div>
+    <div class="steps-wrap">
+        <div class="steps">
+            <div class="step" th:classappend="${(step == null or step == '' or step == 'CART')} ? ' active'">
+                <span class="dot"></span>장바구니
             </div>
-
-            <div>
-                <button th:attr="data-id=${it.cartId}" onclick="removeItem(this)">삭제</button>
+            <span class="sep">›</span>
+            <div class="step" th:classappend="${step == 'PAY'} ? ' active'">
+                <span class="dot"></span>결제하기
+            </div>
+            <span class="sep">›</span>
+            <div class="step" th:classappend="${step == 'DONE'} ? ' active'">
+                <span class="dot"></span>주문완료
             </div>
         </div>
     </div>
 
-    <div class="right">
-        <h3>요약</h3>
-        <div style="margin-top:8px;color:#333;">대여기간: <b>14일</b></div>
-        <div style="margin-top:8px;color:#666;font-size:13px;">
-            * 배송비/결제는 다음 단계에서 계산
+    <!-- ✅ paper/ebook 리스트를 한 번만 분리해서 재사용 -->
+    <div th:with="paperItems=${items.?[ebookYn != 'Y']}, ebookItems=${items.?[ebookYn == 'Y']}">
+
+        <div class="grid">
+            <div class="left">
+                <div class="page-head">
+                    <h2 class="page-title">장바구니</h2>
+                    <button class="btn btn-ghost" onclick="clearAll()">전체 비우기</button>
+                </div>
+
+                <div th:if="${#lists.isEmpty(items)}" class="empty-note">
+                    장바구니가 비어있습니다.
+                </div>
+
+                <div th:if="${!#lists.isEmpty(items)}">
+
+                    <!-- 종이책 -->
+                    <div class="section-title">종이책</div>
+                    <div th:each="it : ${paperItems}" class="row">
+                        <div class="thumb-wrap">
+                            <img class="thumb"
+                                 th:src="${#strings.isEmpty(it.naverImage) ? it.aladinImageBig : it.naverImage}"
+                                 alt="cover">
+                        </div>
+
+                        <div style="flex:1; min-width:0;">
+                            <div class="title" th:text="${it.bookTitle}">제목</div>
+                            <div class="meta" th:text="${it.authors}">저자</div>
+                            <div class="badge paper">종이책</div>
+                        </div>
+
+                        <button class="btn btn-danger"
+                                th:attr="data-id=${it.cartId}"
+                                onclick="removeItem(this)">삭제</button>
+                    </div>
+
+                    <!-- 전자책 -->
+                    <div class="section-title section-gap">전자책</div>
+                    <div th:each="it : ${ebookItems}" class="row">
+                        <div class="thumb-wrap">
+                            <img class="thumb"
+                                 th:src="${#strings.isEmpty(it.naverImage) ? it.aladinImageBig : it.naverImage}"
+                                 alt="cover">
+                        </div>
+
+                        <div style="flex:1; min-width:0;">
+                            <div class="title" th:text="${it.bookTitle}">제목</div>
+                            <div class="meta" th:text="${it.authors}">저자</div>
+                            <div class="badge ebook">전자책</div>
+                        </div>
+
+                        <button class="btn btn-danger"
+                                th:attr="data-id=${it.cartId}"
+                                onclick="removeItem(this)">삭제</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="right">
+                <!-- ✅ 배송정보 -->
+                <div class="side-card" id="shipCard"
+                     th:if="${!#lists.isEmpty(paperItems)}"
+                     style="margin-bottom:12px;">
+
+                    <h3 class="side-title">
+                        배송정보
+                        <span class="chip" th:text="${#lists.isEmpty(paperItems) ? '전자책만' : '종이책 포함'}">종이책 포함</span>
+                    </h3>
+
+                    <hr class="side-divider"/>
+
+                    <div class="sum-list" style="padding:12px;">
+
+                        <div class="ship-actions">
+                            <button class="btn btn-primary" type="button" onclick="openPostcode()">주소검색</button>
+                            <button class="btn btn-text" type="button" onclick="useDefaultAddr()">기본주소 사용</button>
+                        </div>
+
+
+                        <div style="display:grid; gap:8px;">
+                            <input class="btn" style="text-align:left;" id="zip" placeholder="우편번호" readonly>
+                            <input class="btn" style="text-align:left;" id="addr" placeholder="기본주소" readonly>
+                            <input class="btn" style="text-align:left;" id="detail" placeholder="상세주소 입력">
+                        </div>
+                        <div class="save-wrap">
+                            <button class="btn btn-ghost btn-save-right"
+                                    type="button"
+                                    onclick="saveDefaultAddr()">
+                                기본주소로 저장
+                            </button>
+                        </div>
+
+
+                        <div id="addrEmptyMsg" class="warn-box" style="display:none; margin-top:10px;">
+                            저장된 주소가 없습니다.
+                        </div>
+
+                        <div class="hint" style="margin-top:10px;">
+                            * 종이책이 포함되면 배송지 입력 후 결제가 가능합니다.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="side-card">
+                    <h3 class="side-title">
+                        결제 요약
+                        <span class="chip">대여/결제</span>
+                    </h3>
+
+                    <hr class="side-divider"/>
+
+                    <div class="sum-list">
+                        <div class="sum-row">
+                            <span class="sum-k">최대 대여 가능</span>
+                            <span class="sum-v" th:text="${quota != null ? quota.maxLendCount : 5} + '권'">5권</span>
+                        </div>
+
+                        <div class="sum-row">
+                            <span class="sum-k">현재 대여중</span>
+                            <span class="sum-v" th:text="${quota != null ? quota.currentLendCount : 0}">0</span>
+                        </div>
+
+                        <div class="sum-row">
+                            <span class="sum-k">장바구니 담은 권수</span>
+                            <span class="sum-v" th:text="${quota != null ? quota.cartCount : #lists.size(items)}">0</span>
+                        </div>
+
+                        <div class="sum-row">
+                            <span class="sum-k">내가 대여할 수 있는 권수</span>
+                            <span class="sum-v accent" th:text="${quota != null ? quota.availableCount : 5}">5</span>
+                        </div>
+
+                        <div class="sum-row">
+                            <span class="sum-k">배송비(종이책)</span>
+                            <span class="sum-v" th:text="${#lists.isEmpty(paperItems) ? '0원' : '3,000원'}">3,000원</span>
+                        </div>
+                    </div>
+
+                    <div class="warn-box"
+                         th:if="${quota != null and quota.availableCount < quota.cartCount}">
+                        대여 가능 권수를 초과했습니다.<br/>
+                        현재 대여중 <span th:text="${quota.currentLendCount}">0</span>권,
+                        장바구니 <span th:text="${quota.cartCount}">0</span>권 →<br/>
+                        최대 <span th:text="${quota.maxLendCount}">5</span>권을 넘습니다.
+                    </div>
+
+                    <div class="ship-note">
+                        <div class="i">i</div>
+                        <div>
+                            종이책이 포함되면 <b>배송비 3,000원</b>이 결제페이지에서 부과됩니다.<br/>
+                            ‘결제하기’ 클릭 시 결제페이지로 이동합니다.
+                        </div>
+                    </div>
+
+                    <div class="total-box">
+                        <div class="total-top">
+                            <div class="total-label">총 결제금액</div>
+                            <div class="total-amt" th:text="${#lists.isEmpty(paperItems) ? '0원' : '3,000원'}">3,000원</div>
+                        </div>
+                        <div class="total-sub">
+                            * 대여료는 무료이며, 종이책 배송비만 결제됩니다.
+                        </div>
+                    </div>
+
+                    <div class="hint">
+                        * 종이책/전자책은 서로 다른 상품이며, 합산 최대 대여 가능 권수 내에서 이용됩니다.
+                    </div>
+
+                    <button class="cta"
+                            th:attr="data-base-disabled=${#lists.isEmpty(items) or (quota != null and quota.availableCount < quota.cartCount)}"
+                            th:disabled="${#lists.isEmpty(items) or (quota != null and quota.availableCount < quota.cartCount)}"
+                            onclick="goCheckout()">
+                        결제하기
+                    </button>
+
+                </div>
+            </div>
+
         </div>
     </div>
 </div>
 
-<script>
+<script th:inline="javascript">
+    // ----------------------------
+    // 기본 기능
+    // ----------------------------
     function removeItem(btn){
-        fetch('/book/cart/remove', {
+        fetch('/book/cart/remove',{
             method:'POST',
             headers:{'Content-Type':'application/x-www-form-urlencoded'},
             body:'cartId=' + encodeURIComponent(btn.dataset.id)
@@ -67,10 +600,145 @@
     }
 
     function clearAll(){
-        fetch('/book/cart/clear', { method:'POST' })
+        fetch('/book/cart/clear',{method:'POST'})
             .then(()=>location.reload());
     }
+
+    // 종이책 포함 여부(Thymeleaf)
+    const hasPaper = /*[[${!#lists.isEmpty(paperItems)}]]*/ false;
+
+    function getAddrState(){
+        const zip = document.getElementById('zip')?.value.trim() || '';
+        const addr = document.getElementById('addr')?.value.trim() || '';
+        const detail = document.getElementById('detail')?.value.trim() || '';
+        return { zip, addr, detail, ok: (zip && addr && detail) };
+    }
+
+    function syncCheckoutButton(){
+        const cta = document.querySelector('.cta');
+        if(!cta) return;
+
+        const baseDisabled = (cta.getAttribute('data-base-disabled') === 'true');
+        if (baseDisabled) return;
+
+        if(!hasPaper){
+            cta.disabled = false;
+            return;
+        }
+        const st = getAddrState();
+        cta.disabled = !st.ok;
+    }
+
+    function goCheckout(){
+        if(hasPaper){
+            const st = getAddrState();
+            if(!st.ok){
+                alert('종이책 배송을 위해 주소를 입력해주세요.');
+                document.getElementById('detail')?.focus();
+                return;
+            }
+        }
+        location.href='/book/order';
+    }
+
+    // ✅ 입력될 때마다 버튼 동기화
+    document.addEventListener('input', (e)=>{
+        if(e.target && (e.target.id === 'detail' || e.target.id === 'zip' || e.target.id === 'addr')) {
+            syncCheckoutButton();
+        }
+    });
+
+    async function useDefaultAddr(){
+        const msg = document.getElementById('addrEmptyMsg');
+        if(msg) msg.style.display = 'none';
+
+        const res = await fetch('/book/cart/address/default', { method:'GET' });
+
+        if(res.status === 401){
+            alert('로그인이 필요합니다.');
+            location.href = '/users/login';
+            return;
+        }
+
+        const json = await res.json();
+
+        if(!json.exists || !json.data){
+            if(msg) msg.style.display = 'block';
+            if(document.getElementById('zip')) document.getElementById('zip').value = '';
+            if(document.getElementById('addr')) document.getElementById('addr').value = '';
+            if(document.getElementById('detail')) document.getElementById('detail').value = '';
+            syncCheckoutButton();
+            return;
+        }
+
+        document.getElementById('zip').value = json.data.zipcode || '';
+        document.getElementById('addr').value = json.data.addr || '';
+        document.getElementById('detail').value = json.data.detailAddr || '';
+        syncCheckoutButton();
+    }
+
+    function openPostcode(){
+        // 방어: 외부 스크립트 로딩 실패 대비
+        if(typeof daum === 'undefined' || !daum.Postcode){
+            alert('주소 검색 모듈 로딩에 실패했습니다.');
+            return;
+        }
+
+        new daum.Postcode({
+            oncomplete: function (data) {
+                document.getElementById('zip').value = data.zonecode || '';
+
+                const addr = (data.roadAddress && data.roadAddress !== '')
+                    ? data.roadAddress
+                    : (data.jibunAddress || '');
+
+                document.getElementById('addr').value = addr;
+
+                document.getElementById('detail').focus();
+                syncCheckoutButton();
+            }
+        }).open();
+    }
+
+    async function saveDefaultAddr(){
+        const st = getAddrState();
+        if(!st.zip || !st.addr || !st.detail){
+            alert('주소를 모두 입력해주세요.');
+            return;
+        }
+
+        const body = new URLSearchParams({
+            zipcode: st.zip,
+            addr: st.addr,
+            detailAddr: st.detail
+        });
+
+        const res = await fetch('/book/cart/address/save-default', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body
+        });
+
+        if(res.status === 401){
+            alert('로그인이 필요합니다.');
+            location.href='/users/login';
+            return;
+        }
+
+        if(!res.ok){
+            alert('기본주소 저장에 실패했습니다.');
+            return;
+        }
+
+        alert('기본주소로 저장되었습니다.');
+    }
+
+    // ✅ 초기 상태 버튼 동기화
+    window.addEventListener('DOMContentLoaded', () => {
+        syncCheckoutButton();
+    });
 </script>
 
+<div th:replace="fragments/footer :: footer"></div>
 </body>
 </html>

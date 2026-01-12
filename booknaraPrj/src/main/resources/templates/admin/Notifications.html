@@ -67,11 +67,9 @@
         .btn-dark { background-color: #1F2937; color: white; padding: 10px 28px; border-radius: 14px; font-weight: 700; transition: all 0.2s; flex-shrink: 0; }
         .btn-dark:hover { background-color: #000; transform: translateY(-1px); }
 
-        /* 초기화 버튼 스타일 */
         .btn-reset { background-color: #F3F4F6; color: #6B7280; padding: 10px 20px; border-radius: 14px; font-weight: 700; transition: all 0.2s; flex-shrink: 0; border: 1px solid #E5E7EB; }
         .btn-reset:hover { background-color: #E5E7EB; color: #1F2937; }
 
-        /* 전체 확인 버튼 스타일 추가 */
         .btn-all-check {
             background-color: white; color: #4B5563; border: 1px solid #E5E7EB;
             padding: 8px 16px; border-radius: 12px; font-size: 13px; font-weight: 700;
@@ -112,7 +110,7 @@
                 <div class="flex items-center gap-3">
                     <i class="fas fa-bell w-5 text-center"></i> 알림관리
                 </div>
-                <span th:if="${unreadCount > 0}" class="bg-red-500 text-[10px] px-1.5 py-0.5 rounded-full font-bold text-white" th:text="${unreadCount}">0</span>
+                <span th:if="${unreadCount != null and unreadCount > 0}" class="bg-red-500 text-[10px] px-1.5 py-0.5 rounded-full font-bold text-white" th:text="${unreadCount}">0</span>
             </a></li>
         </ul>
 
@@ -166,7 +164,7 @@
         </div>
 
         <form action="/admin/Notifications" method="get" class="search-container shadow-sm">
-            <input type="hidden" name="type" th:value="${selectedType}">
+            <input type="hidden" name="type" th:value="${selectedType ?: '전체'}">
             <div class="relative flex-1 flex items-center">
                 <i class="fas fa-search absolute left-5 text-gray-400"></i>
                 <input type="text" name="keyword" th:value="${keyword}" placeholder="도서명, 회원명, ID로 검색..."
@@ -182,38 +180,48 @@
         </form>
 
         <div class="space-y-5">
-            <div th:each="noti : ${notifications}"
-                 class="noti-item cursor-pointer"
-                 th:classappend="${noti.notiType == '연체' ? 'noti-overdue' : (noti.notiType == '대여' ? 'noti-join' : 'noti-rental')}"
-                 th:onclick="openNotiModal([[${noti.notiId}]], [[${noti.userNm}]], [[${noti.bookTitle}]], [[${noti.notiType}]], [[${noti.notiContent}]], [[${#temporals.format(noti.createdAt, 'yyyy-MM-dd HH:mm')}]], [[${#temporals.format(noti.updatedAt, 'yyyy-MM-dd HH:mm')}]])">
+            <th:block th:if="${notifications != null and !notifications.isEmpty()}">
+                <div th:each="noti : ${notifications}"
+                     class="noti-item cursor-pointer"
+                     th:classappend="${noti.notiType == '연체' ? 'noti-overdue' : (noti.notiType == '대여' ? 'noti-join' : 'noti-rental')}"
+                     th:data-id="${noti.notiId}"
+                     th:data-user="${noti.userNm ?: '익명'}"
+                     th:data-title="${noti.bookTitle ?: '제목 없음'}"
+                     th:data-type="${noti.notiType ?: '일반'}"
+                     th:data-content="${noti.notiContent ?: ''}"
+                     th:data-date="${noti.createdAt != null ? #temporals.format(noti.createdAt, 'yyyy-MM-dd HH:mm') : '-'}"
+                     th:data-update="${noti.updatedAt != null ? #temporals.format(noti.updatedAt, 'yyyy-MM-dd HH:mm') : 'null'}"
+                     onclick="openNotiModal(this)">
 
-                <div class="icon-box"
-                     th:classappend="${noti.notiType == '연체' ? 'bg-red-50 text-red-500' : (noti.notiType == '대여' ? 'bg-blue-50 text-blue-500' : 'bg-green-50 text-green-500')}">
-                    <i th:class="${noti.notiType == '연체' ? 'fas fa-clock' : (noti.notiType == '대여' ? 'fas fa-book-medical' : 'fas fa-undo-alt')}"></i>
-                </div>
-
-                <div class="flex-1">
-                    <div class="flex justify-between items-start">
-                        <span class="text-[10px] font-black uppercase tracking-widest"
-                              th:classappend="${noti.notiType == '연체' ? 'text-red-500' : (noti.notiType == '대여' ? 'text-blue-500' : 'text-green-500')}"
-                              th:text="${noti.notiType}">TYPE</span>
-                        <span class="text-[11px] font-bold text-gray-400 font-mono" th:text="${#temporals.format(noti.createdAt, 'yyyy-MM-dd HH:mm')}">TIME</span>
+                    <div class="icon-box"
+                         th:classappend="${noti.notiType == '연체' ? 'bg-red-50 text-red-500' : (noti.notiType == '대여' ? 'bg-blue-50 text-blue-500' : 'bg-green-50 text-green-500')}">
+                        <i th:class="${noti.notiType == '연체' ? 'fas fa-clock' : (noti.notiType == '대여' ? 'fas fa-book-medical' : 'fas fa-undo-alt')}"></i>
                     </div>
-                    <h4 class="font-bold text-gray-800 mt-1 text-lg" th:text="${noti.bookTitle}">도서 제목</h4>
-                    <p class="text-sm text-gray-600 mt-2 leading-relaxed">
-                        <span class="font-bold text-gray-900" th:text="${noti.userNm}">사용자</span>(<span th:text="${noti.userId}" class="text-xs">ID</span>)님의 알림이 도착했습니다.
-                    </p>
+
+                    <div class="flex-1">
+                        <div class="flex justify-between items-start">
+                    <span class="text-[10px] font-black uppercase tracking-widest"
+                          th:classappend="${noti.notiType == '연체' ? 'text-red-500' : (noti.notiType == '대여' ? 'text-blue-500' : 'text-green-500')}"
+                          th:text="${noti.notiType ?: '알림'}">TYPE</span>
+                            <span class="text-[11px] font-bold text-gray-400 font-mono"
+                                  th:text="${noti.createdAt != null ? #temporals.format(noti.createdAt, 'yyyy-MM-dd HH:mm') : '-'}">TIME</span>
+                        </div>
+                        <h4 class="font-bold text-gray-800 mt-1 text-lg" th:text="${noti.bookTitle ?: '제목 정보 없음'}">도서 제목</h4>
+                        <p class="text-sm text-gray-600 mt-2 leading-relaxed">
+                            <span class="font-bold text-gray-900" th:text="${noti.userNm ?: '사용자'}">사용자</span>(<span th:text="${noti.userId ?: 'ID 없음'}" class="text-xs">ID</span>)님의 알림이 도착했습니다.
+                        </p>
+                    </div>
+                    <div th:if="${noti.updatedAt == null}" class="w-2.5 h-2.5 bg-red-500 rounded-full self-center shadow-[0_0_8px_rgba(239,68,68,0.5)]"></div>
+                    <div th:if="${noti.updatedAt != null}" class="text-[10px] text-gray-300 self-center font-bold">확인됨</div>
                 </div>
-                <div th:if="${noti.updatedAt == null}" class="w-2.5 h-2.5 bg-red-500 rounded-full self-center shadow-[0_0_8px_rgba(239,68,68,0.5)]"></div>
-                <div th:if="${noti.updatedAt != null}" class="text-[10px] text-gray-300 self-center font-bold">확인됨</div>
-            </div>
+            </th:block>
 
-            <div th:if="${#lists.isEmpty(notifications)}" class="text-center py-20 bg-white rounded-[32px] border border-dashed border-gray-200">
+            <div th:if="${notifications == null or notifications.isEmpty()}" class="text-center py-20 bg-white rounded-[32px] border border-dashed border-gray-200">
                 <i class="fas fa-bell-slash text-4xl text-gray-200 mb-4"></i>
-                <p class="text-gray-400 font-medium">표시할 알림이 없습니다.</p>
+                <p class="text-gray-400 font-medium">현재 표시할 알림 내역이 없습니다.</p>
             </div>
 
-            <div th:if="${!page.isEmpty()}" class="flex items-center justify-center gap-4 mt-12 pb-10">
+            <div th:if="${page != null and !page.isEmpty()}" class="flex items-center justify-center gap-4 mt-12 pb-10">
                 <a th:href="@{/admin/Notifications(page=${page.number - 1}, type=${selectedType}, keyword=${keyword})}"
                    class="page-btn" th:classappend="${!page.hasPrevious() ? 'disabled' : ''}">
                     <i class="fas fa-chevron-left mr-2"></i> 이전
@@ -221,7 +229,7 @@
                 <div class="flex items-center gap-2">
                     <span class="text-sm font-bold text-gray-900" th:text="${page.number + 1}">1</span>
                     <span class="text-sm font-medium text-gray-400">/</span>
-                    <span class="text-sm font-medium text-gray-400" th:text="${page.totalPages}">10</span>
+                    <span class="text-sm font-medium text-gray-400" th:text="${page.totalPages}">1</span>
                 </div>
                 <a th:href="@{/admin/Notifications(page=${page.number + 1}, type=${selectedType}, keyword=${keyword})}"
                    class="page-btn" th:classappend="${!page.hasNext() ? 'disabled' : ''}">
@@ -264,7 +272,7 @@
 </div>
 
 <script th:inline="javascript">
-    // 전체 읽음 처리 함수 추가
+    // 전체 읽음 처리 함수
     async function markAllAsRead() {
         if(!confirm("모든 미확인 알림을 확인 완료 처리하시겠습니까?")) return;
 
@@ -281,7 +289,16 @@
         }
     }
 
-    function openNotiModal(id, user, title, type, content, date, updateDate) {
+    // [수정] 파라미터 대신 Element를 받아 data 속성에서 값을 읽어옴 (500 에러 방지 핵심)
+    function openNotiModal(el) {
+        const id = el.getAttribute('data-id');
+        const user = el.getAttribute('data-user');
+        const title = el.getAttribute('data-title');
+        const type = el.getAttribute('data-type');
+        const content = el.getAttribute('data-content');
+        const date = el.getAttribute('data-date');
+        const updateDate = el.getAttribute('data-update');
+
         document.getElementById('currentNotiId').value = id;
         document.getElementById('modalTitle').innerText = title;
         document.getElementById('modalUser').innerText = `대상 회원: ${user}`;
@@ -292,7 +309,7 @@
         const checkRow = document.getElementById('modalCheckRow');
         const confirmBtn = document.getElementById('modalConfirmBtn');
 
-        if(updateDate && updateDate !== 'null') {
+        if(updateDate && updateDate !== '' && updateDate !== 'null') {
             checkRow.classList.remove('hidden');
             document.getElementById('modalCheckDate').innerText = updateDate;
             confirmBtn.innerText = "닫기";

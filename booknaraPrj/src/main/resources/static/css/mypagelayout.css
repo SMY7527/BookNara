@@ -1,0 +1,100 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background: #f5f5f5;
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
+
+/* ================= 레이아웃 ================= */
+.container {
+    display: flex;
+    max-width: 1200px;
+    margin: 30px auto;
+    gap: 20px;
+    padding: 0 28px;
+}
+
+/* ================= 프로필(사이드바 카드) ================= */
+.profile-box {
+    width: 100%;
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
+}
+
+.profile-img {
+    border: 1px solid black;
+    margin: 0 auto;
+    width: 72px;
+    height: 72px;
+    border-radius: 10%;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.profile-name {
+    text-align: center;
+    font-weight: bold;
+}
+
+/* 메뉴 */
+.profile-menu {
+    margin-top: 20px;
+}
+
+.profile-menu ul {
+    list-style: none;
+}
+
+.profile-menu li {
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.profile-menu a {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+
+.profile-menu li.active a {
+    font-weight: bold;
+}
+
+/* ===== 마이페이지 / 문의 공통 글쓰기 버튼 ===== */
+.write-btn {
+    display: block;
+
+    margin-bottom: 12px;
+    padding: 10px 0;
+
+    font-size: 14px;
+    font-weight: 600;
+    text-align: center;
+
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+
+    background: #f59e42;
+
+    color: #fff;
+}
+
+.write-btn:hover {
+    background: #FDBA74;
+}
+
+.profile-menu .write-btn{
+    width: 100%;
+}

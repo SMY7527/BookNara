@@ -1,10 +1,9 @@
 package com.booknara.booknaraPrj.admin.bookManagement;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -23,20 +22,16 @@ public class AdminBooks {
     @Column(name = "BOOK_ID")
     private Long bookId;
 
-    // Books.java
+    // 조인 컬럼 설정 (이것이 유일한 isbn13 통로s여야 함)
+    @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ISBN13", referencedColumnName = "ISBN13", insertable = false, updatable = false)
+    @JoinColumn(name = "ISBN13", referencedColumnName = "ISBN13")
+    @JsonIgnore // [이것이 핵심입니다] JSON/Thymeleaf가 부모를 다시 읽지 않게 합니다.
     private AdminBookIsbn bookIsbn;
 
-    // 만약 조인용 필드 외에 실제 값을 들고 있는 필드가 필요하다면 아래를 추가
-    @Column(name = "ISBN13")
-    private String isbn13;
-
-    @Column(name = "FORMAT", nullable = false, length = 1)
-    private String format = "P"; // 기본값 'P' (Physical)
-
     @Column(name = "BOOK_STATE", nullable = false, length = 1)
-    private String bookState = "N"; // 기본값 'N' (Normal)
+    @Builder.Default  // 빌더 사용 시 기본값 유지
+    private String bookState = "N";
 
     @CreationTimestamp
     @Column(name = "CREATED_AT", nullable = false, updatable = false)
@@ -45,4 +40,8 @@ public class AdminBooks {
     @UpdateTimestamp
     @Column(name = "UPDATED_AT")
     private LocalDateTime updatedAt;
+
+    // DB DDL에 FORMAT 컬럼이 없다면 반드시 삭제하거나 아래처럼 처리하세요.
+    @Transient
+    private String format = "P";
 }

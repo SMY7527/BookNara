@@ -20,10 +20,7 @@ import com.booknara.booknaraPrj.admin.users.Users;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -41,6 +38,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -65,49 +63,37 @@ public class AdminController {
     public String bookManagement(
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "keyword", required = false) String keyword,
-            @RequestParam(name = "bookState", required = false) String bookState, // 필터 파라미터
+            @RequestParam(name = "bookState", required = false) String bookState,
             Model model) {
 
-        // 1. [중요] 서비스 호출 시 bookState를 반드시 함께 전달해야 합니다.
-        // 기존: getBookList(page, keyword) -> 수정: getBookList(page, keyword, bookState)
-        Page<AdminBookListResponseDto> bookPage = adminBookManagementService.getBookList(page, keyword, bookState);
+        // [수정] PageRequest 생성 (한 페이지당 10개 혹은 100개 등 설정)
+        Pageable pageable = PageRequest.of(page, 100);
 
-        // 2. 페이지네이션 계산 로직
-        int totalPages = bookPage.getTotalPages();
-        if (totalPages == 0) totalPages = 1; // 데이터가 없을 때 0페이지 에러 방지
+        // [수정] 서비스 호출 시 인자 순서와 타입을 서비스 인터페이스와 맞춥니다.
+        Slice<AdminBookListResponseDto> bookSlice = adminBookManagementService.getBookList(bookState, keyword, pageable);
 
-        int pageBlock = 5;
-        int startPage = (page / pageBlock) * pageBlock + 1;
-        int endPage = Math.min(startPage + pageBlock - 1, totalPages);
-
-        // 3. 모델 데이터 바인딩
         model.addAttribute("genreList", adminGenreService.getAllGenres());
-        model.addAttribute("bookList", bookPage.getContent());
-        model.addAttribute("bookState", bookState != null ? bookState : ""); // null 방지
-        model.addAttribute("keyword", keyword != null ? keyword : "");
+        model.addAttribute("bookList", bookSlice.getContent());
+
+        // 필터 및 검색어 유지
+        model.addAttribute("filterState", (bookState != null) ? bookState : "");
+        model.addAttribute("keyword", (keyword != null) ? keyword : "");
         model.addAttribute("currentPage", page);
-        model.addAttribute("totalPages", totalPages);
-        model.addAttribute("startPage", startPage);
-        model.addAttribute("endPage", endPage);
 
-        // 4. 이전/다음 버튼 활성화 여부
-        model.addAttribute("hasPrev", startPage > 1);
-        model.addAttribute("hasNext", endPage < totalPages);
-
-        // 로그 확인용
-        System.out.println("현재 필터: " + bookState + ", 조회된 데이터 개수: " + bookPage.getTotalElements());
+        model.addAttribute("hasPrev", bookSlice.hasPrevious());
+        model.addAttribute("hasNext", bookSlice.hasNext());
 
         return "admin/BookManageMent";
     }
 
     @PostMapping("/UpdateBookStatus")
     public String updateBookStatus(
-            @RequestParam("isbn13") String isbn13,
+            @RequestParam("bookId") Long bookId,
             @RequestParam("bookState") String bookState,
             RedirectAttributes redirectAttributes) {
 
         try {
-            adminBookManagementService.updateStatus(isbn13, bookState);
+            adminBookManagementService.updateStatus(bookId, bookState);
             redirectAttributes.addFlashAttribute("message", "도서 상태가 성공적으로 변경되었습니다.");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "상태 변경 중 오류가 발생했습니다.");
@@ -223,6 +209,12 @@ public class AdminController {
         List<AdminEvent> allEvents = adminEventService.getAllActiveEvents();
         model.addAttribute("allEvents", allEvents);
 
+        List<AdminBookSearchResponseDto> activeRecommends = adminSettingsService.getActiveRecommendations();
+        model.addAttribute("activeRecommends", activeRecommends); // HTML의 th:each와 매칭
+
+        model.addAttribute("activeBanners", adminEventService.getActiveBanners());
+        model.addAttribute("allEvents", adminEventService.getAllActiveEvents());
+
         return "admin/Settings";
     }
 
@@ -246,6 +238,7 @@ public class AdminController {
 
     // 예: 검색 API (GET /api/books/search)
     @GetMapping("/search")
+    @ResponseBody
     public Page<AdminBookSearchResponseDto> search(@RequestParam String keyword, Pageable pageable) {
         // Service에서 Entity를 조회한 뒤 DTO로 변환하여 리턴
         // JSON 결과: {"content": [{"isbn13": "123...", "title": "도서명", "author": "저자"}, ...], "totalPages": 10}
@@ -260,6 +253,32 @@ public class AdminController {
         return ResponseEntity.ok().build();
     }
 
+    @PostMapping("/deactivateRecommendation")
+    @ResponseBody
+    public ResponseEntity<?> deactivate(@RequestBody Map<String, String> payload) {
+        String isbn = payload.get("isbn");
+        adminSettingsService.deactivateRecommendation(isbn);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/random")
+    @ResponseBody
+    public List<AdminBookSearchResponseDto> getRandomBooks(@RequestParam int count) {
+        // 추천 도서를 랜덤으로 가져오는 서비스 로직
+        return adminSettingsService.getRandomBooks(count);
+    }
+
+    @PostMapping("/admin/recom/save-random")
+    @ResponseBody
+    public ResponseEntity<String> saveRandomRecomBooks(@RequestBody List<String> isbns) {
+        try {
+            adminSettingsService.saveRandomRecomBooks(isbns);
+            return ResponseEntity.ok("추천 도서가 성공적으로 저장되었습니다.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("저장 중 오류가 발생했습니다.");
+        }
+    }
+
     @GetMapping("/Inquiries")
     public String inquiryList(
             @RequestParam(required = false) String keyword,
@@ -270,29 +289,40 @@ public class AdminController {
             @RequestParam(defaultValue = "desc") String sortDir,
             Model model) {
 
-        // [수정] Pageable 생성 시 Sort를 포함하지 않음 (정렬은 리포지토리 SQL 내부에서 처리하므로)
+        // 1. 데이터 리스트 조회 (Pageable 설정)
         Pageable pageable = PageRequest.of(page, 10);
-
-        // [수정] 리포지토리 메서드에 맞게 파라미터 전달
-        Page<AdminCombinedSupport> combinedList = adminCombinedSupportService.getFilteredList(
+        Page<AdminCombinedSupport> combinedPage = adminCombinedSupportService.getFilteredList(
                 keyword, type, status, sortField, sortDir, pageable);
 
-        // 뷰로 데이터 전달
+        // 2. 리스트 데이터 및 페이징 정보 전달 (null 방지)
+        if (combinedPage != null) {
+            model.addAttribute("combinedList", combinedPage.getContent());
+            model.addAttribute("totalPages", combinedPage.getTotalPages());
+            model.addAttribute("totalElements", combinedPage.getTotalElements());
+        } else {
+            model.addAttribute("combinedList", Collections.emptyList());
+            model.addAttribute("totalPages", 0);
+            model.addAttribute("totalElements", 0);
+        }
+
+        // 3. 필터 및 정렬 상태 유지
+        model.addAttribute("currentPage", page);
         model.addAttribute("sortField", sortField);
         model.addAttribute("sortDir", sortDir);
-        model.addAttribute("combinedList", combinedList.getContent());
-        model.addAttribute("totalPages", combinedList.getTotalPages());
-        model.addAttribute("totalElements", combinedList.getTotalElements());
-        model.addAttribute("currentPage", page);
         model.addAttribute("currentType", type);
         model.addAttribute("currentStatus", status);
         model.addAttribute("keyword", keyword);
 
-        // 상단 카드 데이터 조회
-        model.addAttribute("totalInquiryCount", adminInquiryService.getTotalCount());
-        model.addAttribute("totalReportCount", adminReportService.getTotalCount());
-        model.addAttribute("totalPendingCount", adminCombinedSupportService.getCountByState("N"));
-        model.addAttribute("totalResolvedCount", adminCombinedSupportService.getCountByState("Y"));
+        // 4. 상단 카드 데이터 조회 (Long 타입 null 체크 및 0 처리 핵심)
+        Long inquiryCount = adminInquiryService.getTotalCount();
+        Long reportCount = adminReportService.getTotalCount();
+        Long pendingCount = adminCombinedSupportService.getCountByState("N");
+        Long resolvedCount = adminCombinedSupportService.getCountByState("Y");
+
+        model.addAttribute("totalInquiryCount", inquiryCount != null ? inquiryCount : 0L);
+        model.addAttribute("totalReportCount", reportCount != null ? reportCount : 0L);
+        model.addAttribute("totalPendingCount", pendingCount != null ? pendingCount : 0L);
+        model.addAttribute("totalResolvedCount", resolvedCount != null ? resolvedCount : 0L);
 
         return "admin/Inquiries";
     }

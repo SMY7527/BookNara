@@ -1,5 +1,6 @@
 package com.booknara.booknaraPrj.admin.bookManagement;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -28,9 +29,11 @@ public class AdminGenre {
     // 계층 구조를 위한 자기 참조
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "PARENT_ID")
+    @JsonIgnore
     private AdminGenre parent;
 
     @OneToMany(mappedBy = "parent")
+    @JsonIgnore
     private List<AdminGenre> children = new ArrayList<>();
 
     @CreationTimestamp

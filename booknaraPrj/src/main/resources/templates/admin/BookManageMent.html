@@ -5,46 +5,32 @@
     <title>도서 대여 관리 시스템 - 도서관리</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-
     <style>
-        /* [1] 공통 테마 설정 */
         :root { --main-color: #DCA244; --hover-color: #C8903A; }
         .bg-main { background-color: var(--main-color); }
         .text-main { color: var(--main-color); }
-
-        /* [2] 사이드바 네비게이션 스타일 */
         .nav-item { display: flex; align-items: center; gap: 12px; padding: 16px 24px; cursor: pointer; transition: all 0.2s; color: rgba(255,255,255,0.7); font-weight: 500; text-decoration: none; }
         .nav-item:hover { background-color: rgba(255,255,255,0.1); color: white; }
         .active-tab { background-color: rgba(255, 255, 255, 0.15); border-left: 4px solid white; color: white; font-weight: 700; }
-
-        /* [3] 버튼 및 필터 스타일 */
         .btn-main { background-color: var(--main-color); color: white; padding: 10px 24px; border-radius: 12px; font-weight: bold; transition: all 0.2s; box-shadow: 0 4px 6px -1px rgba(220, 162, 68, 0.3); }
         .btn-main:hover { background-color: var(--hover-color); }
         .btn-dark { background-color: #1F2937; color: white; padding: 10px 40px; border-radius: 12px; font-weight: bold; transition: all 0.2s; }
         .btn-dark:hover { background-color: #111827; }
-
         .filter-group { display: flex; gap: 8px; padding: 6px; background: white; border-radius: 16px; border: 1px solid #E5E7EB; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
         .filter-btn { padding: 8px 20px; border-radius: 12px; font-size: 14px; font-weight: bold; color: #6B7280; transition: all 0.2s; }
         .filter-btn:hover { background-color: #F9FAFB; }
         .filter-btn.active { background-color: var(--main-color); color: white; }
-
-        /* [4] 테이블 및 리스트 스타일 */
         .table-container { background: white; border-radius: 24px; border: 1px solid #E5E7EB; overflow: hidden; }
         .th-style { padding: 16px 24px; font-size: 12px; font-weight: bold; color: #9CA3AF; text-transform: uppercase; background: #F9FAFB; border-bottom: 1px solid #E5E7EB; }
         .td-style { padding: 20px 24px; border-bottom: 1px solid #F3F4F6; }
-
-        /* [5] 상태 배지 */
         .badge { padding: 4px 12px; border-radius: 9999px; font-size: 11px; font-weight: bold; }
         .badge-green { background-color: #DCFCE7; color: #16A34A; }
         .badge-orange { background-color: #FFEDD5; color: #EA580C; }
         .badge-gray { background-color: #F3F4F6; color: #6B7280; }
-
-        /* [6] 페이지네이션 */
-        .page-btn { width: 40px; height: 40px; border: 1px solid #E5E7EB; border-radius: 10px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; font-weight: 500; color: #4B5563; }
-        .page-btn:hover { background-color: #F9FAFB; }
-        .page-btn.active { background-color: var(--main-color); color: white; border-color: var(--main-color); box-shadow: 0 4px 6px -1px rgba(220, 162, 68, 0.3); }
-
-        /* 커스텀 스크롤바 */
+        .page-btn { width: 40px; height: 40px; border: 1px solid #E5E7EB; border-radius: 10px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; font-weight: 500; color: #4B5563; text-decoration: none; }
+        .page-btn:hover:not(.disabled) { background-color: #F9FAFB; border-color: var(--main-color); color: var(--main-color); }
+        .page-btn.disabled { opacity: 0.3; cursor: not-allowed; pointer-events: none; }
+        .page-info { padding: 0 20px; height: 40px; display: flex; align-items: center; justify-content: center; background: white; border: 1px solid #E5E7EB; border-radius: 10px; font-size: 14px; font-weight: bold; color: #1F2937; }
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-thumb { background: #E5E7EB; border-radius: 10px; }
     </style>
@@ -98,13 +84,13 @@
 <main class="flex-1 overflow-y-auto p-10 bg-[#FBFBFD]">
     <div class="mb-10">
         <h2 class="text-3xl font-extrabold text-gray-800 tracking-tight">도서관리</h2>
-        <p class="text-gray-400 mt-2 font-medium">전체 도서 목록을 관리하고 상태를 변경합니다.</p>
+        <p class="text-gray-400 mt-2 font-medium">전체 도서 목록을 관리하고 상태를 변경합니다. (개별 도서 관리 모드)</p>
     </div>
 
     <div class="flex items-center justify-between mb-6">
         <div class="filter-group">
             <a th:href="@{/admin/BookManageMent(keyword=${keyword})}"
-               class="filter-btn" th:classappend="${bookState == null or bookState == ''} ? 'active' : ''">전체</a>
+               class="filter-btn" th:classappend="${#strings.isEmpty(bookState)} ? 'active' : ''">전체</a>
             <a th:href="@{/admin/BookManageMent(bookState='N', keyword=${keyword})}"
                class="filter-btn flex items-center gap-2" th:classappend="${bookState == 'N'} ? 'active' : ''">
                 <span class="w-2 h-2 bg-green-500 rounded-full"></span> 대여가능
@@ -125,9 +111,9 @@
                    class="w-full pl-12 pr-4 py-3 bg-gray-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-[#DCA244]/20 focus:bg-white outline-none transition-all">
         </div>
         <button type="submit" class="btn-dark">검색</button>
-        <a th:if="${(keyword != null and keyword != '')}"
+        <a th:if="${not #strings.isEmpty(keyword)}"
            th:href="@{/admin/BookManageMent}"
-           class="px-6 py-3 bg-gray-100 text-gray-500 rounded-xl font-bold hover:bg-gray-200 transition-all flex items-center justify-center">
+           class="px-6 py-3 bg-gray-100 text-gray-500 rounded-xl font-bold hover:bg-gray-200 transition-all flex items-center justify-center text-decoration-none">
             초기화
         </a>
     </form>
@@ -137,40 +123,55 @@
             <thead>
             <tr>
                 <th class="th-style w-20">No.</th>
-                <th class="th-style">도서정보</th>
+                <th class="th-style">도서정보 (ID)</th>
                 <th class="th-style">카테고리</th>
                 <th class="th-style">상태</th>
                 <th class="th-style text-center">관리</th>
             </tr>
             </thead>
             <tbody class="divide-y divide-gray-100">
+            <tr th:if="${bookList == null or bookList.isEmpty()}">
+                <td colspan="5" class="td-style text-center py-20 text-gray-400 font-medium">
+                    조회된 도서가 없습니다.
+                </td>
+            </tr>
+
             <tr th:each="book, iterStat : ${bookList}" class="hover:bg-gray-50/50 transition-colors">
                 <td class="td-style text-gray-400 font-medium"
-                    th:text="${(currentPage * 50) + iterStat.count}">1</td>
+                    th:text="${(currentPage * 100) + iterStat.count}">1</td>
                 <td class="td-style">
                     <div class="flex items-center gap-4">
-                        <img th:src="${book.aladinImageBig != null ? book.aladinImageBig : book.naverImage}"
+                        <img th:src="${book.aladinImageBig != null ? book.aladinImageBig : (book.naverImage != null ? book.naverImage : '/img/no-image.png')}"
                              alt="Book Cover" class="w-12 h-16 object-cover rounded shadow-sm border border-gray-100">
                         <div class="flex-1 min-w-0">
-                            <div class="font-bold text-gray-800 truncate" th:text="${book.bookTitle}">도서 제목</div>
+                            <div class="font-bold text-gray-800 truncate max-w-[300px]">
+                                <span th:text="${book.bookTitle ?: '제목 정보 없음'}">도서 제목</span>
+                                <span class="text-[10px] text-main font-bold ml-1" th:text="'#' + ${book.bookId}"></span>
+                            </div>
                             <div class="text-[11px] text-gray-500 mt-0.5 font-mono">
-                                <span th:text="${book.authors}">저자명</span> |
-                                <span th:text="${book.isbn13}">ISBN</span>
+                                <span th:text="${book.authors ?: '저자 미상'}">저자명</span> |
+                                <span th:text="${book.isbn13 ?: '-'}">ISBN</span>
                             </div>
                         </div>
                     </div>
                 </td>
                 <td class="td-style">
-                    <div class="text-sm text-gray-600 font-medium" th:text="${book.genreNm}">카테고리</div>
-                    <div class="text-[10px] text-gray-400" th:text="${book.publisher}">출판사</div>
+                    <div class="text-sm text-gray-600 font-medium"
+                         th:text="${book.genreNm ?: '카테고리 없음'}">카테고리</div>
+                    <div class="text-[10px] text-gray-400" th:text="${book.publisher ?: '-'}">출판사</div>
                 </td>
                 <td class="td-style">
                     <span th:if="${book.bookState == 'N'}" class="badge badge-green">대여가능</span>
-                    <span th:if="${book.bookState == 'L'}" class="badge badge-gray">분실/정비중</span>
+                    <span th:if="${book.bookState == 'L'}" class="badge badge-orange">정비중</span>
+                    <span th:if="${book.bookState != 'N' and book.bookState != 'L'}" class="badge badge-gray" th:text="${book.bookState}">상태값</span>
                 </td>
                 <td class="td-style text-center">
                     <div class="flex justify-center gap-1">
-                        <button th:onclick="openStatusModal([[${book.isbn13}]], [[${book.bookTitle}]], [[${book.bookState}]])"
+                        <button type="button"
+                                th:data-id="${book.bookId}"
+                                th:data-title="${book.bookTitle ?: '도서'}"
+                                th:data-state="${book.bookState}"
+                                onclick="openStatusModal(this)"
                                 class="p-2 text-main hover:bg-[#DCA244]/10 rounded-lg transition-colors">
                             <i class="fas fa-edit text-sm"></i>
                         </button>
@@ -181,51 +182,24 @@
         </table>
     </div>
 
-    <div class="mt-12 flex flex-col items-center gap-4">
-        <div class="flex items-center gap-2">
+    <div class="mt-12 flex flex-col items-center gap-6">
+        <div class="flex items-center gap-4">
             <a th:href="@{/admin/BookManageMent(page=0, bookState=${bookState}, keyword=${keyword})}"
-               th:classappend="${currentPage == 0} ? 'pointer-events-none opacity-30' : ''"
-               class="page-btn" title="처음으로">
+               class="page-btn" th:classappend="${currentPage == 0} ? 'disabled' : ''">
                 <i class="fas fa-angle-double-left text-xs"></i>
             </a>
-
-            <th:block th:with="prevBlockPage=${(currentPage / 5) * 5 - 1}">
-                <a th:href="@{/admin/BookManageMent(page=${prevBlockPage < 0 ? 0 : prevBlockPage}, bookState=${bookState}, keyword=${keyword})}"
-                   th:classappend="${currentPage < 5} ? 'pointer-events-none opacity-30' : ''"
-                   class="page-btn" title="이전 그룹">
-                    <i class="fas fa-chevron-left text-xs"></i>
-                </a>
-            </th:block>
-
-            <th:block th:if="${totalPages > 0}" th:with="start=${(currentPage / 5) * 5}, end=${(start + 4 < totalPages - 1) ? start + 4 : totalPages - 1}">
-                <a th:each="pageNum : ${#numbers.sequence(start, end)}"
-                   th:href="@{/admin/BookManageMent(page=${pageNum}, bookState=${bookState}, keyword=${keyword})}"
-                   th:text="${pageNum + 1}"
-                   class="page-btn"
-                   th:classappend="${pageNum == currentPage} ? 'active' : ''">
-                </a>
-            </th:block>
-
-            <th:block th:with="nextBlockPage=${(currentPage / 5) * 5 + 5}">
-                <a th:href="@{/admin/BookManageMent(page=${nextBlockPage >= totalPages ? totalPages - 1 : nextBlockPage}, bookState=${bookState}, keyword=${keyword})}"
-                   th:classappend="${(currentPage / 5) * 5 + 5 >= totalPages} ? 'pointer-events-none opacity-30' : ''"
-                   class="page-btn" title="다음 그룹">
-                    <i class="fas fa-chevron-right text-xs"></i>
-                </a>
-            </th:block>
-
-            <a th:href="@{/admin/BookManageMent(page=${totalPages - 1}, bookState=${bookState}, keyword=${keyword})}"
-               th:classappend="${currentPage >= totalPages - 1} ? 'pointer-events-none opacity-30' : ''"
-               class="page-btn" title="끝으로">
-                <i class="fas fa-angle-double-right text-xs"></i>
+            <a th:href="@{/admin/BookManageMent(page=${currentPage - 1}, bookState=${bookState}, keyword=${keyword})}"
+               class="page-btn" th:classappend="${!hasPrev} ? 'disabled' : ''">
+                <i class="fas fa-chevron-left text-xs"></i>
+            </a>
+            <div class="page-info">
+                PAGE <span class="ml-2 text-main" th:text="${currentPage + 1}">1</span>
+            </div>
+            <a th:href="@{/admin/BookManageMent(page=${currentPage + 1}, bookState=${bookState}, keyword=${keyword})}"
+               class="page-btn" th:classappend="${!hasNext} ? 'disabled' : ''">
+                <i class="fas fa-chevron-right text-xs"></i>
             </a>
         </div>
-
-        <p class="text-[13px] text-gray-400 font-medium">
-            전체 <span class="text-gray-700 font-bold" th:text="${totalElements}">0</span>개 중
-            <span class="text-gray-700 font-bold" th:text="${(currentPage * 50) + 1}">1</span> -
-            <span class="text-gray-700 font-bold" th:text="${(currentPage * 50) + bookList.size()}">50</span>
-        </p>
     </div>
 
     <div id="bookModal" class="fixed inset-0 bg-black/50 z-[100] hidden items-center justify-center backdrop-blur-sm transition-all">
@@ -236,7 +210,6 @@
                     <i class="fas fa-times text-xl"></i>
                 </button>
             </div>
-
             <form th:action="@{/admin/BookSave}" method="post" id="bookForm" class="p-8 space-y-5 max-h-[70vh] overflow-y-auto">
                 <div class="grid grid-cols-2 gap-4">
                     <div>
@@ -250,13 +223,11 @@
                                class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-[#DCA244]/20 focus:bg-white outline-none transition-all text-sm">
                     </div>
                 </div>
-
                 <div>
                     <label class="block text-xs font-bold text-gray-400 uppercase mb-1.5 ml-1">도서 제목</label>
                     <input type="text" name="bookTitle" required placeholder="도서명을 입력하세요"
                            class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-[#DCA244]/20 focus:bg-white outline-none transition-all text-sm">
                 </div>
-
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-bold text-gray-400 uppercase mb-1.5 ml-1">저자</label>
@@ -269,7 +240,6 @@
                                class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-[#DCA244]/20 focus:bg-white outline-none transition-all text-sm">
                     </div>
                 </div>
-
                 <div class="space-y-2">
                     <label class="block text-xs font-bold text-gray-400 uppercase mb-1.5 ml-1">도서 유형 (필수)</label>
                     <div class="flex gap-4 p-1 bg-gray-50 rounded-xl border border-gray-100">
@@ -287,7 +257,6 @@
                         </label>
                     </div>
                 </div>
-
                 <div class="space-y-1 relative" id="genreSearchContainer">
                     <label class="block text-xs font-bold text-gray-400 uppercase mb-1.5 ml-1">카테고리 선택 (필수) <span class="text-red-400">*</span></label>
                     <div class="relative">
@@ -296,10 +265,10 @@
                                class="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-[#DCA244]/20 focus:bg-white outline-none transition-all text-sm">
                         <input type="hidden" name="genreId" id="selectedGenreId" required>
                     </div>
-
                     <div id="genreListDropdown" class="absolute z-[110] w-full mt-1 bg-white border border-gray-100 rounded-xl shadow-xl max-h-48 overflow-y-auto hidden">
                         <ul class="py-2">
                             <li th:each="genre : ${genreList}"
+                                th:if="${genre != null}"
                                 th:data-id="${genre.genreId}"
                                 th:data-nm="${genre.genreNm}"
                                 th:data-parent="${genre.parentNm}"
@@ -312,13 +281,11 @@
                         </ul>
                     </div>
                 </div>
-
                 <div>
                     <label class="block text-xs font-bold text-gray-400 uppercase mb-1.5 ml-1">이미지 URL</label>
                     <input type="url" name="aladinImageBig" placeholder="https://..."
                            class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-[#DCA244]/20 focus:bg-white outline-none transition-all text-sm">
                 </div>
-
                 <div class="flex gap-3 pt-4 pb-2">
                     <button type="button" onclick="closeModal()" class="flex-1 py-4 bg-gray-100 text-gray-500 rounded-xl font-bold hover:bg-gray-200 transition-all">취소</button>
                     <button type="submit" class="flex-1 py-4 bg-main text-white rounded-xl font-bold hover:shadow-lg hover:shadow-[#DCA244]/30 transition-all">등록하기</button>
@@ -336,7 +303,7 @@
                 </button>
             </div>
             <form th:action="@{/admin/UpdateBookStatus}" method="post" class="p-8 space-y-6">
-                <input type="hidden" name="isbn13" id="editIsbn">
+                <input type="hidden" name="bookId" id="editBookId">
                 <div>
                     <p class="text-sm text-gray-500 mb-4">선택한 도서: <span id="editTitle" class="font-bold text-gray-800"></span></p>
                     <label class="block text-xs font-bold text-gray-400 uppercase mb-3 ml-1">상태 선택</label>
@@ -364,10 +331,8 @@
     </div>
 
     <script>
-        /* --- 모달 제어 로직 --- */
         const modal = document.getElementById('bookModal');
         const content = document.getElementById('modalContent');
-
         function openModal() {
             modal.classList.remove('hidden');
             modal.classList.add('flex');
@@ -376,7 +341,6 @@
                 content.classList.add('scale-100', 'opacity-100');
             }, 10);
         }
-
         function closeModal() {
             content.classList.remove('scale-100', 'opacity-100');
             content.classList.add('scale-95', 'opacity-0');
@@ -387,17 +351,13 @@
                 document.getElementById('selectedGenreId').value = "";
             }, 200);
         }
-
-        /* --- 카테고리 검색/선택 로직 --- */
         const genreInput = document.getElementById('genreInput');
         const genreDropdown = document.getElementById('genreListDropdown');
         const genreItems = document.querySelectorAll('.genre-item');
         const selectedGenreId = document.getElementById('selectedGenreId');
-
         genreInput.addEventListener('input', function() {
             const val = this.value.toLowerCase();
             let hasMatch = false;
-
             genreItems.forEach(item => {
                 const nm = item.getAttribute('data-nm').toLowerCase();
                 const parent = (item.getAttribute('data-parent') || "").toLowerCase();
@@ -408,12 +368,10 @@
                     item.style.display = 'none';
                 }
             });
-
             if (hasMatch && val !== "") genreDropdown.classList.remove('hidden');
             else genreDropdown.classList.add('hidden');
             selectedGenreId.value = "";
         });
-
         genreItems.forEach(item => {
             item.addEventListener('click', function() {
                 const nm = this.getAttribute('data-nm');
@@ -423,25 +381,16 @@
                 genreDropdown.classList.add('hidden');
             });
         });
-
-        document.addEventListener('click', function(e) {
-            if (!document.getElementById('genreSearchContainer').contains(e.target)) {
-                genreDropdown.classList.add('hidden');
-                if (selectedGenreId.value === "") genreInput.value = "";
-            }
-            if (e.target === modal) closeModal();
-        });
-
-        /* --- 상태 변경 모달 로직 --- */
         const statusModal = document.getElementById('statusModal');
         const statusContent = document.getElementById('statusModalContent');
-
-        function openStatusModal(isbn, title, state) {
-            document.getElementById('editIsbn').value = isbn;
+        function openStatusModal(el) {
+            const bookId = el.getAttribute('data-id');
+            const title = el.getAttribute('data-title');
+            const state = el.getAttribute('data-state');
+            document.getElementById('editBookId').value = bookId;
             document.getElementById('editTitle').innerText = title;
             if(state === 'N') document.getElementById('statusN').checked = true;
             else if(state === 'L') document.getElementById('statusL').checked = true;
-
             statusModal.classList.remove('hidden');
             statusModal.classList.add('flex');
             setTimeout(() => {
@@ -449,7 +398,6 @@
                 statusContent.classList.add('scale-100', 'opacity-100');
             }, 10);
         }
-
         function closeStatusModal() {
             statusContent.classList.remove('scale-100', 'opacity-100');
             statusContent.classList.add('scale-95', 'opacity-0');
@@ -458,8 +406,12 @@
                 statusModal.classList.add('hidden');
             }, 200);
         }
-
         document.addEventListener('click', function(e) {
+            if (!document.getElementById('genreSearchContainer').contains(e.target)) {
+                genreDropdown.classList.add('hidden');
+                if (selectedGenreId.value === "") genreInput.value = "";
+            }
+            if (e.target === modal) closeModal();
             if (e.target === statusModal) closeStatusModal();
         });
     </script>

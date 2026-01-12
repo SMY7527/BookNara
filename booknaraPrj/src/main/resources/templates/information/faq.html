@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>자주하는 질문</title>
+    <link rel="stylesheet" href="../../../../../../../../../Desktop/북나라_이벤트,%20Q&A,%20가이드,%20공지사항,%20고객문의/root/FAQ/common.css" />
+    <link rel="stylesheet" href="faq.css" />
+  </head>
+  <body>
+    <header id="siteHeader"></header>
+
+    <main class="container">
+      <h2 class="page-title">Q&A 자주묻는 질문</h2>
+
+      <section class="faq-card">
+        <div class="faq-top">
+          <div class="search">
+            <input id="searchInput" type="text" placeholder="검색어 입력" />
+            <button id="searchBtn" type="button" aria-label="검색">🔍</button>
+          </div>
+        </div>
+        <!-- 🔥 자주 묻는 TOP 3 -->
+        <div class="top-wrap">
+          <div class="top-title">🔥 자주 묻는 TOP 3</div>
+          <ul id="topList" class="faq-list"></ul>
+        </div>
+
+        <!-- 일반 FAQ -->
+        <ul id="faqList" class="faq-list"></ul>
+
+        <!--페이지네이션 -->
+        <div id="paging" class="paging"></div>
+      </section>
+    </main>
+
+    <script src="../../../../../../../../../Desktop/북나라_이벤트,%20Q&A,%20가이드,%20공지사항,%20고객문의/root/FAQ/common.js" defer></script>
+    <script src="faq.js" defer></script>
+  </body>
+</html>

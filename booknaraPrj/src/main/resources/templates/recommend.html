@@ -13,16 +13,8 @@
 <!--사이드바-->
 <aside class="side-bar">
     <div class="side-header">최근 본 책</div>
-    <div class="side-content">
-        <div class="side-item">
-            <img src="https://picsum.photos/200/300?21" alt="책1">
-        </div>
-        <div class="side-item">
-            <img src="https://picsum.photos/200/300?22" alt="책2">
-        </div>
-        <div class="side-item">
-            <img src="https://picsum.photos/200/300?23" alt="책3">
-        </div>
+    <div class="side-content" id="recentBookList">
+        <!-- JS로 side-item 3개 채워짐 -->
     </div>
 </aside>
 
@@ -31,7 +23,11 @@
 <section class="recommend-hero">
     <div class="section-inner">
         <div class="recommend-wrap">
-            <div class="recommend-mallang"><img th:src="@{/images/nav1.png}" alt="말랑이"></div>
+            <div class="recommend-mallang">
+                <div class="mallang-float">
+                <img th:src="@{/images/nav1.png}" alt="말랑이">
+                </div>
+            </div>
             <div class="recommend-tags">
                 <a href="#section-rating" class="tag">#평점</a>
                 <a href="#genre-age" class="tag">#연령</a>
@@ -41,7 +37,6 @@
             </div>
         </div>
     </div>
-    <hr>
 </section>
 
 <section id="section-rating" class="recommend-section">
@@ -55,16 +50,7 @@
             <button class="slider-btn right" id="nextBtn">›</button>
             <div class="slider-viewport">
                 <div class="slider-track" id="sliderTrack">
-                    <div class="book-card"><img src="https://picsum.photos/260/360?1"></div>
-                    <div class="book-card"><img src="https://picsum.photos/260/360?2"></div>
-                    <div class="book-card"><img src="https://picsum.photos/260/360?3"></div>
-                    <div class="book-card"><img src="https://picsum.photos/260/360?4"></div>
-                    <div class="book-card"><img src="https://picsum.photos/260/360?5"></div>
-                    <div class="book-card"><img src="https://picsum.photos/260/360?6"></div>
-                    <div class="book-card"><img src="https://picsum.photos/260/360?7"></div>
-                    <div class="book-card"><img src="https://picsum.photos/260/360?8"></div>
-                    <div class="book-card"><img src="https://picsum.photos/260/360?9"></div>
-                    <div class="book-card"><img src="https://picsum.photos/260/360?10"></div>
+                    <!-- JS에서 평점 TOP10 카드 생성 -->
                 </div>
             </div>
         </div>
@@ -90,7 +76,7 @@
 
         <div class="age-dots" id="ageDots"></div>
     </div>
-
+</section>
     <!--====대여순====-->
     <section id="section-rental" class="recommend-section rental-section">
         <div class="section-inner">
@@ -100,69 +86,8 @@
                 <p>북나라에서 가장 사랑받은 책들.</p>
             </div>
 
-            <div class="rental-list">
-
-                <div class="rental-item">
-                    <div class="book-cover">
-                        <img src="https://picsum.photos/200/300?1" alt="작은 일기">
-                    </div>
-                    <div class="book-info">
-                        <p class="title">작은 일기</p>
-                        <p class="author">황정은/창비</p>
-                    </div>
-                </div>
-
-                <div class="rental-item">
-                    <div class="book-cover">
-                        <img src="https://picsum.photos/200/300?2" alt="액스">
-                    </div>
-                    <div class="book-info">
-                        <p class="title">액스</p>
-                        <p class="author">도널드 웨스트레이크/오픈하우스</p>
-                    </div>
-                </div>
-
-                <div class="rental-item">
-                    <div class="book-cover">
-                        <img src="https://picsum.photos/200/300?3" alt="작약과 공터">
-                    </div>
-                    <div class="book-info">
-                        <p class="title">작약과 공터</p>
-                        <p class="author">허연/문학과지성사</p>
-                    </div>
-                </div>
-
-                <div class="rental-item">
-                    <div class="book-cover">
-                        <img src="https://picsum.photos/200/300?4" alt="소년이 온다">
-                        <div class="badge-award"></div>
-                    </div>
-                    <div class="book-info">
-                        <p class="title">소년이 온다</p>
-                        <p class="author">한강/창비</p>
-                    </div>
-                </div>
-
-                <div class="rental-item">
-                    <div class="book-cover">
-                        <img src="https://picsum.photos/200/300?5" alt="모순">
-                    </div>
-                    <div class="book-info">
-                        <p class="title">모순</p>
-                        <p class="author">양귀자/쓰다</p>
-                    </div>
-                </div>
-
-                <div class="rental-item">
-                    <div class="book-cover">
-                        <img src="https://picsum.photos/200/300?6" alt="안녕이라고 그랬어">
-                    </div>
-                    <div class="book-info">
-                        <p class="title">안녕이라고 그랬어</p>
-                        <p class="author">김애란/문학동네</p>
-                    </div>
-                </div>
-
+            <div class="rental-list" id="rentalList">
+                <!-- JS로 rental-item이 여기 들어감 -->
             </div>
         </div>
     </section>
@@ -179,71 +104,10 @@
                 <p>한 달 동안 가장 많이 빌린 책.</p>
             </div>
 
-            <div class="rental-list">
-
-                <div class="rental-item">
-                    <div class="book-cover">
-                        <img src="https://picsum.photos/200/300?11" alt="우리 삶이 시가 될 때">
-                    </div>
-                    <div class="book-info">
-                        <p class="title">우리 삶이 시가 될 때</p>
-                        <p class="author">여성시대/김영사</p>
-                    </div>
-                </div>
-
-                <div class="rental-item">
-                    <div class="book-cover">
-                        <img src="https://picsum.photos/200/300?12" alt="지금 나를 위해 해야 하는..">
-                    </div>
-                    <div class="book-info">
-                        <p class="title">지금 나를 위해 해야 하는..</p>
-                        <p class="author">김연경/가연</p>
-                    </div>
-                </div>
-
-                <div class="rental-item">
-                    <div class="book-cover">
-                        <img src="https://picsum.photos/200/300?13" alt="꽁꽁 얼어붙은 한강 위로...">
-                    </div>
-                    <div class="book-info">
-                        <p class="title">꽁꽁 얼어붙은 한강 위로...</p>
-                        <p class="author">김주하/매일경제신문사</p>
-                    </div>
-                </div>
-
-                <div class="rental-item">
-                    <div class="book-cover">
-                        <img src="https://picsum.photos/200/300?14" alt="10년 째 합숙 중">
-                    </div>
-                    <div class="book-info">
-                        <p class="title">10년 째 합숙 중</p>
-                        <p class="author">웃소/책읽는코뿔소</p>
-                    </div>
-                </div>
-
-                <div class="rental-item">
-                    <div class="book-cover">
-                        <img src="https://picsum.photos/200/300?15" alt="겨울어 사전">
-                    </div>
-                    <div class="book-info">
-                        <p class="title">겨울어 사전</p>
-                        <p class="author">아침달편집부/아침달</p>
-                    </div>
-                </div>
-
-                <div class="rental-item">
-                    <div class="book-cover">
-                        <img src="https://picsum.photos/200/300?16" alt="망그러진 하루">
-                    </div>
-                    <div class="book-info">
-                        <p class="title">망그러진 하루</p>
-                        <p class="author">유랑/좋은생각</p>
-                    </div>
-                </div>
-
-            </div>
+            <div class="rental-list" id="bestsellerList">
+                <!-- JS에서 rental-item 6개 동적 생성 -->
         </div>
-    </section>
+
 </section>
 
 <div th:replace="fragments/footer :: footer"></div>

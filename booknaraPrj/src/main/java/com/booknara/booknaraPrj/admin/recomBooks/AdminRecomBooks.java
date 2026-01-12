@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "RECOM_BOOKS")
 @Getter
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED) // 기본 생성자 지연 로딩용
 @AllArgsConstructor
 @Builder

@@ -16,25 +16,28 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableScheduling
 @EnableJpaRepositories(basePackages = "com.booknara.booknaraPrj")
 @EnableConfigurationProperties({NaverProperties.class, AladinProperties.class})
-@MapperScan(basePackages = {
-        "com.booknara.booknaraPrj.login_signup.mapper",
-        "com.booknara.booknaraPrj.bookAPI.mapper",
-        "com.booknara.booknaraPrj.admin.mapper", // 필요한 만큼 추가
-        "com.booknara.booknaraPrj.bookcart.mapper",
-        "com.booknara.booknaraPrj.bookcirculation.command.mapper",
-        "com.booknara.booknaraPrj.bookcirculation.status.mapper",
-        "com.booknara.booknaraPrj.bookDetail.mapper",
-        "com.booknara.booknaraPrj.feed.review.mapper",
-        "com.booknara.booknaraPrj.reviewstatus.mapper",
-        "com.booknara.booknaraPrj.bookMark.mapper",
-        "com.booknara.booknaraPrj.bookSearch.mapper",
-        "com.booknara.booknaraPrj.mainpage.mapper",
-        "com.booknara.booknaraPrj.mypage.mylibrary",
-        "com.booknara.booknaraPrj.mypage.event",
-        "com.booknara.booknaraPrj.mypage.info",
-        "com.booknara.booknaraPrj.mypage.myinquiry",
-        "com.booknara.booknaraPrj.mypage.withdraw"
-})
+@MapperScan({"com.booknara.booknaraPrj.**.mapper",
+        "com.booknara.booknaraPrj.mypage"})
+//@MapperScan(basePackages = {
+//        "com.booknara.booknaraPrj.login_signup.mapper",
+//        "com.booknara.booknaraPrj.bookAPI.mapper",
+//        "com.booknara.booknaraPrj.admin.mapper", // 필요한 만큼 추가
+//        "com.booknara.booknaraPrj.bookcart.mapper",
+//        "com.booknara.booknaraPrj.bookcirculation.command.mapper",
+//        "com.booknara.booknaraPrj.bookcirculation.status.mapper",
+//        "com.booknara.booknaraPrj.bookDetail.mapper",
+//        "com.booknara.booknaraPrj.feed.review.mapper",
+//        "com.booknara.booknaraPrj.reviewstatus.mapper",
+//        "com.booknara.booknaraPrj.bookMark.mapper",
+//        "com.booknara.booknaraPrj.bookSearch.mapper",
+//        "com.booknara.booknaraPrj.mainpage.mapper",
+//        "com.booknara.booknaraPrj.mypage.mylibrary",
+//        "com.booknara.booknaraPrj.mypage.event",
+//        "com.booknara.booknaraPrj.mypage.info",
+//        "com.booknara.booknaraPrj.mypage.myinquiry",
+//        "com.booknara.booknaraPrj.mypage.withdraw"
+//})
+
 public class BooknaraPrjApplication {
 
 	public static void main(String[] args) {

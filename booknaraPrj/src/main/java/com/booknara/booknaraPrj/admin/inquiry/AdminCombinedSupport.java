@@ -47,17 +47,20 @@ public class AdminCombinedSupport {
     @Column(name = "FILE_PATH_3")
     private String filePath3;
 
-    // 타임리프에서 item.filesJson으로 호출할 메서드
-    public String getFilesJson() {
+    private static final ObjectMapper mapper = new ObjectMapper();
+
+    public String fetchFilesJson() { // 이름을 get 대신 다른 것으로 시작하게 변경 (충돌 방지)
         List<Map<String, String>> fileList = new ArrayList<>();
-        addFileToList(fileList, filePath1);
-        addFileToList(fileList, filePath2);
-        addFileToList(fileList, filePath3);
 
         try {
-            return new ObjectMapper().writeValueAsString(fileList);
+            addFileToList(fileList, filePath1);
+            addFileToList(fileList, filePath2);
+            addFileToList(fileList, filePath3);
+
+            if (fileList.isEmpty()) return "[]";
+            return mapper.writeValueAsString(fileList);
         } catch (Exception e) {
-            return "[]";
+            return "[]"; // 에러 발생 시 빈 JSON 배열 반환
         }
     }
 
@@ -65,10 +68,15 @@ public class AdminCombinedSupport {
         if (path != null && !path.trim().isEmpty()) {
             Map<String, String> fileMap = new HashMap<>();
 
-            // 경로 문자열에서 파일명만 뽑아냄 (예: "C:\download\error_screen.png" -> "error_screen.png")
-            String fileName = path.contains("/") ? path.substring(path.lastIndexOf("/") + 1) : path;
-            if (fileName.contains("\\")) {
-                fileName = fileName.substring(fileName.lastIndexOf("\\") + 1);
+            // 경로 처리 로직은 유지하되 null 방지 추가
+            String fileName = "unknown_file";
+            try {
+                fileName = path.contains("/") ? path.substring(path.lastIndexOf("/") + 1) : path;
+                if (fileName.contains("\\")) {
+                    fileName = fileName.substring(fileName.lastIndexOf("\\") + 1);
+                }
+            } catch (Exception e) {
+                fileName = "file_" + System.currentTimeMillis();
             }
 
             fileMap.put("url", "/download/" + fileName);

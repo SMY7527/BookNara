@@ -24,20 +24,20 @@ public interface AdminNotificationRepository extends JpaRepository<AdminNotifica
      */
     @Query("SELECT new com.booknara.booknaraPrj.admin.notifications.AdminNotiResponseDto(" +
             "an.notiId, an.notiType, " +
-            // 실시간 문장 생성: [사용자명]님이 [도서제목] 도서를 [타입]하였습니다.
             "CONCAT(u.userNm, '님이 [', COALESCE(bi.bookTitle, '알 수 없는 도서'), '] 도서를 ', " +
             "CASE WHEN an.notiType = '연체' THEN '연체 중입니다.' " +
             "     WHEN an.notiType = '대여' THEN '대여 신청하였습니다.' " +
             "     ELSE '반납 완료하였습니다.' END), " +
-            "u.userId, u.userNm, l.lendId, bi.bookTitle, b.isbn13, an.createdAt, an.updatedAt) " +
+            "u.userId, u.userNm, l.lendId, bi.bookTitle, " +
+            "bi.isbn13, " + // <--- 여기도 b.isbn13 대신 bi.isbn13 사용 권장
+            "an.createdAt, an.updatedAt) " +
             "FROM AdminNotification an " +
             "JOIN Users u ON an.userId = u.userId " +
-            "LEFT JOIN Lend l ON an.lendId = l.lendId " +        // 도서 정보가 없어도 알림은 뜨도록 LEFT JOIN
+            "LEFT JOIN Lend l ON an.lendId = l.lendId " +
             "LEFT JOIN AdminBooks b ON l.bookId = b.bookId " +
-            "LEFT JOIN AdminBookIsbn bi ON b.isbn13 = bi.isbn13 " +
+            "LEFT JOIN AdminBookIsbn bi ON b.bookIsbn.isbn13 = bi.isbn13 " + // <--- [핵심 수정!] b.bookIsbn.isbn13으로 변경
             "WHERE (:type IS NULL OR :type = '전체' OR an.notiType = :type) " +
-            "AND (:keyword IS NULL OR u.userNm LIKE %:keyword% OR u.userId LIKE %:keyword% " +
-            "OR l.lendId LIKE %:keyword% OR bi.bookTitle LIKE %:keyword%)")
+            "AND (:keyword IS NULL OR u.userNm LIKE :keyword OR u.userId LIKE :keyword OR CAST(l.lendId AS string) LIKE :keyword OR bi.bookTitle LIKE :keyword)")
     Page<AdminNotiResponseDto> findDetailedNotifications(
             @Param("type") String type,
             @Param("keyword") String keyword,

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.booknara.booknaraPrj.recommend.mapper.RecommendRatingMapper">
+
+    <select id="findTopRatedBooks" resultType="com.booknara.booknaraPrj.recommend.dto.RatingBookDTO">
+        SELECT
+        b.ISBN13        AS isbn13,
+        b.BOOK_TITLE    AS bookTitle,
+        b.AUTHORS       AS authors,
+        b.NAVER_IMAGE   AS naverImage,
+        r.RATING_AVG    AS ratingAvg
+        FROM REVIEW_STAT r
+        JOIN BOOK_ISBN b
+        ON r.ISBN13 = b.ISBN13
+        WHERE r.RATING_AVG IS NOT NULL
+        ORDER BY r.RATING_AVG DESC
+        LIMIT 10
+    </select>
+
+</mapper>

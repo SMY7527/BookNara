@@ -4,209 +4,591 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <title th:text="${view.bookDetailDTO.bookTitle}">도서 상세</title>
+    <link rel="stylesheet" th:href="@{/css/footer.css}">
 
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Gamja+Flower&display=swap');
+
         :root{
-            --page-max: 1100px;
-            --gap: 18px;
-            --line: #e9e9e9;
+            --page-max: 1440px;
+            --content-max: 1280px;
+            --inner-max: 1120px;
+            --gap: 24px;
+            --radius: 10px;
+
+            --bg: #fff;
             --text: #111;
             --muted: #666;
+            --light-bg: #f9f9f9;
+
             --accent: #DCA244;
-            --bg: #fff;
+            --line: #e5e5e5;
+            --shadow-soft: 0 4px 12px rgba(0,0,0,0.03);
+
+            --purchase-offset: 170px;
         }
-        body{ margin:0; font-family: Arial, sans-serif; background: var(--bg); color: var(--text); }
-        .wrap{ max-width: var(--page-max); margin: 0 auto; padding: 24px 16px; }
-        .card{ border:1px solid var(--line); border-radius: 14px; padding: 18px; background:#fff; }
-        .grid{ display:grid; grid-template-columns: 240px 1fr; gap: 20px; }
-        .cover{ width: 240px; aspect-ratio: 3/4; border-radius: 12px; border:1px solid var(--line); overflow:hidden; background:#fafafa; display:flex; align-items:center; justify-content:center; }
-        .cover img{ width:100%; height:100%; object-fit:cover; display:block; }
-        .title{ font-size: 22px; font-weight: 800; line-height: 1.2; margin: 0 0 10px; }
-        .meta{ color: var(--muted); font-size: 14px; display:flex; flex-wrap:wrap; gap: 8px 14px; }
-        .meta span{ white-space: nowrap; }
-        .actions{ display:flex; align-items:center; gap:10px; margin-top: 14px; flex-wrap:wrap; }
-        .btn{
-            border: 1px solid var(--line);
+
+        body { margin:0; font-family: Arial, sans-serif; background: #fff; }
+        .wrap { max-width: var(--page-max); margin: 0 auto; padding: 24px 16px; }
+
+        .wrap-inner{ width: min(var(--content-max), 100%); margin: 0 auto; display: block; }
+        .center { width: 100%; display: flex; flex-direction: column; }
+        .section-inner{ width: min(var(--inner-max), 100%); margin: 0 auto; }
+
+        .crumbbar {
+            margin: 0 0 30px;
             background:#fff;
-            border-radius: 999px;
-            padding: 10px 14px;
-            cursor: pointer;
+            border: 1px solid var(--accent);
+            border-radius: var(--radius);
+            padding: 12px 16px;
+            display:flex;
+            justify-content: space-between;
+            align-items:center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .crumb-left { display:flex; align-items:center; gap: 8px; flex-wrap: wrap; min-width: 0; }
+
+        .crumb-home, .crumb-sep, .crumb-link, .crumb-current {
+            font-weight: 900;
+            font-size: 14px;
+            color: var(--accent);
+        }
+
+        .crumb-home { display:inline-flex; align-items:center; gap:6px; text-decoration: none; cursor:pointer; }
+        .crumb-link { border: none; background: transparent; padding: 0; margin: 0; cursor:pointer; text-decoration: none; }
+        .crumb-link:hover { text-decoration: underline; }
+        .crumb-current { cursor: default; text-decoration: none; }
+
+        .detail-section{
+            border-bottom: 1px solid var(--line);
+            padding-bottom: 40px;
+            margin-bottom: 40px;
+        }
+
+        .detail-container {
+            display: grid;
+            grid-template-columns: 480px 1fr;
+            gap: 60px;
+            align-items: start;
+        }
+
+        .cover-area { position: relative; }
+        .cover{
+            width: 100%;
+            aspect-ratio: 1 / 1.45;
+            border-radius: var(--radius);
+            border: 1px solid var(--line);
+            overflow:hidden;
+            background: var(--light-bg);
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            box-shadow: var(--shadow-soft);
+        }
+
+        .cover img{
+            width:100%;
+            height:100%;
+            object-fit:cover;
+            display:block;
+            transition: none;
+            transform: none;
+        }
+
+        .badge-ebook-ribbon{
+            position: absolute; right: 45px; top: 0px; width: 55px; height: 85px;
+            border-radius: 4px 4px 12px 12px;
+            display:flex; align-items:center; justify-content:center;
+            background:#63BCD9; color:#fff;
+            font-family: 'Gamja Flower', cursive;
+            font-weight: 900; font-size: 50px;
+            letter-spacing: 1px;
+            writing-mode: vertical-rl; text-orientation: upright;
+            box-shadow: 0 8px 14px rgba(0,0,0,0.20);
+            border:1px solid rgba(255,255,255,0.25);
+            z-index: 2;
+            user-select: none;
+        }
+
+        .info-pane{
+            display: flex;
+            flex-direction: column;
+            height: auto;
+            min-height: 0;
+        }
+
+        .header-section { border-bottom: 1px solid var(--line); padding-bottom: 24px; margin-bottom: 28px; }
+        .title{ font-size: 32px; font-weight: 800; line-height: 1.3; margin: 0 0 16px 0; letter-spacing: -0.5px; word-break: keep-all; }
+        .meta-row { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; color: var(--muted); font-size: 15px; }
+        .meta-divider { width: 1px; height: 12px; background: #ddd; display: inline-block; }
+
+        .purchase-box{ margin-top: var(--purchase-offset); }
+
+        .status-bar {
+            background: var(--light-bg);
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            padding: 24px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .status-item { text-align: center; flex: 1; }
+        .status-item:not(:last-child) { border-right: 1px solid #ddd; }
+        .status-label { font-size: 14px; color: var(--muted); margin-bottom: 8px; font-weight: 600; }
+        .status-value { font-size: 22px; font-weight: 800; color: var(--text); }
+        .status-value .total { font-size: 16px; color: #999; font-weight: 500; }
+
+        .format-group { display: flex; gap: 14px; margin-bottom: 14px; }
+        .format-item {
+            flex: 1;
+            padding: 14px;
+            border: 1px solid #ddd;
+            border-radius: var(--radius);
+            background: #fff;
+            color: var(--muted);
+            text-align: center;
+            text-decoration: none;
             font-weight: 700;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+        .format-item.active { border: 2px solid var(--accent); color: var(--accent); background: #fff; z-index: 1; pointer-events: none; box-shadow: 0 4px 12px rgba(220, 162, 68, 0.1); }
+        .format-item:not(.active):not(.disabled):hover { background: #fafafa; border-color: #ccc; color: var(--text); }
+        .format-item.disabled { background: #f9f9f9; color: #ccc; border-color: #eee; cursor: default; pointer-events: none; }
+        .check-icon { font-size: 1.1em; }
+
+        .action-area { margin-top: 0; display: flex; flex-direction: column; gap: 14px; }
+        .main-buttons { display: grid; grid-template-columns: 1fr 2fr; gap: 14px; height: 56px; }
+        #rentActions { display: contents; }
+
+        .btn {
+            width: 100%;
+            height: 100%;
+            border: 1px solid var(--accent);
+            background: #fff;
+            color: var(--text);
+            border-radius: 8px;
+            font-size: 17px;
+            font-weight: 800;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+        .btn:hover { filter: brightness(0.98); }
+        .btn:disabled { background: #f0f0f0; border-color: #ddd; color: #aaa; cursor: not-allowed; box-shadow: none; }
+
+        .sub-buttons{
+            display:flex;
+            justify-content:flex-end;
+            gap:10px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn-text{
+            background:#fff;
+            border: 1px solid var(--line);
+            color: var(--muted);
+            font-size: 14px;
+            font-weight: 800;
             display:inline-flex;
             align-items:center;
             gap:8px;
+            cursor:pointer;
+            padding: 10px 12px;
+            border-radius: 999px;
+            transition: transform .12s ease, box-shadow .18s ease, border-color .18s ease, background .18s ease, color .18s ease;
+            user-select: none;
         }
-        .btn-primary{ border-color: var(--accent); }
-        .btn[disabled]{ opacity:.6; cursor:not-allowed; }
-        .chip{ font-size:12px; padding:4px 10px; border-radius:999px; border:1px solid var(--line); color: var(--muted); }
-        .chip-accent{ border-color: var(--accent); color: #8a5a00; background: #fff7e6; }
-        .section-title{ font-size: 16px; font-weight: 800; margin: 0 0 10px; }
-        .desc{ color: #222; line-height: 1.7; font-size: 14px; white-space: pre-line; }
-        .row{ display:flex; gap: 10px; flex-wrap:wrap; align-items:center; }
-        .kpi{ display:flex; gap: 12px; flex-wrap:wrap; }
-        .kpi .item{ border:1px solid var(--line); border-radius: 12px; padding: 10px 12px; min-width: 140px; }
-        .kpi .label{ color: var(--muted); font-size: 12px; margin-bottom: 6px; }
-        .kpi .value{ font-size: 16px; font-weight: 800; }
-        .review-head{ display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
-        .review-score{ display:flex; align-items:center; gap:10px; }
-        .star{ font-size: 16px; }
-        .review-list{ display:flex; flex-direction:column; gap: 10px; margin-top: 10px; }
-        .review-item{ border:1px solid var(--line); border-radius: 12px; padding: 12px; }
-        .review-top{ display:flex; align-items:center; justify-content:space-between; gap: 10px; }
-        .review-writer{ color: var(--muted); font-size: 13px; }
-        .review-title{ font-weight: 800; margin: 8px 0 6px; }
-        .review-content{ color:#222; line-height: 1.6; font-size: 14px; white-space: pre-line; }
-        .breadcrumb{ color: var(--muted); font-size: 13px; margin-bottom: 10px; }
-        .breadcrumb a{ color: inherit; text-decoration:none; }
-        .breadcrumb a:hover{ text-decoration: underline; }
+
+        .btn-text:hover{
+            background: #fafafa;
+            border-color: #d8d8d8;
+            color: var(--text);
+            transform: translateY(-1px);
+            box-shadow: 0 8px 18px rgba(0,0,0,0.06);
+        }
+
+        .btn-text:active{ transform: translateY(0); box-shadow: none; }
+
+        .btn-text .btn-ico{ font-size: 16px; line-height: 1; }
+        .btn-text .btn-label{ line-height: 1; }
+
+        .btn-share{ border-color: rgba(220,162,68,.35); }
+        .btn-share:hover{ border-color: rgba(220,162,68,.55); }
+
+        .btn-bookmark{ border-color: #e7e7e7; }
+        .btn-bookmark.active{
+            background: rgba(220,162,68,.14);
+            border-color: rgba(220,162,68,.55);
+            color: var(--accent);
+            box-shadow: 0 10px 20px rgba(220,162,68,.16);
+        }
+        .btn-bookmark.active:hover{
+            background: rgba(220,162,68,.18);
+            border-color: rgba(220,162,68,.70);
+        }
+
+        .content-section { margin-top: 0; padding-top: 0; }
+        .sec-inner{
+            width: min(var(--inner-max), 100%);
+            margin: 0 auto;
+            padding: 40px 0;
+            border-bottom: 1px solid var(--line);
+        }
+        .content-section:last-of-type .sec-inner{ border-bottom: none; }
+
+        .sec-head {
+            font-size: 22px;
+            font-weight: 800;
+            margin-bottom: 20px;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .desc-text { font-size: 16px; line-height: 1.8; color: #333; white-space: pre-line; text-align: justify; }
+
+        .review-grid { display: grid; gap: 16px; }
+        .review-card { background: var(--light-bg); padding: 24px; border-radius: var(--radius); border: 1px solid transparent; }
+        .review-meta { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 14px; color: var(--muted); }
+        .review-rate { color: var(--accent); font-weight: 800; }
+        .review-body { font-size: 15px; color: #444; line-height: 1.6; }
+
+        @media (max-width: 1024px) {
+            :root{ --inner-max: 100%; }
+            .detail-container { grid-template-columns: 1fr; gap: 26px; }
+            .cover { max-width: 480px; margin: 0 auto; }
+            .info-pane { text-align: center; }
+            .meta-row { justify-content: center; }
+            .sub-buttons { justify-content: center; }
+            .main-buttons { grid-template-columns: 1fr; height: auto; }
+            .main-buttons .btn{ height: 56px; }
+            .purchase-box{ margin-top: 0; }
+        }
+
+        .my-review-card{
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            background: #fff;
+            box-shadow: var(--shadow-soft);
+            padding: 16px;
+        }
+        .my-review-top{
+            display:flex;
+            justify-content: space-between;
+            align-items: baseline;
+            gap: 12px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--line);
+            margin-bottom: 12px;
+        }
+        .my-review-title{ font-weight: 900; font-size: 16px; }
+        .my-review-msg{ font-size: 13px; color: var(--muted); }
+        .my-review-form{ display:flex; flex-direction: column; gap: 10px; }
+        .my-review-row{ display:flex; align-items:center; gap: 10px; }
+        .my-review-label{ font-weight: 800; font-size: 14px; color: var(--muted); width: 44px; }
+        .my-review-select{ border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; }
+        .my-review-input, .my-review-textarea{
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 12px;
+            font-size: 14px;
+        }
+        .my-review-textarea{ resize: vertical; }
+        .btn-review{ background: var(--accent); color: #fff; }
+
+        .review-meta-right{ display:flex; align-items:center; gap:10px; }
+        .review-actions{ display:flex; gap:8px; align-items:center; }
+        .review-act{
+            border:1px solid var(--line);
+            background:#fff;
+            color: var(--muted);
+            font-weight: 800;
+            font-size: 12px;
+            padding: 6px 10px;
+            border-radius: 999px;
+            cursor:pointer;
+        }
+        .review-act:hover{ background:#fafafa; color: var(--text); border-color:#d8d8d8; }
+        .review-act.danger{ border-color: rgba(255,0,0,.18); }
+        .review-act.danger:hover{ border-color: rgba(255,0,0,.32); }
+        .review-meta{
+            display:flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            font-size: 14px;
+            color: var(--muted);
+        }
+
+        .review-meta-left{
+            display:flex;
+            align-items:center;
+            gap:10px;
+            min-width: 0;
+        }
+
+        .review-rate{
+            color: var(--accent);
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        .review-author{
+            font-size: 13px;
+            color: #777;
+            white-space: nowrap;
+        }
+
+        .review-meta-right{
+            display:flex;
+            align-items:center;
+            gap:8px;
+        }
+
+        .review-head-left{
+            display:flex;
+            align-items:center;
+            gap:12px;
+            flex-wrap:wrap;
+        }
+
+        .review-head-kpi{
+            display:flex;
+            align-items:center;
+            gap:8px;
+            font-size:16px;
+            font-weight:normal;
+        }
+
+        .review-head-right{
+            display:flex;
+            align-items:center;
+            gap:10px;
+        }
+
+
+
     </style>
 </head>
 
 <body>
+<div th:replace="fragments/header :: header"></div>
+
 <div class="wrap">
+    <div class="wrap-inner">
+        <main class="center">
 
-    <!-- breadcrumb -->
-    <div class="breadcrumb">
-        <span th:text="${view.genrePath.mall}">국내도서</span>
-        <span th:if="${view.genrePath.crumbs != null}">
-      <span th:each="c, st : ${view.genrePath.crumbs}">
-        &nbsp;›&nbsp;
-        <a th:href="@{/book/search(mall=${view.genrePath.mall}, parentGenreId=${c.genreId})}"
-           th:text="${c.genreNm}">장르</a>
+            <div class="crumbbar">
+                <div class="crumb-left">
+                    <a class="crumb-home" th:href="@{/book/search}" aria-label="검색">
+                        <span aria-hidden="true">🏠</span><span>홈</span>
+                    </a>
+
+                    <span th:if="${view.genrePath != null and view.genrePath.crumbs != null and !view.genrePath.crumbs.isEmpty()}"
+                          th:each="c, st : ${view.genrePath.crumbs}">
+            <span class="crumb-sep">&rsaquo;</span>
+            <a th:href="@{/book/search(mall=${view.genrePath.mall}, parentGenreId=${c.genreId})}"
+               th:text="${#strings.replace(c.genreNm, '_', '')}"
+               th:classappend="${st.last} ? 'crumb-current' : 'crumb-link'">장르</a>
+          </span>
+                </div>
+            </div>
+
+            <div class="detail-section">
+                <div class="section-inner">
+                    <div class="detail-container">
+                        <div class="cover-area">
+                            <div class="cover">
+                                <div class="badge-ebook-ribbon"
+                                     th:if="${view.bookDetailDTO.ebookYn == 'Y'}"
+                                     title="전자책">E</div>
+
+                                <img th:src="${#strings.isEmpty(view.bookDetailDTO.naverImage) ? view.bookDetailDTO.aladinImageBig : view.bookDetailDTO.naverImage}"
+                                     alt="도서 표지"/>
+                            </div>
+                        </div>
+
+                        <div class="info-pane">
+                            <div class="header-section">
+                                <h1 class="title" th:text="${view.bookDetailDTO.bookTitle}">도서 제목</h1>
+                                <div class="meta-row">
+                                    <span th:text="${#strings.replace(view.bookDetailDTO.authors, '^', ', ')}">저자</span>
+                                    <span class="meta-divider"></span>
+                                    <span th:text="${#strings.trim(#strings.replace(view.bookDetailDTO.publisher, '_', ''))}">출판사</span>
+                                    <span class="meta-divider"></span>
+                                    <span th:text="${view.bookDetailDTO.pubdate}">출간일</span>
+                                </div>
+                            </div>
+
+                            <div class="purchase-box">
+
+                                <div class="status-bar" id="kpiBox">
+                                    <div class="status-item">
+                                        <div class="status-label">대여현황</div>
+                                        <div class="status-value">
+                                            <span id="lendingCnt">0</span>
+                                            <span class="total">/ <span id="ownedCnt" th:text="${view.inventory.totalCount}">0</span>권</span>
+                                        </div>
+                                    </div>
+                                    <div class="status-item">
+                                        <div class="status-label">예약대기</div>
+                                        <div class="status-value">
+                                            <span id="rsvActiveCnt">0</span>
+                                            <span class="total">/ <span id="rsvLimit">10</span>명</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="format-group">
+                                    <a class="format-item"
+                                       th:classappend="${view.bookDetailDTO.ebookYn == 'N'} ? 'active' : (${view.pairYn == 'N'} ? 'disabled' : '')"
+                                       th:href="@{ ${ (view.bookDetailDTO.ebookYn == 'Y' and view.pairYn == 'Y') ? ('/book/detail/' + view.pairIsbn13) : '#' } }"
+                                       th:title="${view.bookDetailDTO.ebookYn == 'N'} ? '현재 종이책 보고 있음' : '종이책 페이지로 이동'">
+                                        <span th:if="${view.bookDetailDTO.ebookYn == 'N'}" class="check-icon">✔</span>
+                                        종이책
+                                    </a>
+
+                                    <a class="format-item"
+                                       th:classappend="${view.bookDetailDTO.ebookYn == 'Y'} ? 'active' : (${view.pairYn == 'N'} ? 'disabled' : '')"
+                                       th:href="@{ ${ (view.bookDetailDTO.ebookYn == 'N' and view.pairYn == 'Y') ? ('/book/detail/' + view.pairIsbn13) : '#' } }"
+                                       th:title="${view.bookDetailDTO.ebookYn == 'Y'} ? '현재 전자책 보고 있음' : '전자책 페이지로 이동'">
+                                        <span th:if="${view.bookDetailDTO.ebookYn == 'Y'}" class="check-icon">✔</span>
+                                        전자책
+                                    </a>
+                                </div>
+
+                                <div class="action-area">
+                                    <div class="main-buttons">
+                                        <button id="btnCart"
+                                                class="btn"
+                                                type="button"
+                                                th:attr="data-isbn=${view.bookDetailDTO.isbn13}">
+                                            <span id="cartText">장바구니</span>
+                                        </button>
+
+                                        <div id="rentActions">
+                                            <button class="btn" disabled>확인중...</button>
+                                        </div>
+                                    </div>
+
+                                    <div class="rent-hint" id="rentHint"></div>
+
+                                    <div class="sub-buttons">
+                                        <button id="btnShare" class="btn-text btn-share" type="button" title="주소 복사">
+                                            <span class="btn-ico" aria-hidden="true">🔗</span>
+                                            <span class="btn-label">공유하기</span>
+                                        </button>
+
+                                        <button id="btnBookmark"
+                                                class="btn-text btn-bookmark"
+                                                type="button"
+                                                th:attr="data-isbn=${view.bookDetailDTO.isbn13}"
+                                                aria-pressed="false">
+                                            <span class="btn-ico" id="bookmarkIcon" aria-hidden="true">☆</span>
+                                            <span class="btn-label" id="bookmarkText">북마크</span>
+                                        </button>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-section">
+                <div class="sec-inner">
+                    <div class="sec-head">도서 소개</div>
+                    <div class="desc-text" th:text="${view.bookDetailDTO.description}">설명</div>
+                </div>
+            </div>
+
+            <div class="content-section">
+                <div class="sec-inner">
+                    <div class="sec-head">
+                        <div class="review-head-left">
+                            <span>리뷰</span>
+
+                            <div class="review-head-kpi">
+                                <span style="color:var(--accent);">★</span>
+                                <strong id="ratingAvg"
+                                        th:text="${view.reviewSummary != null ? view.reviewSummary.ratingAvg : 0.0}">0.0</strong>
+                                <span style="color:#aaa;">
+        (<span id="reviewCnt"
+               th:text="${view.reviewSummary != null ? view.reviewSummary.reviewCnt : 0}">0</span>개)
       </span>
-    </span>
-    </div>
-
-    <!-- 상단 메타 -->
-    <div class="card">
-        <div class="grid">
-            <div class="cover">
-                <img th:src="${#strings.isEmpty(view.bookDetailDTO.naverImage) ? view.bookDetailDTO.aladinImageBig : view.bookDetailDTO.naverImage}"
-                     alt="cover"/>
-            </div>
-
-            <div>
-                <h1 class="title" th:text="${view.bookDetailDTO.bookTitle}">도서 제목</h1>
-
-                <div class="meta">
-                    <span th:text="${view.bookDetailDTO.authors}">저자</span>
-                    <span>｜</span>
-                    <span th:text="${view.bookDetailDTO.publisher}">출판사</span>
-                    <span>｜</span>
-                    <span th:text="${view.bookDetailDTO.pubdate}">출간일</span>
-                    <span class="chip chip-accent" th:if="${view.bookDetailDTO.ebookYn == 'Y'}">전자책</span>
-                </div>
-
-                <div class="actions">
-                    <!-- ✅ 북마크 버튼 -->
-                    <button id="btnBookmark"
-                            class="btn btn-primary"
-                            type="button"
-                            th:attr="data-isbn=${view.bookDetailDTO.isbn13}"
-                            aria-label="bookmark">
-                        <span id="bookmarkIcon" aria-hidden="true">☆</span>
-                        <span id="bookmarkText">북마크</span>
-                        <span class="chip" id="bookmarkCnt"
-                              th:text="${view.bookmarkCnt}">0</span>
-                    </button>
-                    <!-- ✅ 장바구니 버튼 -->
-                    <button id="btnCart"
-                            class="btn"
-                            type="button"
-                            th:attr="data-isbn=${view.bookDetailDTO.isbn13}"
-                            aria-label="cart">
-                        <span id="cartIcon" aria-hidden="true">🛒</span>
-                        <span id="cartText">장바구니 담기</span>
-                    </button>
-
-                    <!-- ✅ 도서 순환(대여/예약/연장/반납) -->
-                    <div class="row" id="circulationActions" style="gap:10px;">
-                        <button id="btnLend" class="btn btn-primary" type="button" style="display:none;">대여하기</button>
-                        <button id="btnExtend" class="btn" type="button" style="display:none;">연장하기</button>
-                        <button id="btnReserve" class="btn" type="button" style="display:none;">예약하기</button>
-                        <button id="btnReserveCancel" class="btn" type="button" style="display:none;">예약취소</button>
-                        <button id="btnReturnBox" class="btn" type="button" style="display:none;">반납함 반납</button>
-                        <button id="btnReturnConfirm" class="btn" type="button" style="display:none;">반납확정</button>
-
-                        <span id="circulationHint" class="chip" style="display:none;"></span>
-                    </div>
-
-
-                    <!-- 재고 -->
-                    <div class="kpi">
-                        <div class="item">
-                            <div class="label">총 소장</div>
-                            <div class="value" th:text="${view.inventory.totalCount}">0</div>
+                            </div>
                         </div>
-                        <div class="item">
-                            <div class="label">대여 가능</div>
-                            <div class="value" th:text="${view.inventory.availableCount}">0</div>
-                        </div>
-                        <div class="item">
-                            <div class="label">분실/폐기</div>
-                            <div class="value" th:text="${view.inventory.lostCount}">0</div>
+
+                        <div class="review-head-right">
+                            <button id="btnOpenReview" class="btn-text" type="button" title="리뷰 작성">
+                                <span class="btn-ico" aria-hidden="true">✍</span>
+                                <span class="btn-label" id="btnOpenReviewText">리뷰 작성</span>
+                            </button>
                         </div>
                     </div>
 
-                </div>
 
-            </div>
-        </div>
-    </div>
+                    <div id="myReviewBox" style="display:none; margin-top: 14px;">
+                        <div class="my-review-card">
+                            <div class="my-review-top">
+                                <div class="my-review-title" id="myReviewTitleText">리뷰 작성</div>
+                                <div class="my-review-msg" id="reviewPermMsg"></div>
+                            </div>
 
-    <div style="height: 14px;"></div>
+                            <div class="my-review-form">
+                                <div class="my-review-row">
+                                    <label class="my-review-label">평점</label>
+                                    <select id="reviewRate" class="my-review-select">
+                                        <option value="5">5</option><option value="4">4</option><option value="3">3</option>
+                                        <option value="2">2</option><option value="1">1</option>
+                                    </select>
+                                    <span style="color:var(--accent); font-weight:900;">★</span>
+                                </div>
 
-    <!-- 소개 -->
-    <div class="card">
-        <div class="section-title">도서 소개</div>
-        <div class="desc" th:text="${view.bookDetailDTO.description}">설명</div>
-    </div>
+                                <input id="reviewTitle" type="text" placeholder="제목(선택)" class="my-review-input">
+                                <textarea id="reviewContent" rows="5" placeholder="리뷰 내용을 작성해주세요" class="my-review-textarea"></textarea>
 
-    <div style="height: 14px;"></div>
-
-    <!-- 리뷰 -->
-    <div class="card">
-        <div class="review-head">
-            <div class="section-title">리뷰</div>
-
-            <div class="review-score">
-                <span class="star">★</span>
-                <strong id="ratingAvg"
-                        th:text="${view.reviewSummary != null ? view.reviewSummary.ratingAvg : 0.0}">0.0</strong>
-                <span class="chip">
-  <span id="reviewCnt"
-        th:text="${view.reviewSummary != null ? view.reviewSummary.reviewCnt : 0}">0</span>개
-</span>
-
-            </div>
-        </div>
-
-        <div class="review-list" th:if="${view.reviewPreview != null and !view.reviewPreview.isEmpty()}">
-            <div class="review-item" th:each="r : ${view.reviewPreview}">
-                <div class="review-top">
-                    <div class="review-writer">
-                        <span th:text="${r.profileNm}">작성자</span>
-                        <span> · </span>
-                        <span th:text="${#temporals.format(r.createdAt, 'yyyy-MM-dd HH:mm')}">2026-01-01</span>
+                                <div class="my-review-actions">
+                                    <button id="btnReviewSave" class="btn btn-review" type="button">리뷰 저장</button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="chip">
-                        ★ <span th:text="${r.rate}">5</span>
+
+                    <div id="reviewList" class="review-grid"></div>
+
+                    <div id="reviewEmpty"
+                         class="desc-text"
+                         style="text-align: center; color: #999; padding: 40px; display:none;">
+                        등록된 리뷰가 없습니다.
+                    </div>
+
+                    <div id="reviewPager"
+                         style="margin-top:16px; display:flex; gap:8px; justify-content:center; flex-wrap:wrap;">
                     </div>
                 </div>
-
-                <div class="review-title" th:text="${r.title}">리뷰 제목</div>
-                <div class="review-content" th:text="${r.content}">리뷰 내용</div>
             </div>
-        </div>
 
-        <div class="desc" th:if="${view.reviewPreview == null or view.reviewPreview.isEmpty()}">
-            아직 등록된 리뷰가 없습니다.
-        </div>
+        </main>
     </div>
-
 </div>
 
 <script th:inline="javascript">
+
     const initialBookmarkedYn = /*[[${view.bookmarkedYn}]]*/ "N";
     const isbn13 = /*[[${view.bookDetailDTO.isbn13}]]*/ "";
 
@@ -214,6 +596,24 @@
     const iconEl = document.getElementById('bookmarkIcon');
     const textEl = document.getElementById('bookmarkText');
     const cntEl  = document.getElementById('bookmarkCnt');
+    //최근본책 저장
+
+    document.addEventListener("DOMContentLoaded", () => {
+  saveRecentBook({
+    isbn13: isbn13,
+    bookImg: document.querySelector(".cover img")?.src
+  });
+});
+    function saveRecentBook(book) {
+  let recent = JSON.parse(localStorage.getItem("recentBooks")) || [];
+
+  recent = recent.filter(item => item.isbn13 !== book.isbn13);
+  recent.unshift(book);
+
+  if (recent.length > 3) recent.length = 3;
+
+  localStorage.setItem("recentBooks", JSON.stringify(recent));
+}
 
     function renderBookmark(yn){
         if(yn === 'Y'){
@@ -240,352 +640,602 @@
                 headers: { 'Accept': 'application/json' }
             });
 
-            // ✅ (1) 401이면 컨트롤러가 제대로 탄 것
-            if(res.status === 401){
+            const ct = res.headers.get("content-type") || "";
+            const authFail = (res.status === 401 || res.status === 403 || ct.includes("text/html") || res.redirected);
+
+            if (authFail) {
+                if (onAuth === "redirect") goLoginReturnHere();
+                return null;
+            }
+            if (!res.ok) throw new Error("HTTP " + res.status);
+            return await res.json();
+        }
+
+        async function postForm(url, bodyObj, onAuth = "redirect") {
+            const body = new URLSearchParams(bodyObj).toString();
+            const res = await fetch(url, {
+                method: "POST",
+                headers: {"Content-Type": "application/x-www-form-urlencoded", "Accept": "application/json"},
+                body
+            });
+
+            const ct = res.headers.get("content-type") || "";
+            const authFail = (res.status === 401 || res.status === 403 || ct.includes("text/html") || res.redirected);
+
+            if (authFail) {
+                if (onAuth === "redirect") goLoginReturnHere();
+                return null;
+            }
+            if (!res.ok) throw new Error("HTTP " + res.status);
+            return res;
+        }
+
+        // -----------------------------
+        // 북마크
+        // -----------------------------
+        const btnBm = document.getElementById("btnBookmark");
+        const iconEl = document.getElementById("bookmarkIcon");
+        const textEl = document.getElementById("bookmarkText");
+
+        function renderBookmark(yn) {
+            const isOn = (yn === "Y");
+            if (isOn) {
+                iconEl.textContent = "★";
+                btnBm.classList.add("active");
+                btnBm.setAttribute("aria-pressed", "true");
+                textEl.textContent = "북마크됨";
+            } else {
+                iconEl.textContent = "☆";
+                btnBm.classList.remove("active");
+                btnBm.setAttribute("aria-pressed", "false");
+                textEl.textContent = "북마크";
+            }
+        }
+
+        renderBookmark(initialBookmarkedYn);
+
+        btnBm?.addEventListener("click", async () => {
+            btnBm.disabled = true;
+            try {
+                const data = await fetchJson(`/api/bookmarks/${encodeURIComponent(isbn13)}/toggle`, { method: "POST" }, "redirect");
+                if (!data) return;
+                renderBookmark(data.bookmarkedYn);
+            } catch (e) {
+                console.error(e);
+                alert("북마크 처리 중 오류가 발생했습니다.");
+            } finally {
+                btnBm.disabled = false;
+            }
+        });
+
+        // -----------------------------
+        // 장바구니
+        // -----------------------------
+        const btnCart = document.getElementById("btnCart");
+        const cartTextEl = document.getElementById("cartText");
+
+        function renderCartState(inCart) {
+            cartTextEl.textContent = inCart ? "담김 ✓" : "장바구니";
+        }
+
+        async function loadCartStatus() {
+            try {
+                const data = await fetchJson(`/book/cart/${encodeURIComponent(isbn13)}/status`, {}, "silent");
+                if (!data) { renderCartState(false); return; }
+                renderCartState(!!data.inCart);
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        btnCart?.addEventListener("click", async () => {
+            btnCart.disabled = true;
+            try {
+                const data = await fetchJson(`/book/cart/${encodeURIComponent(isbn13)}/toggle`, { method: "POST" }, "redirect");
+                if (!data) return;
+                renderCartState(!!data.inCart);
+            } catch (e) {
+                console.error(e);
+                alert("장바구니 처리 중 오류가 발생했습니다.");
+            } finally {
+                btnCart.disabled = false;
+            }
+        });
+
+        loadCartStatus();
+
+        // -----------------------------
+        // 공유
+        // -----------------------------
+        const btnShare = document.getElementById("btnShare");
+
+        async function copyToClipboard(text) {
+            if (navigator.clipboard && window.isSecureContext) {
+                await navigator.clipboard.writeText(text);
+                return;
+            }
+            const ta = document.createElement("textarea");
+            ta.value = text;
+            ta.style.position = "fixed";
+            ta.style.left = "-9999px";
+            document.body.appendChild(ta);
+            ta.focus();
+            ta.select();
+            document.execCommand("copy");
+            ta.remove();
+        }
+
+        btnShare?.addEventListener("click", async () => {
+            try {
+                await copyToClipboard(location.href);
+                alert("링크 복사 완료!");
+            } catch (e) {
+                alert("주소창을 복사해주세요.");
+            }
+        });
+
+        // -----------------------------
+        // 대여/예약/연장
+        // -----------------------------
+        const $rentActions = document.getElementById("rentActions");
+        const $rentHint = document.getElementById("rentHint");
+
+        function setRentHint(msg) {
+            if ($rentHint) $rentHint.textContent = msg || "";
+        }
+
+        function buildRentButtons(it) {
+            if (!it) return `<button class="btn" disabled>상태 조회 실패</button>`;
+
+            if (it.myLendYn === "Y") {
+                if (it.myExtendYn === "Y") {
+                    setRentHint("반납예정일 7일 이내 & 연장 1회 미사용이면 연장 가능합니다.");
+                    return `<button class="btn btn-extend" data-lend-id="${it.myLendId}">연장하기</button>
+                  <button class="btn" disabled style="background:#f0f0f0; border:none; color:#aaa;">대여중</button>`;
+                }
+                setRentHint("현재 이 도서를 대여 중입니다.");
+                return `<button class="btn" disabled>대여중</button>`;
+            }
+
+            if (Number(it.availableCnt) > 0) {
+                setRentHint("대여하기를 누르면 장바구니에 담긴 후 장바구니 페이지로 이동합니다.");
+                return `<button class="btn btn-addcart">대여하기</button>`;
+            }
+
+            if (it.myRsvYn === "Y") {
+                setRentHint("이미 예약한 도서입니다.");
+                return `<button class="btn btn-rsv-cancel" data-rsv-id="${it.myRsvId}"
+                  style="background:#fff; color:var(--text); border-color:#ccc;">예약취소</button>`;
+            }
+
+            if (it.userBlockedYn === "Y" || it.userOverdueYn === "Y" || it.rsvLimitYn === "Y") {
+                let reason = "예약 불가";
+                if (it.userBlockedYn === "Y") reason = "차단된 사용자입니다.";
+                else if (it.userOverdueYn === "Y") reason = "연체 중입니다.";
+                else if (it.rsvLimitYn === "Y") reason = "예약 인원 초과";
+                setRentHint(reason);
+                return `<button class="btn" disabled>예약 불가</button>`;
+            }
+
+            setRentHint("모든 책이 대여중이므로 예약만 가능합니다.");
+            return `<button class="btn btn-rsv">예약하기</button>`;
+        }
+
+        function updateKpiByStatus(dto) {
+            const lendingCntEl = document.getElementById("lendingCnt");
+            const ownedCntEl = document.getElementById("ownedCnt");
+            const rsvActiveCntEl = document.getElementById("rsvActiveCnt");
+            const rsvLimitEl = document.getElementById("rsvLimit");
+
+            if (ownedCntEl && dto?.ownedCnt != null) ownedCntEl.textContent = String(dto.ownedCnt);
+            if (lendingCntEl && dto?.lendingCnt != null) lendingCntEl.textContent = String(dto.lendingCnt);
+            if (rsvActiveCntEl && dto?.rsvActiveCnt != null) rsvActiveCntEl.textContent = String(dto.rsvActiveCnt);
+            if (rsvLimitEl) rsvLimitEl.textContent = String(dto?.rsvLimit ?? 10);
+        }
+
+        async function loadCirculationStatus() {
+            try {
+                const dto = await fetchJson(`/book/circulation/status?isbn13=${encodeURIComponent(isbn13)}`, {}, "silent");
+
+                if (!dto) {
+                    setRentHint("로그인 후 대여/예약이 가능합니다.");
+                    $rentActions.innerHTML = `<button class="btn btn-login">로그인 후 이용</button>`;
+                    return;
+                }
+
+                updateKpiByStatus(dto);
+                $rentActions.innerHTML = buildRentButtons(dto);
+            } catch (e) {
+                console.error(e);
+                setRentHint("상태 조회 중 오류가 발생했습니다.");
+                $rentActions.innerHTML = `<button class="btn" disabled>조회 실패</button>`;
+            }
+        }
+
+        $rentActions?.addEventListener("click", async (e) => {
+            const b = e.target.closest("button");
+            if (!b) return;
+
+            if (b.classList.contains("btn-login")) {
                 goLoginReturnHere();
                 return;
             }
 
-            // ✅ (2) JSON이 아니면(대부분 로그인 페이지 HTML) 여기서 컷
-            const ct = res.headers.get('content-type') || '';
-            if(!ct.includes('application/json')){
-                const txt = await res.text();
-                console.error('Non-JSON response:', txt);
-                // 보통 302 따라가서 로그인 HTML이 200으로 옴
-                goLoginReturnHere();
-                return;
+            try {
+                if (b.classList.contains("btn-rsv")) {
+                    const res = await postForm("/book/circulation/reserve", {isbn13}, "redirect");
+                    if (res) await loadCirculationStatus();
+                    return;
+                }
+                if (b.classList.contains("btn-rsv-cancel")) {
+                    const rsvId = b.dataset.rsvId;
+                    const res = await postForm("/book/circulation/reserve/cancel", {rsvId}, "redirect");
+                    if (res) await loadCirculationStatus();
+                    return;
+                }
+                if (b.classList.contains("btn-extend")) {
+                    const lendId = b.dataset.lendId;
+                    const res = await postForm("/book/circulation/extend", {lendId}, "redirect");
+                    if (res) await loadCirculationStatus();
+                    return;
+                }
+                if (b.classList.contains("btn-addcart")) {
+                    const res = await postForm("/book/cart/add", {isbn13}, "redirect");
+                    if (res) location.href = "/book/cart";
+                    return;
+                }
+            } catch (e2) {
+                console.error(e2);
+                alert("요청 처리 중 오류가 발생했습니다.");
             }
-
-            if(!res.ok){
-                const err = await res.json().catch(() => ({}));
-                console.error('Bookmark toggle failed:', res.status, err);
-                alert('북마크 처리에 실패했습니다.');
-                return;
-            }
-
-            const data = await res.json();
-            renderBookmark(data.bookmarkedYn);
-            if(typeof data.bookmarkCnt !== 'undefined'){
-                cntEl.textContent = data.bookmarkCnt;
-            }
-
-        }catch(e){
-            console.error(e);
-            alert('네트워크 오류가 발생했습니다.');
-        }finally{
-            btn.disabled = false;
-        }
-    }
-
-    // ======================
-    // Circulation (status + actions)
-    // ======================
-    const $ca = document.getElementById("circulationActions");
-    const $hint = document.getElementById("circulationHint");
-
-    const $btnLend = document.getElementById("btnLend");
-    const $btnExtend = document.getElementById("btnExtend");
-    const $btnReserve = document.getElementById("btnReserve");
-    const $btnReserveCancel = document.getElementById("btnReserveCancel");
-    const $btnReturnBox = document.getElementById("btnReturnBox");
-    const $btnReturnConfirm = document.getElementById("btnReturnConfirm");
-
-    // fetchJson / postFormJson이 detail에 없으면 추가 (search.html에서 쓰던 패턴)
-    async function fetchJson(url, options = {}) {
-        const res = await fetch(url, {
-            headers: { "Accept": "application/json", ...(options.headers || {}) },
-            ...options
         });
 
-        const ct = res.headers.get("content-type") || "";
-        if (res.status === 401 || res.status === 403 || ct.includes("text/html")) {
-            goLoginReturnHere();
-            return null;
-        }
-        if (!res.ok) throw new Error("HTTP " + res.status);
-        return await res.json();
-    }
+        loadCirculationStatus();
 
-    async function postFormJson(url, paramsObj) {
-        const body = new URLSearchParams();
-        Object.entries(paramsObj || {}).forEach(([k, v]) => body.set(k, v));
-        return await fetchJson(url, {
-            method: "POST",
-            headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            body: body.toString()
-        });
-    }
+        // -----------------------------
+        // 리뷰 KPI + 리스트
+        // -----------------------------
+        const ratingAvgEl = document.getElementById("ratingAvg");
+        const reviewCntEl = document.getElementById("reviewCnt");
 
-    function hideAllCirculationButtons() {
-        [$btnLend, $btnExtend, $btnReserve, $btnReserveCancel, $btnReturnBox, $btnReturnConfirm]
-            .forEach(b => { b.style.display = "none"; b.disabled = false; });
-
-        $hint.style.display = "none";
-        $hint.textContent = "";
-    }
-
-    function showHint(msg) {
-        $hint.textContent = msg;
-        $hint.style.display = "";
-    }
-
-    // status DTO 필드명이 프로젝트마다 조금 달라도 동작하도록 “유연 파싱”
-    function pick(dto, ...keys) {
-        for (const k of keys) {
-            if (dto && dto[k] !== undefined && dto[k] !== null) return dto[k];
-        }
-        return null;
-    }
-
-    function yn(v) {
-        if (v === true) return "Y";
-        if (v === false) return "N";
-        if (v == null) return "N";
-        return String(v).toUpperCase() === "Y" ? "Y" : "N";
-    }
-
-    function num(v, def = 0) {
-        const n = Number(v);
-        return Number.isFinite(n) ? n : def;
-    }
-
-    // ✅ “상태 → 버튼” 규칙(상태머신)
-    function renderCirculation(dto) {
-        hideAllCirculationButtons();
-        if (!dto) return;
-
-        // 재고/상태 후보 필드들 (너 DTO명 몰라도 최대한 커버)
-        const availableCnt = num(pick(dto, "availableCnt", "availCnt", "availableCount"), 0);
-
-        const myLendYn = yn(pick(dto, "myLendYn", "lentYn", "myBorrowYn"));
-        const myExtendYn = yn(pick(dto, "myExtendYn", "extendableYn", "canExtendYn"));
-        const myLendId = pick(dto, "myLendId", "lendId", "currentLendId");
-
-        const myRsvYn = yn(pick(dto, "myRsvYn", "reservedYn", "myReserveYn"));
-        const myRsvId = pick(dto, "myRsvId", "rsvId", "reserveId");
-
-        const userBlockedYn = yn(pick(dto, "userBlockedYn", "blockedYn"));
-        const userOverdueYn = yn(pick(dto, "userOverdueYn", "overdueYn"));
-        const rsvLimitYn = yn(pick(dto, "rsvLimitYn", "reserveLimitYn"));
-
-        // 반납 관련(있으면 쓰고 없으면 최소 동작만)
-        const canReturnBoxYn = yn(pick(dto, "canReturnBoxYn", "returnToBoxYn"));
-        const canReturnConfirmYn = yn(pick(dto, "canReturnConfirmYn", "returnConfirmYn"));
-
-        // 1) 내가 대여중이면: 연장/반납 버튼
-        if (myLendYn === "Y" || myLendId) {
-            showHint("현재 대여중입니다.");
-
-            // 연장 가능
-            if (myExtendYn === "Y") {
-                $btnExtend.style.display = "";
-                $btnExtend.dataset.lendId = String(myLendId || "");
+        async function loadReviewStatus() {
+            try {
+                const dto = await fetchJson(`/book/reviewstatus/${encodeURIComponent(isbn13)}`, {}, "silent");
+                if (!dto) return;
+                if (ratingAvgEl) ratingAvgEl.textContent = Number(dto.ratingAvg ?? 0).toFixed(1);
+                if (reviewCntEl) reviewCntEl.textContent = String(dto.reviewCnt ?? 0);
+            } catch (e) {
+                console.error(e);
             }
-
-            // 반납함 반납(가능 플래그가 없으면 일단 노출해도 됨)
-            if (canReturnBoxYn === "Y" || canReturnBoxYn === "N") {
-                $btnReturnBox.style.display = "";
-                $btnReturnBox.dataset.lendId = String(myLendId || "");
-            }
-
-            // 반납 확정(사서/관리자용일 수 있으니 플래그 있을 때만)
-            if (canReturnConfirmYn === "Y") {
-                $btnReturnConfirm.style.display = "";
-                $btnReturnConfirm.dataset.lendId = String(myLendId || "");
-            }
-            return;
         }
 
-        // 2) 대여중이 아니면: 대여 가능하면 “대여하기”
-        if (availableCnt > 0) {
-            showHint("대여 가능합니다.");
-            $btnLend.style.display = "";
-            return;
+        function esc(s){
+            return String(s ?? "").replace(/[&<>"']/g, m => (
+                {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]
+            ));
+        }
+        function fmtDate(iso){
+            if(!iso) return "";
+            const d = new Date(iso);
+            const y = d.getFullYear();
+            const m = String(d.getMonth()+1).padStart(2,'0');
+            const day = String(d.getDate()).padStart(2,'0');
+            return `${y}.${m}.${day}`;
         }
 
-        // 3) 재고 없으면: 내 예약이 있으면 취소 / 없으면 예약
-        if (myRsvYn === "Y" || myRsvId) {
-            showHint("예약중입니다.");
-            $btnReserveCancel.style.display = "";
-            $btnReserveCancel.dataset.rsvId = String(myRsvId || "");
-            return;
-        }
+        async function loadReviewList(page = 1){
+            reviewPage = Math.max(1, Number(page || 1));
 
-        // 4) 예약 불가 조건
-        if (userBlockedYn === "Y" || userOverdueYn === "Y" || rsvLimitYn === "Y") {
-            $btnReserve.style.display = "";
-            $btnReserve.disabled = true;
-            showHint("예약할 수 없습니다(제한 상태).");
-            return;
-        }
-
-        // 5) 기본: 예약하기
-        showHint("재고가 없어 예약만 가능합니다.");
-        $btnReserve.style.display = "";
-    }
-
-    async function loadCirculationStatus() {
-        try {
-            const dto = await fetchJson(`/book/circulation/status?isbn13=${encodeURIComponent(isbn13)}`);
+            const dto = await fetchJson(
+                `/book/review/list?isbn13=${encodeURIComponent(isbn13)}&page=${reviewPage}&size=${reviewSize}`,
+                {},
+                "silent"
+            );
             if (!dto) return;
-            renderCirculation(dto);
-        } catch (e) {
-            console.error("circulation status error:", e);
+
+            console.log(dto.items?.[0]);
+
+            if (dto.summary) {
+                if (ratingAvgEl) ratingAvgEl.textContent = Number(dto.summary.ratingAvg ?? 0).toFixed(1);
+                if (reviewCntEl) reviewCntEl.textContent = String(dto.summary.reviewCnt ?? 0);
+            }
+
+            renderReviewList(dto.items || []);
+            renderReviewPager(dto.total ?? 0, dto.page ?? reviewPage, dto.size ?? reviewSize);
         }
-    }
 
-    // ======================
-    // Actions
-    // ======================
-    async function doAction(btn, fn) {
-        if (btn.disabled) return;
-        btn.disabled = true;
-        try {
-            await fn();
-            await loadCirculationStatus(); // ✅ 상태 갱신
-        } finally {
-            btn.disabled = false;
+
+        function isMine(r){
+            const v = (r?.mineYn ?? r?.myReviewYn ?? r?.myReview ?? r?.myYn);
+            const s = String(v ?? "").toUpperCase();
+            return s === "Y" || s === "TRUE" || s === "1";
         }
-    }
-
-    $btnLend?.addEventListener("click", () => doAction($btnLend, async () => {
-        await postFormJson("/book/circulation/lend", { isbn13 });
-    }));
-
-    $btnExtend?.addEventListener("click", () => doAction($btnExtend, async () => {
-        const lendId = $btnExtend.dataset.lendId;
-        if (!lendId) return;
-        await postFormJson("/book/circulation/extend", { lendId });
-    }));
-
-    $btnReserve?.addEventListener("click", () => doAction($btnReserve, async () => {
-        await postFormJson("/book/circulation/reserve", { isbn13 });
-    }));
-
-    $btnReserveCancel?.addEventListener("click", () => doAction($btnReserveCancel, async () => {
-        const rsvId = $btnReserveCancel.dataset.rsvId;
-        if (!rsvId) return;
-        await postFormJson("/book/circulation/reserve/cancel", { rsvId });
-    }));
-
-    $btnReturnBox?.addEventListener("click", () => doAction($btnReturnBox, async () => {
-        const lendId = $btnReturnBox.dataset.lendId;
-        if (!lendId) return;
-
-        // ✅ 일단 prompt로 boxId 받기 (다음 단계에서 select로 개선 가능)
-        const boxId = prompt("반납함 ID를 입력하세요 (예: 1)");
-        if (!boxId) return;
-
-        await postFormJson("/book/circulation/return/box", { lendId, boxId });
-    }));
-
-    $btnReturnConfirm?.addEventListener("click", () => doAction($btnReturnConfirm, async () => {
-        const lendId = $btnReturnConfirm.dataset.lendId;
-        if (!lendId) return;
-        await postFormJson("/book/circulation/return/confirm", { lendId });
-    }));
 
 
-    const btnCart = document.getElementById('btnCart');
-    const cartIconEl = document.getElementById('cartIcon');
-    const cartTextEl = document.getElementById('cartText');
+        function renderReviewList(items){
+            const listEl = document.getElementById("reviewList");
+            const emptyEl = document.getElementById("reviewEmpty");
+            if(!listEl || !emptyEl) return;
 
-    function renderCart(inCart){
-        if(inCart){
-            cartIconEl.textContent = '✅';
-            cartTextEl.textContent = '장바구니 담김';
-        }else{
-            cartIconEl.textContent = '🛒';
-            cartTextEl.textContent = '장바구니 담기';
+            lastReviewItems = items || [];
+
+            if(!items || items.length === 0){
+                listEl.innerHTML = "";
+                emptyEl.style.display = "block";
+                return;
+            }
+            emptyEl.style.display = "none";
+
+            listEl.innerHTML = items.map(r => {
+                const mine = isMine(r);
+                const actions = mine ? `
+          <div class="review-actions">
+            <button type="button" class="review-act js-review-edit" data-feed-id="${esc(r.feedId)}">수정</button>
+            <button type="button" class="review-act danger js-review-del" data-feed-id="${esc(r.feedId)}">삭제</button>
+          </div>
+        ` : ``;
+
+                return `
+          <div class="review-card" data-feed-id="${esc(r.feedId)}">
+            <div class="review-meta">
+              <div class="review-meta-left">
+                <span class="review-rate">★ ${esc(r.rate)}</span>
+                <span class="review-author">
+                  ${esc(r.profileNm)} · ${esc(fmtDate(r.createdAt))}
+                </span>
+              </div>
+
+              ${actions ? `<div class="review-meta-right">${actions}</div>` : ``}
+            </div>
+
+
+            ${r.title ? `<div style="font-weight:bold; margin-bottom:6px;">${esc(r.title)}</div>` : ``}
+            <div class="review-body">${esc(r.content)}</div>
+          </div>
+        `;
+            }).join("");
         }
-    }
 
-    async function toggleCart(){
-        btnCart.disabled = true;
-        try{
-            const res = await fetch(`/book/cart/${encodeURIComponent(isbn13)}/toggle`, {
-                method: 'POST',
-                headers: { 'Accept': 'application/json' }
-            });
+        function renderReviewPager(total, page, size){
+            const pagerEl = document.getElementById("reviewPager");
+            if(!pagerEl) return;
 
-            if(res.status === 401){
-                goLoginReturnHere(); // 북마크에서 만든 함수 재사용
+            const totalElements = Number(total || 0);
+            const cur = Math.max(1, Number(page || 1));
+            const per = Math.max(1, Number(size || 5));
+            const totalPages = Math.max(1, Math.ceil(totalElements / per));
+
+            if(totalPages <= 1){
+                pagerEl.innerHTML = "";
                 return;
             }
 
-            const ct = res.headers.get('content-type') || '';
-            if(!ct.includes('application/json')){
-                goLoginReturnHere();
-                return;
+            const mkBtn = (label, target, disabled=false, active=false) => `
+        <button type="button"
+          data-page="${target}"
+          ${disabled ? "disabled" : ""}
+          style="
+            border:1px solid var(--line);
+            background:${active ? "var(--accent)" : "#fff"};
+            color:${active ? "#fff" : "var(--text)"};
+            padding:8px 12px;
+            border-radius:999px;
+            font-weight:800;
+            cursor:${disabled ? "not-allowed" : "pointer"};
+          ">
+          ${label}
+        </button>
+      `;
+
+            const windowSize = 5;
+            const half = Math.floor(windowSize / 2);
+            let start = Math.max(1, cur - half);
+            let end = Math.min(totalPages, start + windowSize - 1);
+            start = Math.max(1, end - windowSize + 1);
+
+            let html = "";
+            html += mkBtn("이전", cur - 1, cur <= 1);
+
+            if(start > 1){
+                html += mkBtn("1", 1, false, cur === 1);
+                if(start > 2) html += `<span style="padding:8px 6px; color:#999;">…</span>`;
             }
 
-            if(!res.ok){
-                alert('장바구니 처리에 실패했습니다.');
-                return;
+            for(let p = start; p <= end; p++){
+                html += mkBtn(String(p), p, false, p === cur);
             }
 
-            const data = await res.json();
-            renderCart(!!data.inCart);
+            if(end < totalPages){
+                if(end < totalPages - 1) html += `<span style="padding:8px 6px; color:#999;">…</span>`;
+                html += mkBtn(String(totalPages), totalPages, false, cur === totalPages);
+            }
 
-        }catch(e){
-            console.error(e);
-            alert('네트워크 오류가 발생했습니다.');
-        }finally{
-            btnCart.disabled = false;
+            html += mkBtn("다음", cur + 1, cur >= totalPages);
+            pagerEl.innerHTML = html;
         }
-    }
 
-    btnCart.addEventListener('click', toggleCart);
+        document.getElementById("reviewPager")?.addEventListener("click", (e) => {
+            const b = e.target.closest("button[data-page]");
+            if(!b || b.disabled) return;
+            const p = Number(b.dataset.page);
+            if(p >= 1) {
+                loadReviewList(p);
+                document.getElementById("reviewList")?.scrollIntoView({behavior:"smooth", block:"start"});
+            }
+        });
+
+        // 초기 로드
+        loadReviewStatus();
+        loadReviewList(reviewPage);
+
+        // =============================
+        // 리뷰 작성/저장/수정/삭제
+        // =============================
+        const btnOpenReview = document.getElementById("btnOpenReview");
+        const myReviewBox = document.getElementById("myReviewBox");
+        const reviewPermMsg = document.getElementById("reviewPermMsg");
+        const btnReviewSave = document.getElementById("btnReviewSave");
+
+        const reviewRateEl = document.getElementById("reviewRate");
+        const reviewTitleEl = document.getElementById("reviewTitle");
+        const reviewContentEl = document.getElementById("reviewContent");
+
+        // 수정 모드 프리필용(클라 상태)
+        let editingFeedId = null;
+
+        function openMyReviewBox(modeText, msg){
+            myReviewBox.style.display = "block";
+            if (reviewPermMsg) reviewPermMsg.textContent = msg ?? "";
+            const titleEl = document.getElementById("myReviewTitleText");
+            if (titleEl) titleEl.textContent = modeText;
+            myReviewBox.scrollIntoView({behavior:"smooth", block:"start"});
+        }
 
 
+        btnOpenReview?.addEventListener("click", async () => {
+            try {
+                const perm = await fetchJson(`/book/review/permission?isbn13=${encodeURIComponent(isbn13)}`, {}, "redirect");
+                if (!perm) return;
 
+                const allowed = (perm.allowedYn === "Y");
+                const msg = (perm.message ?? "");
 
-    btn.addEventListener('click', toggleBookmark);
+                btnReviewSave.disabled = !allowed;
 
-    const ratingAvgEl = document.getElementById('ratingAvg');
-    const reviewCntEl = document.getElementById('reviewCnt');
+                const hasReview = (perm.hasReviewYn === "Y");
+                editingFeedId = hasReview ? (perm.myFeedId ?? null) : null;
 
-    function fmtAvg(v){
-        const n = Number(v);
-        if (!Number.isFinite(n)) return "0.0";
-        return n.toFixed(1);
-    }
+                openMyReviewBox(hasReview ? "리뷰 수정" : "리뷰 작성", msg);
 
-    async function loadReviewStatus(){
-        try{
-            const res = await fetch(`/book/reviewstatus/${encodeURIComponent(isbn13)}`, {
-                method: 'GET',
-                headers: { 'Accept': 'application/json' }
-            });
+                // (선택) 수정인데 내용 프리필하고 싶으면
+                // - 현재 페이지 리스트에 내 리뷰가 보이면 캐시에서 찾아 프리필
+                if (hasReview && editingFeedId) {
+                    const mine = lastReviewItems.find(x => String(x.feedId) === String(editingFeedId));
+                    if (mine) {
+                        if (reviewRateEl) reviewRateEl.value = String(mine.rate ?? 5);
+                        if (reviewTitleEl) reviewTitleEl.value = mine.title ?? "";
+                        if (reviewContentEl) reviewContentEl.value = mine.content ?? "";
+                    }
+                }
 
-            const ct = res.headers.get('content-type') || '';
-            if(!res.ok) {
-                // 404/500 등은 그냥 무시하고 SSR 값 유지
-                console.warn('reviewstatus not ok:', res.status);
+                if (allowed) reviewContentEl?.focus();
+            } catch (e) {
+                console.error(e);
+                alert("리뷰 작성 권한 조회 중 오류가 발생했습니다.");
+            }
+        });
+
+        btnReviewSave?.addEventListener("click", async () => {
+            const rate = Number(reviewRateEl?.value ?? 5);
+            const title = (reviewTitleEl?.value ?? "").trim();
+            const content = (reviewContentEl?.value ?? "").trim();
+
+            if (!content) {
+                alert("리뷰 내용을 입력해주세요.");
+                reviewContentEl?.focus();
                 return;
             }
-            if(!ct.includes('application/json')) {
-                // 혹시 HTML 오면 무시
-                console.warn('reviewstatus non-json');
+
+            btnReviewSave.disabled = true;
+            try {
+                const data = await fetchJson(
+                    "/book/review/save",
+                    {
+                        method: "POST",
+                        headers: {"Content-Type": "application/json"},
+                        body: JSON.stringify({isbn13, rate, title, content})
+                    },
+                    "redirect"
+                );
+
+                if (!data?.ok) {
+                    alert("리뷰가 등록되지 않았습니다.");
+                    return;
+                }
+
+                editingFeedId = data.feedId ?? editingFeedId;
+
+                alert("리뷰가 등록되었습니다.");
+                await loadReviewList(1);
+            } catch (e) {
+                console.error(e);
+                alert("리뷰 등록 중 오류가 발생했습니다.");
+            } finally {
+                btnReviewSave.disabled = false;
+            }
+        });
+
+        // 리스트 내부 수정/삭제
+        document.getElementById("reviewList")?.addEventListener("click", async (e) => {
+            const delBtn = e.target.closest(".js-review-del");
+            const editBtn = e.target.closest(".js-review-edit");
+
+            if (editBtn) {
+                const feedId = editBtn.dataset.feedId;
+                const item = lastReviewItems.find(x => String(x.feedId) === String(feedId));
+                if (!item) return;
+
+                // 권한 체크(백엔드 permission은 isbn기준, 여기선 UI 프리필만)
+                editingFeedId = feedId;
+
+                if (reviewRateEl) reviewRateEl.value = String(item.rate ?? 5);
+                if (reviewTitleEl) reviewTitleEl.value = item.title ?? "";
+                if (reviewContentEl) reviewContentEl.value = item.content ?? "";
+
+                // permission 한번 더 조회해서 메시지/버튼상태 정확히
+                try {
+                    const perm = await fetchJson(`/book/review/permission?isbn13=${encodeURIComponent(isbn13)}`, {}, "redirect");
+                    if (!perm) return;
+                    const allowed = (perm.allowedYn === "Y");
+                    btnReviewSave.disabled = !allowed;
+                    openMyReviewBox("리뷰 수정", perm.message ?? "");
+                    if (allowed) reviewContentEl?.focus();
+                } catch (err) {
+                    console.error(err);
+                    openMyReviewBox("리뷰 수정", "");
+                }
                 return;
             }
 
-            const dto = await res.json(); // ReviewStatusDTO
-            if(!dto) return;
+            if (delBtn) {
+                const feedId = delBtn.dataset.feedId;
+                if (!feedId) return;
 
-            // ✅ DTO 필드명에 맞춰 사용 (여기서는 ratingAvg/reviewCnt 가정)
-            if(ratingAvgEl) ratingAvgEl.textContent = fmtAvg(dto.ratingAvg);
-            if(reviewCntEl) reviewCntEl.textContent = String(dto.reviewCnt ?? 0);
+                if (!confirm("리뷰를 삭제할까요?")) return;
 
-        }catch(e){
-            console.error('reviewstatus error:', e);
-        }
-        }
-    loadCirculationStatus();
-    loadReviewStatus();
+                try {
+                    const data = await fetchJson(`/book/review/${encodeURIComponent(feedId)}`, { method: "DELETE" }, "redirect");
+                    if (!data?.ok) {
+                        alert("삭제 실패");
+                        return;
+                    }
+
+                    alert("삭제되었습니다.");
+
+                    // 삭제 후: 현재 페이지 유지가 자연스러움(페이지가 비면 1로 보정)
+                    await loadReviewList(Math.max(1, reviewPage));
+                    await loadReviewStatus();
+
+                    // 폼 열려있고 삭제한게 편집중이면 리셋
+                    if (editingFeedId && String(editingFeedId) === String(feedId)) {
+                        editingFeedId = null;
+                        if (reviewRateEl) reviewRateEl.value = "5";
+                        if (reviewTitleEl) reviewTitleEl.value = "";
+                        if (reviewContentEl) reviewContentEl.value = "";
+                    }
+                } catch (err) {
+                    console.error(err);
+                    alert("리뷰 삭제 중 오류가 발생했습니다.");
+                }
+            }
+        });
+
+    });
+
+
+
 </script>
 
-
-
+<div th:replace="fragments/footer :: footer"></div>
 </body>
 </html>

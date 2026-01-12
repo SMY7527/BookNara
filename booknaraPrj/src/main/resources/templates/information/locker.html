@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>수거함안내 | 말랑 고객센터</title>
+
+    <!-- ✅ 너 구조 기준: common이 guide-page 안에 있음 -->
+    <link rel="stylesheet" th:href="@{/css/common.css}" />
+    <link rel="stylesheet" th:href="@{/css/locker.css}" />
+
+    <script th:src="@{/js/common.js}" defer></script>
+    <script th:src="@{/js/locker.js}" defer></script>
+  </head>
+  <body>
+    <header id="siteHeader"></header>
+
+    <main class="container">
+      <h1 class="page-title">수거함 안내</h1>
+
+      <section class="guide-card">
+        <div class="top-actions">
+          <a class="btn" href="./guide.html">← 가이드 허브</a>
+          <div class="right-actions">
+            <button class="btn btn-primary" type="button" id="copyAllBtn">
+              역 리스트 복사
+            </button>
+            <button class="btn" type="button" id="resetBtn">초기화</button>
+          </div>
+        </div>
+
+        <div class="summary">
+          <div class="summary-left">
+            <span class="badge">필수</span>
+            <div class="summary-text">
+              <div class="summary-title">가까운 역 수거함에 반납/회수</div>
+              <div class="summary-meta">
+                역을 선택하면 네이버/카카오 지도에서 “역명 수거함”으로 바로
+                검색해줘요.
+              </div>
+            </div>
+          </div>
+
+          <div class="summary-right">
+            <span class="chip">🔎 역 검색 가능</span>
+            <span class="chip">🗺️ 지도 API 없음</span>
+            <span class="chip">📦 포장 후 투입</span>
+          </div>
+        </div>
+
+        <!-- 검색 -->
+        <div class="search-row">
+          <div class="search">
+            <input
+              id="searchInput"
+              type="text"
+              placeholder="역 이름을 검색해봐 (예: 홍대, 합정, DMC)"
+            />
+            <button id="searchBtn" type="button">검색</button>
+          </div>
+          <p class="muted">
+            ※ 실제 수거함 상세 위치(출구/층 등)는 운영 안내에 따라 추후 추가
+            가능
+          </p>
+        </div>
+
+        <!-- 리스트 -->
+        <ul class="station-list" id="stationList"></ul>
+
+        <!-- 안내 -->
+        <div class="notice">
+          <h2 class="notice-title">이용 시 주의</h2>
+          <ul class="notice-list">
+            <li>
+              반납 전 구성품(부속/케이블 등) 누락 여부를 꼭 확인해 주세요.
+            </li>
+            <li>포장 없이 투입하면 파손 위험이 있어요. (완충재 권장)</li>
+            <li>역/지역 상황에 따라 회수 일정이 변동될 수 있어요.</li>
+          </ul>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

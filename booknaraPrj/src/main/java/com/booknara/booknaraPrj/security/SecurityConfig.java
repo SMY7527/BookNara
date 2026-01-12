@@ -38,6 +38,7 @@ public class SecurityConfig {
                                 "/home",
                                 "/users/login",
                                 "/users/signup",
+                                "/users/find-account",
                                 "/users/signup-extra",
                                 "/users/check-id",
                                 "/users/check-profile",
@@ -60,7 +61,15 @@ public class SecurityConfig {
                                 "/css/**",
                                 "/js/**",
                                 "/images/**",
-                                "/favicon.ico"
+                                "/favicon.ico",
+                                "/error/*",
+                                "/404"
+                        ).permitAll()
+                        .requestMatchers(HttpMethod.POST,
+                                "/users/find-id",
+                                "/users/find-password",
+                                "/users/verify-code",
+                                "/users/reset-password"
                         ).permitAll()
 
                         .anyRequest().authenticated()
@@ -104,3 +113,4 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 }
+

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.booknara.booknaraPrj.mypage.event.EventMapper">
+
+    <select id="selectMyEventHistory"
+            resultType="com.booknara.booknaraPrj.mypage.event.EventHistoryDto">
+
+        SELECT
+        e.EVENT_ID        AS eventId,
+        e.EVENT_TITLE     AS eventTitle,
+        img.IMG_URL       AS eventBanner,
+        e.START_AT        AS startAt,
+        e.END_AT          AS endAt,
+        p.EVENT_RESULT_YN AS resultYn,
+
+        CASE
+        WHEN p.EVENT_RESULT_YN = 'Y' THEN '당첨'
+        WHEN e.END_AT <![CDATA[ < ]]> NOW() THEN '종료'
+        ELSE '진행중'
+        END AS status
+
+        FROM EVENT_PARTICIPANTS p
+        JOIN EVENT_ALL e
+        ON p.EVENT_ID = e.EVENT_ID
+        LEFT JOIN IMAGES img
+        ON img.TARGET_TYPE = 'EVENT'
+        AND img.TARGET_ID = e.EVENT_ID
+        AND img.IMG_TYPE = 'MAIN'
+
+        WHERE p.USER_ID = #{userId}
+
+        <choose>
+            <!-- 🎉 당첨 -->
+            <when test="type == 'win'">
+                AND p.EVENT_RESULT_YN = 'Y'
+            </when>
+
+            <!-- ⏳ 진행중 -->
+            <when test="type == 'ongoing'">
+                AND p.EVENT_RESULT_YN = 'N'
+                AND e.END_AT <![CDATA[ >= ]]> NOW()
+            </when>
+
+            <!-- ⛔ 종료 -->
+            <when test="type == 'end'">
+                AND p.EVENT_RESULT_YN = 'N'
+                AND e.END_AT <![CDATA[ < ]]> NOW()
+            </when>
+
+            <!-- 📦 전체 -->
+            <otherwise>
+                <!-- 조건 없음 -->
+            </otherwise>
+        </choose>
+
+        ORDER BY p.CREATED_AT DESC
+    </select>
+
+</mapper>

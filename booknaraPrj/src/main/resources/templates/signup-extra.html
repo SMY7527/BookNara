@@ -21,7 +21,7 @@
     </p>
 
     <form class="side-panel__form"
-          onsubmit="event.preventDefault(); closeAddressPanel();">
+          onsubmit="event.preventDefault(); submitAddress();">
         <button type="button" onclick="execDaumPostcode()">주소 찾기</button>
 
         <label class="field">
@@ -48,17 +48,32 @@
 
 <!-- 선호 장르 영역 -->
 <section id="genreSection" class="genre-section" hidden>
-    <h2>선호 장르 골라봐유 📚</h2>
+        <h2 class="genre-title">선호 장르 골라봐유 📚</h2>
+        <p class="genre-desc">
+            최대 3개까지 선택할 수 있어유.<br>
+            다시 누르면 취소도 돼유 🙂
+        </p>
 
-    <div class="genre-grid">
-        <label><input type="checkbox" value="NOVEL"> 소설</label>
-        <label><input type="checkbox" value="ESSAY"> 에세이</label>
-        <label><input type="checkbox" value="IT"> IT</label>
-        <label><input type="checkbox" value="HISTORY"> 역사</label>
-        <label><input type="checkbox" value="SELF"> 자기계발</label>
-    </div>
+        <div class="genre-grid">
+            <div class="genre-card" data-genre-id="1">소설</div>
+            <div class="genre-card" data-genre-id="55889">에세이</div>
+            <div class="genre-card" data-genre-id="336">자기계발</div>
 
-    <button class="btn btn--primary" onclick="submitGenres()">완료</button>
+            <div class="genre-card" data-genre-id="656">인문</div>
+            <div class="genre-card" data-genre-id="74">사회·역사</div>
+            <div class="genre-card" data-genre-id="170">경제·경영</div>
+
+            <div class="genre-card" data-genre-id="987">과학</div>
+            <div class="genre-card" data-genre-id="517">예술·취미</div>
+            <div class="genre-card" data-genre-id="1108">아동·청소년</div>
+
+        </div>
+
+        <div class="genre-actions">
+            <button class="btn btn--primary" onclick="submitGenres()">완료</button>
+            <button class="btn btn--ghost" onclick="skipGenres()">건너뛰기</button>
+        </div>
+    </section>
 </section>
 
 <script th:src="@{/js/signup-extra.js}"></script>

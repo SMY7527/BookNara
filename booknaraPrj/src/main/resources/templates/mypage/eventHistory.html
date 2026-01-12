@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>이벤트 참여 내역</title>
+  <link rel="stylesheet" href="/css/EventHistory.css">
+</head>
+
+<body>
+
+<div class="event-container">
+
+  <div class="event-title">이벤트 참여 내역</div>
+  <div class="event-divider"></div>
+
+  <div class="event-filter">
+    <a th:href="@{/mypage/events(type='all')}"
+       th:classappend="${activeEvent=='all'} ? 'active'">전체</a>
+
+    <a th:href="@{/mypage/events(type='ongoing')}"
+       th:classappend="${activeEvent=='ongoing'} ? 'active'">진행중</a>
+
+    <a th:href="@{/mypage/events(type='win')}"
+       th:classappend="${activeEvent=='win'} ? 'active'">당첨</a>
+
+    <a th:href="@{/mypage/events(type='end')}"
+       th:classappend="${activeEvent=='end'} ? 'active'">종료</a>
+  </div>
+
+  <div class="event-scroll">
+    <div class="event-list">
+
+      <div class="event-card" th:each="e : ${eventList}">
+
+        <!-- 배너(없으면 회색만 보이게) -->
+        <img class="event-banner"
+             th:if="${e.eventBanner != null}"
+             th:src="${e.eventBanner}"
+             alt="event banner"/>
+
+        <div class="event-card-content">
+          <div class="event-card-title" th:text="${e.eventTitle}">이벤트 제목</div>
+
+          <div class="event-card-date">
+            <span th:text="${#temporals.format(e.startAt, 'yyyy-MM-dd')}"></span>
+            <span> ~ </span>
+            <span th:text="${#temporals.format(e.endAt, 'yyyy-MM-dd')}"></span>
+          </div>
+
+          <div class="event-card-status" th:text="${e.status}">진행중</div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

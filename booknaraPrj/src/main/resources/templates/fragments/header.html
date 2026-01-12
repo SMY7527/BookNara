@@ -15,9 +15,7 @@
 
             <!-- 로그인 전 -->
             <div class="top-right before-login" sec:authorize="isAnonymous()">
-                <a th:href="@{/users/login}" class="login-link">로그인</a>
-                <span class="slash">/</span>
-                <a th:href="@{/users/signup}" class="signup-link">회원가입</a>
+                <a th:href="@{/users/login}" class="login-link">로그인/회원가입</a>
             </div>
 
             <!-- 로그인 후 -->
@@ -32,6 +30,11 @@
                         <a href="#">마이페이지</a>
                         <a href="#">내 서재</a>
                         <a href="#">북마크</a>
+                        <!-- ⭐ 관리자 전용 -->
+                        <a th:href="@{/admin/Statistics}"
+                           sec:authorize="hasRole('ADMIN')">
+                            관리자페이지
+                        </a>
                         <hr>
                         <form th:action="@{/logout}" method="post">
                             <button type="submit" class="logout-btn">로그아웃</button>
@@ -45,15 +48,17 @@
 
         <div class="header-inner">
             <div class="logo">
-                <img th:src="@{/images/logo.png}" alt="사이트 로고">
+                <a th:href="@{/home}">
+                    <img th:src="@{/images/logo.png}" alt="사이트 로고">
+                </a>
             </div>
 
             <nav class="nav">
-                <a>맞춤 추천</a><span>|</span>
+                <a th:href="@{/recommend}">맞춤 추천</a><span>|</span>
                 <a th:href="@{/book/search}">검색</a><span>|</span>
-                <a>피드</a><span>|</span>
-                <a>안내</a><span>|</span>
-                <a>이벤트</a>
+                <a href="">피드</a><span>|</span>
+                <a href="">안내</a><span>|</span>
+                <a href="">이벤트</a><span>|</span>
             </nav>
 
             <div class="right">
@@ -70,19 +75,33 @@
 
                     <div class="after-login icon-group" sec:authorize="isAuthenticated()">
                         <div class="icon">🛒</div>
-                        <div class="icon" id="alarmBtn">🔔
+                        <div class="icon">
+                            <button id="alarmBtn">🔔</button>
+                            <span class="alarm-cnt"></span>
                             <div class="alarm-panel" id="alarmBox">
 
-                                <h2 class="alarm-title">알림</h2>
+                                <div class="alarm-panel-top">
+                                    <h2 class="alarm-title">알림</h2>
+                                    <div class="alarm-menu-dot">
+                                        <img th:src="@{/images/noti/dotdotdot.png}">
+                                        <div class="alarm-menu">
+                                            <button id="allread">모두 읽음</button>
+                                        </div>
+                                    </div>
+
+                                </div>
 
                                 <!-- 필터 버튼 -->
-                                <div class="alarm-tabs">
-                                    <button class="tab active" data-filter="all">전체</button>
-                                    <button class="tab" data-filter="unread">미읽음</button>
-                                    <button class="tab" data-filter="system">시스템</button>
-                                    <button class="tab" data-filter="community">커뮤니티</button>
-                                    <button class="tab" data-filter="event">이벤트</button>
-                                    <button class="tab" data-filter="admin">관리자</button>
+                                <div class="tab-wrapper">
+                                    <div class="alarm-tabs">
+                                        <button class="tab" data-filter="all">전체</button>
+                                        <button class="tab active" data-filter="unread">미읽음</button>
+                                        <button class="tab" data-filter="system">시스템</button>
+                                        <button class="tab" data-filter="delivery">배송</button>
+                                        <button class="tab" data-filter="community">커뮤니티</button>
+                                        <button class="tab" data-filter="event">이벤트</button>
+                                        <button class="tab" data-filter="admin">관리자</button>
+                                    </div>
                                 </div>
 
                                 <!-- 알림 리스트 -->
@@ -90,7 +109,7 @@
 
                                     <li class="alarm-item unread system">
                                         <span class="alarm-dot"></span>
-                                        <img src="https://your-url/calendar.png" class="alarm-icon">
+                                        <img th:src="@{/images/noti/lend_expiration_noti.png}" class="alarm-icon">
                                         <div class="alarm-text">
                                             <p class="alarm-msg">대여 만료 알림 : ‘노인과 바다’ 반납 예정일 3일 남았어요</p>
                                             <span class="alarm-time">3시간 전</span>
@@ -179,7 +198,9 @@
                                         </div>
                                     </li>
                                 </ul>
-
+                                <div class="alarm-footer">
+                                    <button id="all-noti-btn">전체 알림 보러가기</button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -187,6 +208,10 @@
             </div>
         </div>
     </header>
+
+    <script th:inline="javascript">
+        window.IS_LOGGED_IN = [[${#authorization.expression('isAuthenticated()')}]];
+    </script>
 
     <!-- header 전용 JS -->
     <script th:src="@{/js/header.js}"></script>

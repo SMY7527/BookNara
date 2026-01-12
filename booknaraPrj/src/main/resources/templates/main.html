@@ -73,18 +73,8 @@
             <div class="recommend-left">
                 <h2>말랑이의 추천 도서</h2>
 
-                <div class="hashtag-list">
-                    <!-- 10개 전부 만들어두기 -->
-                    <button class="hashtag" data-genre="warm">#마음이 따뜻해지는</button>
-                    <button class="hashtag" data-genre="essay">#에세이</button>
-                    <button class="hashtag" data-genre="healing">#힐링</button>
-                    <button class="hashtag" data-genre="mystery">#추리소설</button>
-                    <button class="hashtag" data-genre="horror">#역대급 공포</button>
-                    <button class="hashtag" data-genre="life">#인생책</button>
-                    <button class="hashtag" data-genre="short">#짧고 강한</button>
-                    <button class="hashtag" data-genre="emotion">#감성 충만</button>
-                    <button class="hashtag" data-genre="growth">#성장 이야기</button>
-                    <button class="hashtag" data-genre="mallang">#말랑이 픽</button>
+                <div class="hashtag-list" id="recommendHashtags">
+                    <!-- 해시태그는 JS에서 랜덤 3개 생성 -->
                 </div>
             </div>
 
@@ -92,43 +82,48 @@
             <div class="recommend-right">
                 <div class="book-card-list">
 
-                    <!-- 카드 3개 틀 -->
+                    <!-- 카드 1 -->
                     <div class="book-card">
-
-                        <!-- 책 표지 -->
                         <div class="book-cover">
-                            <a href=""><img src="./images/book1.jpg" alt="책 제목"></a>
+                            <a class="book-link" href="#">
+                                <img class="book-img"
+                                     src="/images/placeholder_book.png"
+                                     alt="추천 도서">
+                            </a>
                         </div>
-                        <!-- 책 정보 -->
                         <div class="book-info">
-                            <p class="book-title">너를 생각하는 것이 나의 일생이었다</p>
-                            <p class="book-author">정채봉 · 샘터</p>
+                            <p class="book-title">추천 도서 불러오는 중</p>
+                            <p class="book-author"></p>
                         </div>
                     </div>
 
+                    <!-- 카드 2 -->
                     <div class="book-card">
-                        <!-- 책 표지 -->
                         <div class="book-cover">
-                            <a href=""><img src="./images/book2.jpg" alt="책 제목"></a>
+                            <a class="book-link" href="#">
+                                <img class="book-img"
+                                     src="/images/placeholder_book.png"
+                                     alt="추천 도서">
+                            </a>
                         </div>
-
-                        <!-- 책 정보 -->
                         <div class="book-info">
-                            <p class="book-title">집은 아직 따뜻하다</p>
-                            <p class="book-author">이상국 | 창비(주)</p>
+                            <p class="book-title">추천 도서 불러오는 중</p>
+                            <p class="book-author"></p>
                         </div>
                     </div>
 
+                    <!-- 카드 3 -->
                     <div class="book-card">
-                        <!-- 책 표지 -->
                         <div class="book-cover">
-                            <a href=""><img src="./images/book3.jpg" alt="책 제목"></a>
+                            <a class="book-link" href="#">
+                                <img class="book-img"
+                                     src="/images/placeholder_book.png"
+                                     alt="추천 도서">
+                            </a>
                         </div>
-
-                        <!-- 책 정보 -->
                         <div class="book-info">
-                            <p class="book-title">정본 백석 시집</p>
-                            <p class="book-author">백석,고형진 | 문학동네</p>
+                            <p class="book-title">추천 도서 불러오는 중</p>
+                            <p class="book-author"></p>
                         </div>
                     </div>
 
@@ -204,243 +199,31 @@
     <section class="librarian-books">
         <div class="librarian-inner">
 
-            <!-- 섹션 타이틀 -->
             <div class="librarian-header">
                 <h2>북나라 사서들이 읽고있는 책</h2>
             </div>
-
-            <!-- 카드 리스트 -->
-            <div class="librarian-book-list">
-
-                <!-- 카드 1 -->
-                <div class="librarian-book-card">
-                    <div class="book-cover">
-                        <img src="./images/book1.jpg" alt="작은 일기">
-                    </div>
-                    <div class="book-info">
-                        <p class="book-title">작은 일기</p>
-                        <p class="book-author">황정은 · 창비</p>
-                    </div>
-                </div>
-
-                <!-- 카드 2 -->
-                <div class="librarian-book-card">
-                    <div class="book-cover">
-                        <img src="./images/book2.jpg" alt="액스">
-                    </div>
-                    <div class="book-info">
-                        <p class="book-title">액스</p>
-                        <p class="book-author">도널드 웨스트레이크 · 오픈하우스</p>
-                    </div>
-                </div>
-
-                <!-- 카드 3 -->
-                <div class="librarian-book-card">
-                    <div class="book-cover">
-                        <img src="./images/book3.jpg" alt="작약과 공터">
-                    </div>
-                    <div class="book-info">
-                        <p class="book-title">작약과 공터</p>
-                        <p class="book-author">허연 · 문학과지성사</p>
-                    </div>
-                </div>
-
-                <!-- 카드 4 -->
-                <div class="librarian-book-card">
-                    <div class="book-cover">
-                        <img src="./images/book1.jpg" alt="소년이 온다">
-                    </div>
-                    <div class="book-info">
-                        <p class="book-title">소년이 온다</p>
-                        <p class="book-author">한강 · 창비</p>
-                    </div>
-                </div>
-
-                <!-- 카드 5 -->
-                <div class="librarian-book-card">
-                    <div class="book-cover">
-                        <img src="./images/book2.jpg" alt="모순">
-                    </div>
-                    <div class="book-info">
-                        <p class="book-title">모순</p>
-                        <p class="book-author">양귀자 · 쓰다</p>
-                    </div>
-                </div>
-
-                <!-- 카드 6 -->
-                <div class="librarian-book-card">
-                    <div class="book-cover">
-                        <img src="./images/book3.jpg" alt="안녕이라 그랬어">
-                    </div>
-                    <div class="book-info">
-                        <p class="book-title">안녕이라 그랬어</p>
-                        <p class="book-author">김애란 · 문학동네</p>
-                    </div>
-                </div>
-
+            <div class="librarian-book-list" id="librarianBookList">
+                <!-- JS에서 카드 생성 -->
             </div>
+
         </div>
     </section>
 
 
     <!-- ================= 방금 막 들어온 책 ================= -->
-    <section class="new-books">
-        <div class="new-books-inner">
+    <section class="librarian-books new-books">
+        <div class="librarian-inner">
 
-            <!-- 타이틀 -->
-            <div class="new-books-header">
+            <div class="librarian-header">
                 <h2>방금 막 들어온 책</h2>
             </div>
 
-            <!-- 슬라이더 -->
-            <div class="new-books-slider">
-
-                <!-- 좌 버튼 -->
-                <button class="slide-btn prev" aria-label="이전">‹</button>
-
-                <!-- 트랙 -->
-                <div class="new-books-track-wrapper">
-
-                    <div class="new-books-track">
-
-                        <!-- 카드 1 -->
-                        <a href="#" class="new-book-link">
-                            <div class="new-book-card">
-                                <div class="book-cover">
-                                    <img src="./images/book1.jpg" alt="청춘조음벨">
-                                </div>
-                                <div class="book-info">
-                                    <p class="book-title">청춘조음벨</p>
-                                    <p class="book-author">홍성규</p>
-                                </div>
-                            </div>
-                        </a>
-
-                        <!-- 카드 2 -->
-                        <a href="#" class="new-book-link">
-                            <div class="new-book-card">
-                                <div class="book-cover">
-                                    <img src="./images/book2.jpg" alt="그래서 우리는 음악을 듣는다">
-                                </div>
-                                <div class="book-info">
-                                    <p class="book-title">그래서 우리는 음악을 듣는다</p>
-                                    <p class="book-author">하세이시 조</p>
-                                </div>
-                            </div>
-                        </a>
-
-                        <!-- 카드 3 -->
-                        <a href="#" class="new-book-link">
-                            <div class="new-book-card">
-                                <div class="book-cover">
-                                    <img src="./images/book3.jpg" alt="당신 곁의 아리아">
-                                </div>
-                                <div class="book-info">
-                                    <p class="book-title">당신 곁의 아리아</p>
-                                    <p class="book-author">백희은 · 장일범</p>
-                                </div>
-                            </div>
-                        </a>
-
-                        <!-- 카드 4 -->
-                        <a href="#" class="new-book-link">
-                            <div class="new-book-card">
-                                <div class="book-cover">
-                                    <img src="./images/book1.jpg" alt="청춘조음벨">
-                                </div>
-                                <div class="book-info">
-                                    <p class="book-title">청춘조음벨</p>
-                                    <p class="book-author">홍성규</p>
-                                </div>
-                            </div>
-                        </a>
-
-                        <!-- 카드 5 -->
-                        <a href="#" class="new-book-link">
-                            <div class="new-book-card">
-                                <div class="book-cover">
-                                    <img src="./images/book2.jpg" alt="그래서 우리는 음악을 듣는다">
-                                </div>
-                                <div class="book-info">
-                                    <p class="book-title">그래서 우리는 음악을 듣는다</p>
-                                    <p class="book-author">하세이시 조</p>
-                                </div>
-                            </div>
-                        </a>
-
-                        <!-- 카드 6 -->
-                        <a href="#" class="new-book-link">
-                            <div class="new-book-card">
-                                <div class="book-cover">
-                                    <img src="./images/book3.jpg" alt="당신 곁의 아리아">
-                                </div>
-                                <div class="book-info">
-                                    <p class="book-title">당신 곁의 아리아</p>
-                                    <p class="book-author">백희은 · 장일범</p>
-                                </div>
-                            </div>
-                        </a>
-
-                        <!-- 카드 7 -->
-                        <a href="#" class="new-book-link">
-                            <div class="new-book-card">
-                                <div class="book-cover">
-                                    <img src="./images/book1.jpg" alt="청춘조음벨">
-                                </div>
-                                <div class="book-info">
-                                    <p class="book-title">청춘조음벨</p>
-                                    <p class="book-author">홍성규</p>
-                                </div>
-                            </div>
-                        </a>
-
-                        <!-- 카드 8 -->
-                        <a href="#" class="new-book-link">
-                            <div class="new-book-card">
-                                <div class="book-cover">
-                                    <img src="./images/book2.jpg" alt="그래서 우리는 음악을 듣는다">
-                                </div>
-                                <div class="book-info">
-                                    <p class="book-title">그래서 우리는 음악을 듣는다</p>
-                                    <p class="book-author">하세이시 조</p>
-                                </div>
-                            </div>
-                        </a>
-
-                        <!-- 카드 9 -->
-                        <a href="#" class="new-book-link">
-                            <div class="new-book-card">
-                                <div class="book-cover">
-                                    <img src="./images/book3.jpg" alt="당신 곁의 아리아">
-                                </div>
-                                <div class="book-info">
-                                    <p class="book-title">당신 곁의 아리아</p>
-                                    <p class="book-author">백희은 · 장일범</p>
-                                </div>
-                            </div>
-                        </a>
-
-                        <!-- 카드 10 -->
-                        <a href="#" class="new-book-link">
-                            <div class="new-book-card">
-                                <div class="book-cover">
-                                    <img src="./images/book1.jpg" alt="청춘조음벨">
-                                </div>
-                                <div class="book-info">
-                                    <p class="book-title">청춘조음벨</p>
-                                    <p class="book-author">홍성규</p>
-                                </div>
-                            </div>
-                        </a>
-
-
-                    </div>
-
-                    <!-- 우 버튼 -->
-                    <button class="slide-btn next" aria-label="다음">›</button>
-                </div>
+            <div class="librarian-book-list" id="newBooksList">
+                <!-- JS에서 카드 생성 -->
             </div>
+
         </div>
+    </section>
     </section>
 
 

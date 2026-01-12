@@ -37,6 +37,16 @@
                     <input type="password" name="password" placeholder="비밀번호">
                 </div>
 
+                <!-- 아이디 / 비밀번호 찾기 -->
+                <div class="option-row">
+                    <a th:href="@{/users/find-account}">아이디 · 비밀번호 찾기</a>
+                </div>
+
+                <div th:if="${param.error}"
+                     style="margin: 8px 0; color: red; font-size: 13px; text-align: center;">
+                    아이디 또는 비밀번호가 올바르지 않습니다.
+                </div>
+
                 <button type="submit" class="login-btn">로그인</button>
             </form>
 

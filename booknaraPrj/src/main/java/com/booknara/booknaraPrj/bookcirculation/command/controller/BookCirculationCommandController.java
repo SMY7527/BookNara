@@ -3,8 +3,11 @@ package com.booknara.booknaraPrj.bookcirculation.command.controller;
 import com.booknara.booknaraPrj.bookcirculation.command.dto.*;
 import com.booknara.booknaraPrj.bookcirculation.command.service.BookCirculationCommandService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequiredArgsConstructor
@@ -14,7 +17,10 @@ public class BookCirculationCommandController {
     private final BookCirculationCommandService service;
 
     private String userId(Authentication auth) {
-        return auth == null ? null : auth.getName();
+        if (auth == null || auth instanceof AnonymousAuthenticationToken) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Login required");
+        }
+        return auth.getName();
     }
 
     @PostMapping("/lend")

@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.booknara.booknaraPrj.mypage.mylibrary.MyLibraryMapper">
+
+    <!-- =========================
+         현재 대여중 (반납완료 제외)
+         - overDue(연체여부) / extendCnt 포함
+         ========================= -->
+    <select id="selectCurrentLends"
+            parameterType="string"
+            resultType="com.booknara.booknaraPrj.mypage.mylibrary.MyLendDto">
+        <![CDATA[
+        SELECT
+            l.LEND_ID AS lendId,
+            l.BOOK_ID AS bookId,
+            b.ISBN13 AS isbn13,
+            bi.BOOK_TITLE AS bookTitle,
+            bi.AUTHORS AS authors,
+            bi.ALADIN_IMAGE_BIG AS coverImg,
+            l.LEND_DATE AS lendDate,
+            l.RETURN_DUE_DATE AS returnDueDate,
+            l.RETURN_DONE_AT AS returnDoneAt,
+            l.EXTEND_CNT AS extendCnt,
+            CASE
+                WHEN l.RETURN_DONE_AT IS NULL AND l.RETURN_DUE_DATE < NOW() THEN 'Y'
+                ELSE 'N'
+                END AS overDue
+        FROM LENDS l
+                 JOIN BOOKS b ON l.BOOK_ID = b.BOOK_ID
+                 JOIN BOOK_ISBN bi ON b.ISBN13 = bi.ISBN13
+        WHERE l.USER_ID = #{userId}
+          AND l.RETURN_DONE_AT IS NULL
+        ORDER BY l.LEND_DATE DESC
+        ]]>
+    </select>
+
+    <!-- =========================
+         대여 기록 (반납 완료된 것만)
+         ========================= -->
+    <select id="selectLendHistory"
+            parameterType="string"
+            resultType="com.booknara.booknaraPrj.mypage.mylibrary.MyLendDto">
+        SELECT
+            l.LEND_ID AS lendId,
+            bi.BOOK_TITLE AS bookTitle,
+            bi.ALADIN_IMAGE_BIG AS coverImg,
+            l.RETURN_DONE_AT AS returnDoneAt
+        FROM LENDS l
+                 JOIN BOOKS b ON l.BOOK_ID = b.BOOK_ID
+                 JOIN BOOK_ISBN bi ON b.ISBN13 = bi.ISBN13
+        WHERE l.USER_ID = #{userId}
+          AND l.RETURN_DONE_AT IS NOT NULL
+        ORDER BY l.RETURN_DONE_AT DESC
+    </select>
+
+    <!-- =========================
+         연체 목록 (연체만 따로)
+         ========================= -->
+    <select id="selectOverdueLends"
+            parameterType="string"
+            resultType="com.booknara.booknaraPrj.mypage.mylibrary.MyLendDto">
+        <![CDATA[
+        SELECT
+            l.LEND_ID AS lendId,
+            l.BOOK_ID AS bookId,
+            b.ISBN13 AS isbn13,
+            bi.BOOK_TITLE AS bookTitle,
+            bi.AUTHORS AS authors,
+            bi.ALADIN_IMAGE_BIG AS coverImg,
+            l.LEND_DATE AS lendDate,
+            l.RETURN_DUE_DATE AS returnDueDate,
+            l.RETURN_DONE_AT AS returnDoneAt,
+            l.EXTEND_CNT AS extendCnt,
+            'Y' AS overDue
+        FROM LENDS l
+                 JOIN BOOKS b ON l.BOOK_ID = b.BOOK_ID
+                 JOIN BOOK_ISBN bi ON b.ISBN13 = bi.ISBN13
+        WHERE l.USER_ID = #{userId}
+          AND l.RETURN_DONE_AT IS NULL
+          AND l.RETURN_DUE_DATE < NOW()
+        ORDER BY l.RETURN_DUE_DATE ASC
+        ]]>
+    </select>
+
+    <!-- =========================
+         가장 가까운 반납예정 1건
+         ========================= -->
+    <select id="selectNearestDueLend"
+            parameterType="string"
+            resultType="com.booknara.booknaraPrj.mypage.mylibrary.MyLendDto">
+        SELECT
+            l.LEND_ID AS lendId,
+            l.RETURN_DUE_DATE AS returnDueDate
+        FROM LENDS l
+        WHERE l.USER_ID = #{userId}
+          AND l.RETURN_DONE_AT IS NULL
+        ORDER BY l.RETURN_DUE_DATE ASC
+            LIMIT 1
+    </select>
+
+    <!-- =========================
+         반납 처리
+         ========================= -->
+    <update id="updateReturnDone" parameterType="string">
+        UPDATE LENDS
+        SET RETURN_DONE_AT = NOW()
+        WHERE LEND_ID = #{lendId}
+          AND RETURN_DONE_AT IS NULL
+    </update>
+
+    <!-- =========================
+         연장 처리 (1회만, 7일)
+         - 이미 연장(EXTEND_CNT=1)이면 업데이트 0건
+         - 연체중이면 연장 막고 싶으면 조건 추가(아래 예시)
+         ========================= -->
+    <update id="updateExtendLend" parameterType="string">
+        <![CDATA[
+        UPDATE LENDS
+        SET RETURN_DUE_DATE = DATE_ADD(RETURN_DUE_DATE, INTERVAL 7 DAY),
+            EXTEND_CNT = 1
+        WHERE LEND_ID = #{lendId}
+          AND RETURN_DONE_AT IS NULL
+          AND EXTEND_CNT = 0
+        -- AND RETURN_DUE_DATE >= NOW()  -- (선택) 연체중 연장 금지
+        ]]>
+    </update>
+
+    <!-- =========================
+         캘린더용 (반납예정일/대여일 등 이벤트로 뿌릴 때)
+         ========================= -->
+    <select id="selectCalendarLends"
+            parameterType="string"
+            resultType="com.booknara.booknaraPrj.mypage.mylibrary.MyLendDto">
+        <![CDATA[
+        SELECT
+            l.LEND_ID AS lendId,
+            bi.BOOK_TITLE AS bookTitle,
+            l.LEND_DATE AS lendDate,
+            l.RETURN_DUE_DATE AS returnDueDate,
+            CASE
+                WHEN l.RETURN_DONE_AT IS NULL AND l.RETURN_DUE_DATE < NOW() THEN 'Y'
+                ELSE 'N'
+                END AS overDue
+        FROM LENDS l
+                 JOIN BOOKS b ON l.BOOK_ID = b.BOOK_ID
+                 JOIN BOOK_ISBN bi ON b.ISBN13 = bi.ISBN13
+        WHERE l.USER_ID = #{userId}
+          AND l.RETURN_DONE_AT IS NULL
+        ]]>
+    </select>
+
+    <!-- 캘린더: 대여중(반납완료 제외, 연체 포함) -->
+    <select id="selectCalendarActiveLends"
+            parameterType="string"
+            resultType="com.booknara.booknaraPrj.mypage.mylibrary.MyLendDto">
+  <![CDATA[
+        SELECT
+            l.LEND_ID AS lendId,
+            bi.BOOK_TITLE AS bookTitle,
+            l.LEND_DATE AS lendDate,
+            l.RETURN_DUE_DATE AS returnDueDate,
+            l.RETURN_DONE_AT AS returnDoneAt,
+            CASE
+                WHEN l.RETURN_DUE_DATE < NOW() THEN 'Y'
+                ELSE 'N'
+                END AS overDue
+        FROM LENDS l
+                 JOIN BOOKS b ON l.BOOK_ID = b.BOOK_ID
+                 JOIN BOOK_ISBN bi ON b.ISBN13 = bi.ISBN13
+        WHERE l.USER_ID = #{userId}
+          AND l.RETURN_DONE_AT IS NULL
+        ]]>
+</select>
+
+    <!-- 캘린더: 과거 대여(반납완료) -->
+    <select id="selectCalendarReturnedLends"
+            parameterType="string"
+            resultType="com.booknara.booknaraPrj.mypage.mylibrary.MyLendDto">
+  <![CDATA[
+        SELECT
+            l.LEND_ID AS lendId,
+            bi.BOOK_TITLE AS bookTitle,
+            l.LEND_DATE AS lendDate,
+            l.RETURN_DUE_DATE AS returnDueDate,
+            l.RETURN_DONE_AT AS returnDoneAt,
+            'N' AS overDue
+        FROM LENDS l
+                 JOIN BOOKS b ON l.BOOK_ID = b.BOOK_ID
+                 JOIN BOOK_ISBN bi ON b.ISBN13 = bi.ISBN13
+        WHERE l.USER_ID = #{userId}
+          AND l.RETURN_DONE_AT IS NOT NULL
+        ]]>
+</select>
+
+
+</mapper>

@@ -31,8 +31,11 @@ public class BookCartController {
     @GetMapping
     public String cartPage(Authentication auth, Model model) {
         String userId = getUserId(auth);
+        var items = service.listWithLendable(userId);
+        boolean hasPaper = items.stream().anyMatch(it -> !"Y".equalsIgnoreCase(it.getEbookYn()));
         model.addAttribute("items", service.listWithLendable(userId));
         model.addAttribute("quota", service.getLendQuota(userId));
+        model.addAttribute("hasPaper", hasPaper);
         return "bookcart/cart";
     }
 
@@ -57,7 +60,6 @@ public class BookCartController {
         boolean inCart = service.isInCart(userId, isbn13);
         return Map.of("inCart", inCart);
     }
-
 
 
 
@@ -116,4 +118,18 @@ public class BookCartController {
 
         return java.util.Map.of("ok", true);
     }
+
+    @PostMapping("/checkout/paid")
+    @ResponseBody
+    public Map<String, Object> checkoutPaid(Authentication auth) {
+        String userId = getUserId(auth);
+
+        try {
+            service.checkoutPaid(userId); // 아래 서비스 메서드
+            return Map.of("ok", true);
+        } catch (IllegalStateException e) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
+        }
+    }
+
 }

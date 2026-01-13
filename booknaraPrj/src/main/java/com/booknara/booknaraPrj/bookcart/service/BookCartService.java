@@ -4,7 +4,7 @@ import com.booknara.booknaraPrj.bookcart.dto.BookCartDTO;
 import com.booknara.booknaraPrj.bookcart.dto.LendQuotaDTO;
 import com.booknara.booknaraPrj.bookcart.dto.UserAddressDTO;
 import com.booknara.booknaraPrj.bookcart.mapper.BookCartMapper;
-import com.booknara.booknaraPrj.bookcirculation.command.mapper.BookCirculationCommandMapper;
+import com.booknara.booknaraPrj.bookcirculation.command.service.BookCommandService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,7 +16,7 @@ import java.util.List;
 public class BookCartService {
 
     private final BookCartMapper mapper;
-
+    private final BookCommandService circulationCommandService;
     public void add(String userId, String isbn13) {
         mapper.insert(userId, isbn13);
     }
@@ -85,5 +85,35 @@ public class BookCartService {
     public boolean isLendable(String isbn13) {
         return Boolean.TRUE.equals(mapper.isLendableByIsbn(isbn13));
     }
+
+    @Transactional
+    public void checkoutPaid(String userId) {
+        // 1) 장바구니 재조회
+        var items = listWithLendable(userId);
+        if (items == null || items.isEmpty()) throw new IllegalStateException("장바구니가 비어있습니다.");
+
+        // 2) lendable 검사
+        boolean hasUnlendable = items.stream().anyMatch(it -> it.getLendableYn() == null || !it.getLendableYn());
+        if (hasUnlendable) throw new IllegalStateException("대여 불가 도서가 포함되어 있습니다.");
+
+        // 3) quota 검사
+        var quota = getLendQuota(userId);
+        if (quota != null && quota.getAvailableCount() < quota.getCartCount()) {
+            throw new IllegalStateException("대여 가능 권수를 초과했습니다.");
+        }
+
+        // 4) 종이책만 lend (전자책은 정책대로 처리)
+        for (var it : items) {
+            boolean isEbook = "Y".equalsIgnoreCase(it.getEbookYn());
+            if (!isEbook) {
+                circulationCommandService.lend(it.getIsbn13(), userId);
+            } else {
+            }
+        }
+
+        // 5) 성공 시 카트 비우기
+        clear(userId);
+    }
+
 
 }

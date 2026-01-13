@@ -4,7 +4,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 @Mapper
-public interface BookCirculationCommandMapper {
+public interface BookCommandMapper {
 
     // 유저 상태
     String selectUserBlockedYn(@Param("userId") String userId);

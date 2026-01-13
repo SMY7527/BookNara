@@ -1,7 +1,10 @@
 package com.booknara.booknaraPrj.bookcirculation.command.service;
 
+import com.booknara.booknaraPrj.bookcart.service.BookCartService;
 import com.booknara.booknaraPrj.bookcirculation.command.dto.*;
-import com.booknara.booknaraPrj.bookcirculation.command.mapper.BookCirculationCommandMapper;
+import com.booknara.booknaraPrj.bookcirculation.command.mapper.BookCommandMapper;
+import com.booknara.booknaraPrj.bookcirculation.status.controller.BookCirculationController;
+import com.booknara.booknaraPrj.bookcirculation.status.mapper.BookCirculationMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
@@ -13,9 +16,9 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class BookCirculationCommandService {
+public class BookCommandService {
 
-    private final BookCirculationCommandMapper mapper;
+    private final BookCommandMapper mapper;
 
     private void requireLogin(String userId) {
         if (userId == null || userId.isBlank()) {
@@ -40,6 +43,8 @@ public class BookCirculationCommandService {
         return "RSV_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"))
                 + "_" + UUID.randomUUID().toString().substring(0, 6);
     }
+
+
 
     @Transactional
     public LendResultDTO lend(String isbn13, String userId) {

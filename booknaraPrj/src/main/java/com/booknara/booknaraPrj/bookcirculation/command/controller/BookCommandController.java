@@ -1,7 +1,7 @@
 package com.booknara.booknaraPrj.bookcirculation.command.controller;
 
 import com.booknara.booknaraPrj.bookcirculation.command.dto.*;
-import com.booknara.booknaraPrj.bookcirculation.command.service.BookCirculationCommandService;
+import com.booknara.booknaraPrj.bookcirculation.command.service.BookCommandService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -12,9 +12,9 @@ import org.springframework.web.server.ResponseStatusException;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/book/circulation")
-public class BookCirculationCommandController {
+public class BookCommandController {
 
-    private final BookCirculationCommandService service;
+    private final BookCommandService service;
 
     private String userId(Authentication auth) {
         if (auth == null || auth instanceof AnonymousAuthenticationToken) {

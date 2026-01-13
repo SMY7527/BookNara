@@ -5,32 +5,43 @@
 
 <mapper namespace="com.booknara.booknaraPrj.login_signup.mapper.UserPreferGenreMapper">
 
-    <!-- =========================
-         회원가입 시 선호 장르 저장
-         ========================= -->
+    <!-- 신규 장르 insert (회원가입 / 수정 공용) -->
     <insert id="insert">
         INSERT INTO USER_PREFER_GENRE (
-        USER_ID,
-        GENRE_ID,
-        USE_YN,
-        CREATED_AT
+            USER_ID,
+            GENRE_ID,
+            USE_YN,
+            CREATED_AT
         ) VALUES (
-        #{userId},
-        #{genreId},
-        'Y',
-        NOW()
-        )
+                     #{userId},
+                     #{genreId},
+                     'Y',
+                     NOW()
+                 )
     </insert>
 
-    <!-- =========================
-         로그인 후 말랑이픽용 조회
-         ========================= -->
+    <!-- 활성 장르 조회 (로그인 / 마이페이지 공용) -->
     <select id="findActiveGenreIdsByUserId" resultType="int">
         SELECT GENRE_ID
         FROM USER_PREFER_GENRE
         WHERE USER_ID = #{userId}
-        AND USE_YN = 'Y'
+          AND USE_YN = 'Y'
         ORDER BY CREATED_AT ASC
     </select>
+
+    <!-- 마이페이지 수정 전: 전체 비활성화 -->
+    <update id="deactivateAllByUserId">
+        UPDATE USER_PREFER_GENRE
+        SET USE_YN = 'N'
+        WHERE USER_ID = #{userId}
+    </update>
+
+    <!-- 기존 장르 다시 활성화 -->
+    <update id="activateGenre">
+        UPDATE USER_PREFER_GENRE
+        SET USE_YN = 'Y'
+        WHERE USER_ID = #{userId}
+          AND GENRE_ID = #{genreId}
+    </update>
 
 </mapper>

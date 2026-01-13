@@ -16,5 +16,8 @@ public class MyInfoDto {
     private String profileNm;   // 프로필명
     private LocalDate birthday; // 생년월일
     private String gender;      // 성별
-    private String addr;     // 배송지
+
+    private String zipcode;     // 🔹 추가
+    private String addr;        // 🔹 기본주소
+    private String detailAddr;  // 🔹 상세주소
 }

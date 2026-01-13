@@ -5,27 +5,34 @@
 
 <mapper namespace="com.booknara.booknaraPrj.mypage.info.MyInfoMapper">
 
+    <!-- ================= 내 정보 조회 ================= -->
     <select id="selectMyInfo"
             parameterType="string"
             resultType="com.booknara.booknaraPrj.mypage.info.MyInfoDto">
         SELECT
-            USER_ID     AS userId,
-            USER_NM     AS userNm,
-            PROFILE_NM  AS profileNm,
-            BIRTHDAY    AS birthday,
-            GENDER      AS gender,
-            ADDR        AS addr
+            USER_ID      AS userId,
+            USER_NM      AS userNm,
+            PROFILE_NM   AS profileNm,
+            BIRTHDAY     AS birthday,
+            GENDER       AS gender,
+            ZIPCODE      AS zipcode,
+            ADDR         AS addr,
+            DETAIL_ADDR  AS detailAddr
         FROM USERS
         WHERE USER_ID = #{userId}
     </select>
 
+    <!-- ================= 내 정보 수정 ================= -->
     <update id="updateMyInfo"
             parameterType="com.booknara.booknaraPrj.mypage.info.MyInfoDto">
         UPDATE USERS
         SET
-            PROFILE_NM = #{profileNm},
-            ADDR       = #{addr}
+            PROFILE_NM  = #{profileNm},
+            ZIPCODE     = #{zipcode},
+            ADDR        = #{addr},
+            DETAIL_ADDR = #{detailAddr}
         WHERE USER_ID = #{userId}
     </update>
+
 
 </mapper>

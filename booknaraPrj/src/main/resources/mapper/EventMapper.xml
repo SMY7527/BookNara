@@ -23,7 +23,7 @@
         END AS status
 
         FROM EVENT_PARTICIPANTS p
-        JOIN EVENT_ALL e
+        JOIN EVENTS e
         ON p.EVENT_ID = e.EVENT_ID
         LEFT JOIN IMAGES img
         ON img.TARGET_TYPE = 'EVENT'
@@ -33,27 +33,21 @@
         WHERE p.USER_ID = #{userId}
 
         <choose>
-            <!-- 🎉 당첨 -->
             <when test="type == 'win'">
                 AND p.EVENT_RESULT_YN = 'Y'
             </when>
 
-            <!-- ⏳ 진행중 -->
             <when test="type == 'ongoing'">
                 AND p.EVENT_RESULT_YN = 'N'
                 AND e.END_AT <![CDATA[ >= ]]> NOW()
             </when>
 
-            <!-- ⛔ 종료 -->
             <when test="type == 'end'">
                 AND p.EVENT_RESULT_YN = 'N'
                 AND e.END_AT <![CDATA[ < ]]> NOW()
             </when>
 
-            <!-- 📦 전체 -->
-            <otherwise>
-                <!-- 조건 없음 -->
-            </otherwise>
+            <otherwise/>
         </choose>
 
         ORDER BY p.CREATED_AT DESC

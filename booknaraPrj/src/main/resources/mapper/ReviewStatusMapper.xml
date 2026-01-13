@@ -5,20 +5,18 @@
 
 <mapper namespace="com.booknara.booknaraPrj.reviewstatus.mapper.ReviewStatusMapper">
 
-    <!-- 단건: REVIEW_STAT -->
     <select id="selectByIsbn" resultType="com.booknara.booknaraPrj.reviewstatus.dto.ReviewStatusDTO">
         SELECT
-            ISBN13        AS isbn13,
+            ISBN13                AS isbn13,
             IFNULL(REVIEW_CNT, 0) AS reviewCnt,
             IFNULL(RATING_AVG, 0) AS ratingAvg
         FROM REVIEW_STAT
         WHERE ISBN13 = #{isbn13}
     </select>
 
-    <!-- 여러 ISBN: REVIEW_STAT -->
     <select id="selectByIsbns" resultType="com.booknara.booknaraPrj.reviewstatus.dto.ReviewStatusDTO">
         SELECT
-        ISBN13        AS isbn13,
+        ISBN13                AS isbn13,
         IFNULL(REVIEW_CNT, 0) AS reviewCnt,
         IFNULL(RATING_AVG, 0) AS ratingAvg
         FROM REVIEW_STAT

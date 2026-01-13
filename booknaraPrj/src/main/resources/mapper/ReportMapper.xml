@@ -5,7 +5,6 @@
 
 <mapper namespace="com.booknara.booknaraPrj.report.mapper.ReportMapper">
 
-    <!-- ✅ (신고 대상(feed) 유효성 확인: 존재 + 리뷰 + 미삭제 -->
     <select id="existsActiveReviewFeed" resultType="int">
         SELECT CASE WHEN EXISTS (
             SELECT 1
@@ -16,7 +15,6 @@
         ) THEN 1 ELSE 0 END
     </select>
 
-    <!-- ✅ 이미 신고했는지 -->
     <select id="existsReport" resultType="int">
         SELECT CASE WHEN EXISTS (
             SELECT 1
@@ -27,7 +25,6 @@
         ) THEN 1 ELSE 0 END
     </select>
 
-    <!-- ✅ 신고 등록 -->
     <insert id="insertReport">
         INSERT INTO REPORT (
             REPORT_ID,
@@ -48,7 +45,6 @@
                  )
     </insert>
 
-    <!-- ✅ 신고 대상(feed)의 소유자 userId 조회 -->
     <select id="selectFeedOwnerUserId" resultType="string">
         SELECT USER_ID
         FROM FEEDS
@@ -56,6 +52,5 @@
           AND FEED_CATEGORY = 'REVIEW'
             LIMIT 1
     </select>
-
 
 </mapper>

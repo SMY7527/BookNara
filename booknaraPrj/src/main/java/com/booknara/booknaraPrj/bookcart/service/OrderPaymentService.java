@@ -1,5 +1,6 @@
 package com.booknara.booknaraPrj.bookcart.service;
 
+import com.booknara.booknaraPrj.bookcart.dto.BookCartDTO;
 import com.booknara.booknaraPrj.bookcart.mapper.BookCartMapper;
 import com.booknara.booknaraPrj.bookcirculation.command.mapper.BookCirculationCommandMapper;
 import lombok.RequiredArgsConstructor;
@@ -34,7 +35,7 @@ public class OrderPaymentService {
      * @param receiptId 결제 주문이면 멱등성 체크에 사용(선택)
      */
     private void createLendsFromCart(String userId, boolean expectPaper, String receiptId) {
-        List<com.booknara.booknaraPrj.bookcart.dto.BookCartDTO> items = cartService.list(userId);
+        List<BookCartDTO> items = cartService.listWithLendable(userId);
 
         if (items == null || items.isEmpty()) {
             throw new IllegalStateException("장바구니가 비어있습니다.");

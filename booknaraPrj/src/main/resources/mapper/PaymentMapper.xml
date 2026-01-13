@@ -7,7 +7,6 @@
 
     <insert id="insertPayment"
             parameterType="com.booknara.booknaraPrj.mypage.mylibrary.PaymentDto">
-
         INSERT INTO PAYMENTS (
             USER_ID,
             RECEIPT_ID,
@@ -21,7 +20,6 @@
                      #{paidAt},
                      NOW()
                  )
-
     </insert>
 
 </mapper>

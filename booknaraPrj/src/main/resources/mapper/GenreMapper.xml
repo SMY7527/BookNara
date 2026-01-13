@@ -5,76 +5,74 @@
 
 <mapper namespace="com.booknara.booknaraPrj.bookSearch.mapper.GenreMapper">
 
-
     <select id="selectParentGenresAuto" resultType="com.booknara.booknaraPrj.bookSearch.dto.GenreDTO">
         SELECT
-            p.GENRE_ID AS genreId,
+            P.GENRE_ID AS genreId,
             CASE
-                WHEN p.GENRE_NM LIKE '\\_%' ESCAPE '\\'
-                    THEN SUBSTRING(p.GENRE_NM, 2)
-                ELSE p.GENRE_NM
-                END AS genreNm,
-            NULL AS parentId,
+                WHEN P.GENRE_NM LIKE '\\_%' ESCAPE '\\'
+                    THEN SUBSTRING(P.GENRE_NM, 2)
+                ELSE P.GENRE_NM
+                END        AS genreNm,
+            NULL       AS parentId,
             '국내도서' AS mall
         FROM (
-                 SELECT b.GENRE_ID, COUNT(*) AS CNT
-                 FROM BOOK_ISBN b
-                 GROUP BY b.GENRE_ID
-             ) x
-                 JOIN GENRE c ON c.GENRE_ID = x.GENRE_ID
-                 JOIN GENRE p ON p.GENRE_ID = c.PARENT_ID
-        WHERE c.MALL = '국내도서'
-          AND c.PARENT_ID IS NOT NULL
-        GROUP BY p.GENRE_ID, p.GENRE_NM
-        HAVING SUM(x.CNT) >= #{min}
-        ORDER BY SUM(x.CNT) DESC
-            LIMIT #{top};
+                 SELECT B.GENRE_ID, COUNT(*) AS CNT
+                 FROM BOOK_ISBN B
+                 GROUP BY B.GENRE_ID
+             ) X
+                 JOIN GENRE C ON C.GENRE_ID = X.GENRE_ID
+                 JOIN GENRE P ON P.GENRE_ID = C.PARENT_ID
+        WHERE C.MALL = '국내도서'
+          AND C.PARENT_ID IS NOT NULL
+        GROUP BY P.GENRE_ID, P.GENRE_NM
+        HAVING SUM(X.CNT) >= #{min}
+        ORDER BY SUM(X.CNT) DESC
+            LIMIT #{top}
     </select>
-
 
 
     <select id="selectChildGenresAuto"
             resultType="com.booknara.booknaraPrj.bookSearch.dto.GenreDTO">
         SELECT
-            c.GENRE_ID AS genreId,
+            C.GENRE_ID AS genreId,
             CASE
-                WHEN c.GENRE_NM LIKE '\\_%' ESCAPE '\\'
-                    THEN SUBSTRING(c.GENRE_NM, 2)
-                ELSE c.GENRE_NM
-                END AS genreNm,
-            c.PARENT_ID AS parentId,
-            c.MALL AS mall
-        FROM GENRE c
-        WHERE c.MALL = '국내도서'
-          AND c.PARENT_ID = #{parentId}
+                WHEN C.GENRE_NM LIKE '\\_%' ESCAPE '\\'
+                    THEN SUBSTRING(C.GENRE_NM, 2)
+                ELSE C.GENRE_NM
+                END        AS genreNm,
+            C.PARENT_ID AS parentId,
+            C.MALL      AS mall
+        FROM GENRE C
+        WHERE C.MALL = '국내도서'
+          AND C.PARENT_ID = #{parentId}
           AND EXISTS (
             SELECT 1
-            FROM BOOK_ISBN b
-            WHERE b.GENRE_ID = c.GENRE_ID
+            FROM BOOK_ISBN B
+            WHERE B.GENRE_ID = C.GENRE_ID
         )
-        ORDER BY c.GENRE_ID
+        ORDER BY C.GENRE_ID
     </select>
 
 
     <select id="selectForeignParentGenresAuto"
             resultType="com.booknara.booknaraPrj.bookSearch.dto.GenreDTO">
         SELECT
-            p.GENRE_ID AS genreId,
+            P.GENRE_ID AS genreId,
             CASE
-                WHEN p.GENRE_NM LIKE '\\_%' ESCAPE '\\' THEN SUBSTRING(p.GENRE_NM, 2)
-                ELSE p.GENRE_NM
-                END AS genreNm,
-            NULL AS parentId,
+                WHEN P.GENRE_NM LIKE '\\_%' ESCAPE '\\'
+                    THEN SUBSTRING(P.GENRE_NM, 2)
+                ELSE P.GENRE_NM
+                END        AS genreNm,
+            NULL       AS parentId,
             '외국도서' AS mall
-        FROM BOOK_ISBN b
-                 JOIN GENRE c
-                      ON c.GENRE_ID = b.GENRE_ID
-                 JOIN GENRE p
-                      ON p.GENRE_ID = COALESCE(c.PARENT_ID, c.GENRE_ID)
-        WHERE c.MALL = '외국도서'
-        GROUP BY p.GENRE_ID, p.GENRE_NM
+        FROM BOOK_ISBN B
+                 JOIN GENRE C ON C.GENRE_ID = B.GENRE_ID
+                 JOIN GENRE P ON P.GENRE_ID = COALESCE(C.PARENT_ID, C.GENRE_ID)
+        WHERE C.MALL = '외국도서'
+        GROUP BY P.GENRE_ID, P.GENRE_NM
         HAVING COUNT(*) &gt;= #{min}
         ORDER BY COUNT(*) DESC
             LIMIT #{top}
     </select>
+
 </mapper>

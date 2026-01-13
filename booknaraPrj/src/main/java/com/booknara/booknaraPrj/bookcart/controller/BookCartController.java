@@ -31,7 +31,7 @@ public class BookCartController {
     @GetMapping
     public String cartPage(Authentication auth, Model model) {
         String userId = getUserId(auth);
-        model.addAttribute("items", service.list(userId));
+        model.addAttribute("items", service.listWithLendable(userId));
         model.addAttribute("quota", service.getLendQuota(userId));
         return "bookcart/cart";
     }

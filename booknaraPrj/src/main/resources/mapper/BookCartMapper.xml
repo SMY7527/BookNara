@@ -5,58 +5,56 @@
 
 <mapper namespace="com.booknara.booknaraPrj.bookcart.mapper.BookCartMapper">
 
-    <!-- 담기: 중복 방지(유니크키 있어야 함: (USER_ID, ISBN13)) -->
     <insert id="insert">
-        INSERT IGNORE INTO BOOKS_CART (USER_ID, ISBN13)
-        VALUES (#{userId}, #{isbn13})
+        INSERT IGNORE INTO BOOKS_CART (
+            USER_ID,
+            ISBN13
+        )
+        VALUES (
+        #{userId},
+        #{isbn13}
+        )
     </insert>
 
-    <!-- 개별 삭제 -->
     <delete id="delete">
         DELETE FROM BOOKS_CART
         WHERE USER_ID = #{userId}
           AND CART_ID = #{cartId}
     </delete>
 
-    <!-- ISBN으로 삭제 -->
     <delete id="deleteByIsbn">
         DELETE FROM BOOKS_CART
         WHERE USER_ID = #{userId}
           AND ISBN13 = #{isbn13}
     </delete>
 
-    <!-- 전체 비우기 -->
     <delete id="deleteAll">
         DELETE FROM BOOKS_CART
         WHERE USER_ID = #{userId}
     </delete>
 
-    <!-- 장바구니 목록 -->
     <select id="selectList" resultType="com.booknara.booknaraPrj.bookcart.dto.BookCartDTO">
         SELECT
-            c.CART_ID           AS cartId,
-            bi.ISBN13           AS isbn13,
-            bi.BOOK_TITLE       AS bookTitle,
-            bi.AUTHORS          AS authors,
-            bi.ALADIN_IMAGE_BIG AS aladinImageBig,
-            bi.NAVER_IMAGE      AS naverImage,
-            bi.EBOOK_YN         AS ebookYn
-        FROM BOOKS_CART c
-                 JOIN BOOK_ISBN bi ON bi.ISBN13 = c.ISBN13
-        WHERE c.USER_ID = #{userId}
-        ORDER BY c.CREATED_AT DESC
+            C.CART_ID           AS cartId,
+            BI.ISBN13           AS isbn13,
+            BI.BOOK_TITLE       AS bookTitle,
+            BI.AUTHORS          AS authors,
+            BI.ALADIN_IMAGE_BIG AS aladinImageBig,
+            BI.NAVER_IMAGE      AS naverImage,
+            BI.EBOOK_YN         AS ebookYn
+        FROM BOOKS_CART C
+                 JOIN BOOK_ISBN BI ON BI.ISBN13 = C.ISBN13
+        WHERE C.USER_ID = #{userId}
+        ORDER BY C.CREATED_AT DESC
     </select>
 
-    <!-- 장바구니 담긴 권수 (리스트와 동일 기준: BOOK_ISBN에 존재하는 것만) -->
     <select id="countMyCart" resultType="int">
         SELECT COUNT(*)
-        FROM BOOKS_CART c
-                 JOIN BOOK_ISBN bi ON bi.ISBN13 = c.ISBN13
-        WHERE c.USER_ID = #{userId}
+        FROM BOOKS_CART C
+                 JOIN BOOK_ISBN BI ON BI.ISBN13 = C.ISBN13
+        WHERE C.USER_ID = #{userId}
     </select>
 
-
-    <!-- 현재 대여중 권수 -->
     <select id="countMyActiveLends" resultType="int">
         SELECT COUNT(*)
         FROM LENDS
@@ -64,7 +62,6 @@
           AND RETURN_DONE_AT IS NULL
     </select>
 
-    <!-- 최대 대여 가능 권수 (SETTINGS 최신값) -->
     <select id="selectMaxLendCount" resultType="int">
         SELECT MAX_LEND_COUNT
         FROM SETTINGS
@@ -72,6 +69,28 @@
             LIMIT 1
     </select>
 
+    <select id="isLendableByIsbn" resultType="boolean">
+        SELECT
+            CASE
+                WHEN
+                    (
+                        SELECT COUNT(*)
+                        FROM BOOKS B
+                        WHERE B.ISBN13 = #{isbn13}
+                          AND B.BOOK_STATE = 'N'
+                    )
+                        >
+                    (
+                        SELECT COUNT(*)
+                        FROM LENDS L
+                                 JOIN BOOKS B2 ON B2.BOOK_ID = L.BOOK_ID
+                        WHERE B2.ISBN13 = #{isbn13}
+                          AND L.RETURN_DONE_AT IS NULL
+                    )
+                    THEN TRUE
+                ELSE FALSE
+                END
+    </select>
 
     <select id="existsByIsbn" resultType="int">
         SELECT COUNT(*)
@@ -80,12 +99,6 @@
           AND ISBN13  = #{isbn13}
     </select>
 
-    <!-- =========================================================
-     배송지(기본주소) - USERS에서 조회/저장
-     - 장바구니 우측 배송정보 영역에서 "기본주소 사용" / "기본주소로 저장"에 사용
-     ========================================================= -->
-
-    <!-- 기본주소 조회 (없으면 null/빈값으로 내려가게 됨) -->
     <select id="selectMyDefaultAddress"
             parameterType="string"
             resultType="com.booknara.booknaraPrj.bookcart.dto.UserAddressDTO">
@@ -97,19 +110,15 @@
         WHERE USER_ID = #{userId}
     </select>
 
-    <!-- 기본주소 저장(업데이트) -->
     <update id="updateMyDefaultAddress"
             parameterType="com.booknara.booknaraPrj.bookcart.dto.UserAddressDTO">
         UPDATE USERS
         SET
-            ZIPCODE = #{zipcode},
-            ADDR = #{addr},
+            ZIPCODE     = #{zipcode},
+            ADDR        = #{addr},
             DETAIL_ADDR = #{detailAddr},
-            UPDATED_AT = NOW()
+            UPDATED_AT  = NOW()
         WHERE USER_ID = #{userId}
     </update>
-
-
-
 
 </mapper>

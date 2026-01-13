@@ -93,6 +93,7 @@ public class SecurityConfig {
                                 "/users/reset-password"
                         ).permitAll()
                         .requestMatchers("/api/reports/**").authenticated()
+                        .requestMatchers("/book/cart/**", "/book/order/**").authenticated()
                         .anyRequest().authenticated()
                 )
 

@@ -11,10 +11,10 @@ import java.util.List;
 public interface UserRepository extends JpaRepository<Users, String> {
 
     // ✅ 검색 결과도 페이징 처리 (Pageable 추가)
-    @Query("SELECT U FROM USERS U WHERE " +
-            "U.USER_ID LIKE %:kw% OR " +
-            "U.USER_NM LIKE %:kw% OR " +
-            "U.EMAIL LIKE %:kw%")
+    @Query("SELECT u FROM Users u WHERE " +
+            "u.userId LIKE %:kw% OR " +
+            "u.userNm LIKE %:kw% OR " +
+            "u.email LIKE %:kw%")
     Page<Users> searchUsers(@Param("kw") String keyword, Pageable pageable);
 
     // ✅ 추가: 상태값(1, 2, 3)으로만 검색할 때 사용

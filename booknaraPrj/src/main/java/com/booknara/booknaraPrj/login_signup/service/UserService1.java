@@ -253,4 +253,24 @@ public class UserService1 {
         return userMapper.findByUserId(userId);
     }
 
+
+    //mypage 비밀번호변경
+    @Transactional(readOnly = true)
+    public void verifyCurrentPassword(String userId, String rawPassword) {
+
+        String encodedPw = userMapper.findPasswordByUserId(userId);
+
+        if (encodedPw == null) {
+            throw new IllegalStateException("사용자 정보가 없습니다");
+        }
+
+        // 소셜 로그인 유저 차단
+        if (encodedPw.startsWith("{noop}")) {
+            throw new IllegalStateException("소셜 로그인 계정은 비밀번호 변경이 불가능합니다");
+        }
+
+        if (!passwordEncoder.matches(rawPassword, encodedPw)) {
+            throw new IllegalArgumentException("현재 비밀번호가 일치하지 않습니다");
+        }
+    }
 }

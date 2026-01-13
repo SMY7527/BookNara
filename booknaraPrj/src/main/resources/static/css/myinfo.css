@@ -182,3 +182,81 @@ body {
 }
 
 
+.modal-actions {
+    margin-top: 14px;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+/*======비밀번호 변경========*/
+/* ================= 비밀번호 변경 모달 ================= */
+.pw-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.35);
+    display: none;              /* ⭐ 처음엔 안 보이게 */
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+}
+
+.pw-modal {
+    width: 420px;
+    background: #fff;
+    border-radius: 10px;
+    padding: 22px 24px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.18);
+}
+
+.pw-modal-title {
+    text-align: center;
+    font-size: 18px;
+    margin-bottom: 18px;
+}
+
+.pw-row {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 14px;
+}
+
+.pw-input-wrap {
+    font-size: 13px;
+    color: #555;
+}
+
+.pw-row input {
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+    font-size: 14px;
+}
+
+.pw-row input:disabled {
+    background: #f3f3f3;
+    color: #777;
+}
+
+.pw-input-group {
+    display: flex;
+    gap: 8px;
+}
+
+.pw-modal-actions {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+}
+
+.pw-msg {
+  font-size: 12px;
+  margin-top: 4px;
+  color: #d9534f;
+}
+
+.pw-msg.success {
+  color: #2e8b57;
+}

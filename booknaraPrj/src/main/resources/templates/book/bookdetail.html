@@ -56,9 +56,6 @@
         }
 
         .crumb-home { display:inline-flex; align-items:center; gap:6px; text-decoration: none; cursor:pointer; }
-        .crumb-link { border: none; background: transparent; padding: 0; margin: 0; cursor:pointer; text-decoration: none; }
-        .crumb-link:hover { text-decoration: underline; }
-        .crumb-current { cursor: default; text-decoration: none; }
 
         .detail-section{
             border-bottom: 1px solid var(--line);
@@ -261,8 +258,6 @@
 
         .review-grid { display: grid; gap: 16px; }
         .review-card { background: var(--light-bg); padding: 24px; border-radius: var(--radius); border: 1px solid transparent; }
-        .review-meta { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 14px; color: var(--muted); }
-        .review-rate { color: var(--accent); font-weight: 800; }
         .review-body { font-size: 15px; color: #444; line-height: 1.6; }
 
         @media (max-width: 1024px) {
@@ -308,21 +303,6 @@
         .my-review-textarea{ resize: vertical; }
         .btn-review{ background: var(--accent); color: #fff; }
 
-        .review-meta-right{ display:flex; align-items:center; gap:10px; }
-        .review-actions{ display:flex; gap:8px; align-items:center; }
-        .review-act{
-            border:1px solid var(--line);
-            background:#fff;
-            color: var(--muted);
-            font-weight: 800;
-            font-size: 12px;
-            padding: 6px 10px;
-            border-radius: 999px;
-            cursor:pointer;
-        }
-        .review-act:hover{ background:#fafafa; color: var(--text); border-color:#d8d8d8; }
-        .review-act.danger{ border-color: rgba(255,0,0,.18); }
-        .review-act.danger:hover{ border-color: rgba(255,0,0,.32); }
         .review-meta{
             display:flex;
             justify-content: space-between;
@@ -337,6 +317,7 @@
             align-items:center;
             gap:10px;
             min-width: 0;
+            flex-wrap: wrap;
         }
 
         .review-rate{
@@ -356,6 +337,22 @@
             align-items:center;
             gap:8px;
         }
+
+        .review-actions{ display:flex; gap:8px; align-items:center; }
+        .review-act{
+            border:1px solid var(--line);
+            background:#fff;
+            color: var(--muted);
+            font-weight: 800;
+            font-size: 12px;
+            padding: 6px 10px;
+            border-radius: 999px;
+            cursor:pointer;
+            white-space: nowrap;
+        }
+        .review-act:hover{ background:#fafafa; color: var(--text); border-color:#d8d8d8; }
+        .review-act.danger{ border-color: rgba(255,0,0,.18); }
+        .review-act.danger:hover{ border-color: rgba(255,0,0,.32); }
 
         .review-head-left{
             display:flex;
@@ -378,8 +375,29 @@
             gap:10px;
         }
 
-
-
+        /* 신고 버튼 */
+        .review-report{
+            border: 1px solid var(--line);
+            background: #fff;
+            color: var(--muted);
+            font-weight: 800;
+            font-size: 12px;
+            padding: 6px 10px;
+            border-radius: 999px;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .review-report:hover{
+            background:#fafafa;
+            color: var(--text);
+            border-color:#d8d8d8;
+        }
+        .review-report:disabled{
+            background:#f3f3f3;
+            color:#aaa;
+            border-color:#eee;
+            cursor:not-allowed;
+        }
     </style>
 </head>
 
@@ -527,9 +545,9 @@
                                 <strong id="ratingAvg"
                                         th:text="${view.reviewSummary != null ? view.reviewSummary.ratingAvg : 0.0}">0.0</strong>
                                 <span style="color:#aaa;">
-        (<span id="reviewCnt"
-               th:text="${view.reviewSummary != null ? view.reviewSummary.reviewCnt : 0}">0</span>개)
-      </span>
+                  (<span id="reviewCnt"
+                         th:text="${view.reviewSummary != null ? view.reviewSummary.reviewCnt : 0}">0</span>개)
+                </span>
                             </div>
                         </div>
 
@@ -540,7 +558,6 @@
                             </button>
                         </div>
                     </div>
-
 
                     <div id="myReviewBox" style="display:none; margin-top: 14px;">
                         <div class="my-review-card">
@@ -588,56 +605,61 @@
 </div>
 
 <script th:inline="javascript">
-
-    const initialBookmarkedYn = /*[[${view.bookmarkedYn}]]*/ "N";
-    const isbn13 = /*[[${view.bookDetailDTO.isbn13}]]*/ "";
-
-    const btn = document.getElementById('btnBookmark');
-    const iconEl = document.getElementById('bookmarkIcon');
-    const textEl = document.getElementById('bookmarkText');
-    const cntEl  = document.getElementById('bookmarkCnt');
-    //최근본책 저장
-
     document.addEventListener("DOMContentLoaded", () => {
-  saveRecentBook({
-    isbn13: isbn13,
-    bookImg: document.querySelector(".cover img")?.src
-  });
-});
-    function saveRecentBook(book) {
-  let recent = JSON.parse(localStorage.getItem("recentBooks")) || [];
 
-  recent = recent.filter(item => item.isbn13 !== book.isbn13);
-  recent.unshift(book);
+        // ==========================================
+    // [추가] 최근 본 책 저장 로직
+    // ==========================================
+    const saveRecentBook = () => {
+        const bookData = {
+            isbn13: /*[[${view.bookDetailDTO.isbn13}]]*/ "",
+            bookTitle: /*[[${view.bookDetailDTO.bookTitle}]]*/ "",
+            // 네이버 이미지가 없으면 알라딘 이미지를 저장
+            bookImg: /*[[${#strings.isEmpty(view.bookDetailDTO.naverImage) ? view.bookDetailDTO.aladinImageBig : view.bookDetailDTO.naverImage}]]*/ ""
+        };
 
-  if (recent.length > 3) recent.length = 3;
+        if (!bookData.isbn13) return;
 
-  localStorage.setItem("recentBooks", JSON.stringify(recent));
-}
+        let recent = JSON.parse(localStorage.getItem("recentBooks")) || [];
 
-    function renderBookmark(yn){
-        if(yn === 'Y'){
-            iconEl.textContent = '★';
-            textEl.textContent = '북마크됨';
-        }else{
-            iconEl.textContent = '☆';
-            textEl.textContent = '북마크';
+        // 1. 중복 제거 (이미 목록에 있으면 삭제)
+        recent = recent.filter(item => item.isbn13 !== bookData.isbn13);
+
+        // 2. 새로운 책을 맨 앞에 추가
+        recent.unshift(bookData);
+
+        // 3. 최대 10개까지만 유지
+        if (recent.length > 3) {
+            recent = recent.slice(0, 3);
         }
-    }
-    renderBookmark(initialBookmarkedYn);
 
-    function goLoginReturnHere(){
-        const returnUrl = location.pathname + location.search + location.hash;
-        location.href = "/users/login?redirect=" + encodeURIComponent(returnUrl);
-    }
+        // 4. 로컬 스토리지 저장
+        localStorage.setItem("recentBooks", JSON.stringify(recent));
+    };
 
-    async function toggleBookmark(){
-        btn.disabled = true;
+    saveRecentBook(); // 페이지 로드 시 실행
+    // ==========================================
 
-        try{
-            const res = await fetch(`/api/bookmarks/${encodeURIComponent(isbn13)}/toggle`, {
-                method: 'POST',
-                headers: { 'Accept': 'application/json' }
+        let lastReviewItems = [];
+
+        const isbn13 = /*[[${view.bookDetailDTO.isbn13}]]*/ "";
+        const initialBookmarkedYn = /*[[${view.bookmarkedYn}]]*/ "N";
+
+        let reviewPage = 1;
+        const reviewSize = 5;
+
+        // -----------------------------
+        // 공통
+        // -----------------------------
+        function goLoginReturnHere() {
+            const returnUrl = location.pathname + location.search + location.hash;
+            location.href = "/users/login?redirect=" + encodeURIComponent(returnUrl);
+        }
+
+        async function fetchJson(url, options = {}, onAuth = "silent") {
+            const res = await fetch(url, {
+                headers: {"Accept": "application/json", ...(options.headers || {})},
+                ...options
             });
 
             const ct = res.headers.get("content-type") || "";
@@ -668,6 +690,25 @@
             }
             if (!res.ok) throw new Error("HTTP " + res.status);
             return res;
+        }
+
+        function esc(s){
+            return String(s ?? "").replace(/[&<>"']/g, m => (
+                {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]
+            ));
+        }
+        function fmtDate(iso){
+            if(!iso) return "";
+            const d = new Date(iso);
+            const y = d.getFullYear();
+            const m = String(d.getMonth()+1).padStart(2,'0');
+            const day = String(d.getDate()).padStart(2,'0');
+            return `${y}.${m}.${day}`;
+        }
+        function isMine(r){
+            const v = (r?.mineYn ?? r?.myReviewYn ?? r?.myReview ?? r?.myYn);
+            const s = String(v ?? "").toUpperCase();
+            return s === "Y" || s === "TRUE" || s === "1";
         }
 
         // -----------------------------
@@ -909,20 +950,6 @@
             }
         }
 
-        function esc(s){
-            return String(s ?? "").replace(/[&<>"']/g, m => (
-                {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]
-            ));
-        }
-        function fmtDate(iso){
-            if(!iso) return "";
-            const d = new Date(iso);
-            const y = d.getFullYear();
-            const m = String(d.getMonth()+1).padStart(2,'0');
-            const day = String(d.getDate()).padStart(2,'0');
-            return `${y}.${m}.${day}`;
-        }
-
         async function loadReviewList(page = 1){
             reviewPage = Math.max(1, Number(page || 1));
 
@@ -933,8 +960,6 @@
             );
             if (!dto) return;
 
-            console.log(dto.items?.[0]);
-
             if (dto.summary) {
                 if (ratingAvgEl) ratingAvgEl.textContent = Number(dto.summary.ratingAvg ?? 0).toFixed(1);
                 if (reviewCntEl) reviewCntEl.textContent = String(dto.summary.reviewCnt ?? 0);
@@ -943,14 +968,6 @@
             renderReviewList(dto.items || []);
             renderReviewPager(dto.total ?? 0, dto.page ?? reviewPage, dto.size ?? reviewSize);
         }
-
-
-        function isMine(r){
-            const v = (r?.mineYn ?? r?.myReviewYn ?? r?.myReview ?? r?.myYn);
-            const s = String(v ?? "").toUpperCase();
-            return s === "Y" || s === "TRUE" || s === "1";
-        }
-
 
         function renderReviewList(items){
             const listEl = document.getElementById("reviewList");
@@ -968,11 +985,19 @@
 
             listEl.innerHTML = items.map(r => {
                 const mine = isMine(r);
+
                 const actions = mine ? `
           <div class="review-actions">
             <button type="button" class="review-act js-review-edit" data-feed-id="${esc(r.feedId)}">수정</button>
             <button type="button" class="review-act danger js-review-del" data-feed-id="${esc(r.feedId)}">삭제</button>
           </div>
+        ` : ``;
+
+                const reportBtn = (!mine) ? `
+          <button type="button"
+                  class="review-report js-report"
+                  data-feed-id="${esc(r.feedId)}"
+                  title="리뷰 신고">신고</button>
         ` : ``;
 
                 return `
@@ -983,11 +1008,11 @@
                 <span class="review-author">
                   ${esc(r.profileNm)} · ${esc(fmtDate(r.createdAt))}
                 </span>
+                ${reportBtn}
               </div>
 
               ${actions ? `<div class="review-meta-right">${actions}</div>` : ``}
             </div>
-
 
             ${r.title ? `<div style="font-weight:bold; margin-bottom:6px;">${esc(r.title)}</div>` : ``}
             <div class="review-body">${esc(r.content)}</div>
@@ -1091,7 +1116,6 @@
             myReviewBox.scrollIntoView({behavior:"smooth", block:"start"});
         }
 
-
         btnOpenReview?.addEventListener("click", async () => {
             try {
                 const perm = await fetchJson(`/book/review/permission?isbn13=${encodeURIComponent(isbn13)}`, {}, "redirect");
@@ -1107,8 +1131,6 @@
 
                 openMyReviewBox(hasReview ? "리뷰 수정" : "리뷰 작성", msg);
 
-                // (선택) 수정인데 내용 프리필하고 싶으면
-                // - 현재 페이지 리스트에 내 리뷰가 보이면 캐시에서 찾아 프리필
                 if (hasReview && editingFeedId) {
                     const mine = lastReviewItems.find(x => String(x.feedId) === String(editingFeedId));
                     if (mine) {
@@ -1143,7 +1165,6 @@
                     {
                         method: "POST",
                         headers: {"Content-Type": "application/json"},
-                        body: JSON.stringify({isbn13, rate, title, content})
                     },
                     "redirect"
                 );
@@ -1165,24 +1186,118 @@
             }
         });
 
-        // 리스트 내부 수정/삭제
+        // =============================
+        // 신고 처리(추가)
+        // =============================
+        function markReported(btn){
+            if (!btn) return;
+            btn.textContent = "신고됨";
+            btn.disabled = true;
+            btn.dataset.reported = "Y";
+        }
+
+        async function checkReported(feedId){
+            const data = await fetchJson(`/api/reports/exists?feedId=${encodeURIComponent(feedId)}`, {}, "redirect");
+            if (!data) return null; // redirect 됐거나 인증 실패
+            return !!data.reported;
+        }
+
+        async function createReport(feedId, reason){
+            const res = await fetch("/api/reports", {
+                method: "POST",
+                headers: {"Content-Type": "application/json", "Accept":"application/json"},
+                body: JSON.stringify({ feedId, reportContent: reason })
+            });
+            const data = await res.json().catch(() => ({}));
+            return { res, data };
+        }
+
+        // 리스트 내부 수정/삭제/신고
         document.getElementById("reviewList")?.addEventListener("click", async (e) => {
             const delBtn = e.target.closest(".js-review-del");
             const editBtn = e.target.closest(".js-review-edit");
+            const reportBtn = e.target.closest(".js-report");
 
+            // ---- 신고 ----
+            if (reportBtn) {
+                const feedId = reportBtn.dataset.feedId;
+                if (!feedId) return;
+
+                // 이미 UI에서 신고됨이면 종료
+                if (reportBtn.dataset.reported === "Y" || reportBtn.disabled) {
+                    alert("이미 신고한 리뷰입니다.");
+                    return;
+                }
+
+                // 1) 사전 체크(이미 신고했는지)
+                try {
+                    reportBtn.disabled = true;
+
+                    const already = await checkReported(feedId);
+                    if (already === null) return; // 로그인 redirect 됨
+                    if (already) {
+                        alert("이미 신고한 리뷰입니다.");
+                        markReported(reportBtn);
+                        return;
+                    }
+
+                    // 2) 사유 입력
+                    const reason = prompt("신고 사유를 입력해 주세요.");
+                    if (!reason || !reason.trim()) {
+                        reportBtn.disabled = false;
+                        return;
+                    }
+
+                    // 3) 신고 등록
+                    const { res, data } = await createReport(feedId, reason.trim());
+
+                    if (res.status === 401 || data.code === "UNAUTHORIZED") {
+                        alert("로그인이 필요합니다.");
+                        goLoginReturnHere();
+                        return;
+                    }
+
+                    if (data.code === "ALREADY_REPORTED") {
+                        alert("이미 신고한 리뷰입니다.");
+                        markReported(reportBtn);
+                        return;
+                    }
+
+                    if (data.code === "INVALID_TARGET") {
+                        alert("존재하지 않거나 삭제된 리뷰입니다.");
+                        reportBtn.disabled = false;
+                        return;
+                    }
+
+                    if (data.code === "OK") {
+                        alert("신고가 접수되었습니다.");
+                        markReported(reportBtn);
+                        return;
+                    }
+
+                    alert("신고 처리 중 오류가 발생했습니다.");
+                    reportBtn.disabled = false;
+
+                } catch (err) {
+                    console.error(err);
+                    alert("네트워크 오류가 발생했습니다.");
+                    reportBtn.disabled = false;
+                }
+                return;
+            }
+
+            // ---- 수정 ----
             if (editBtn) {
                 const feedId = editBtn.dataset.feedId;
                 const item = lastReviewItems.find(x => String(x.feedId) === String(feedId));
                 if (!item) return;
 
-                // 권한 체크(백엔드 permission은 isbn기준, 여기선 UI 프리필만)
                 editingFeedId = feedId;
 
                 if (reviewRateEl) reviewRateEl.value = String(item.rate ?? 5);
                 if (reviewTitleEl) reviewTitleEl.value = item.title ?? "";
                 if (reviewContentEl) reviewContentEl.value = item.content ?? "";
 
-                // permission 한번 더 조회해서 메시지/버튼상태 정확히
                 try {
                     const perm = await fetchJson(`/book/review/permission?isbn13=${encodeURIComponent(isbn13)}`, {}, "redirect");
                     if (!perm) return;
@@ -1197,6 +1312,7 @@
                 return;
             }
 
+            // ---- 삭제 ----
             if (delBtn) {
                 const feedId = delBtn.dataset.feedId;
                 if (!feedId) return;
@@ -1211,12 +1327,9 @@
                     }
 
                     alert("삭제되었습니다.");
-
-                    // 삭제 후: 현재 페이지 유지가 자연스러움(페이지가 비면 1로 보정)
                     await loadReviewList(Math.max(1, reviewPage));
                     await loadReviewStatus();
 
-                    // 폼 열려있고 삭제한게 편집중이면 리셋
                     if (editingFeedId && String(editingFeedId) === String(feedId)) {
                         editingFeedId = null;
                         if (reviewRateEl) reviewRateEl.value = "5";
@@ -1231,9 +1344,6 @@
         });
 
     });
-
-
-
 </script>
 
 <div th:replace="fragments/footer :: footer"></div>

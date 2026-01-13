@@ -24,9 +24,9 @@ public class MallangPickService {
             new HashtagDTO(656, "#생각이깊어지는"),
             new HashtagDTO(74, "#세상을읽다"),
             new HashtagDTO(170, "#돈과인생이야기"),
-            new HashtagDTO(987, "#호기심폭발"),
+            new HashtagDTO(48809, "#호기심폭발"),
             new HashtagDTO(517, "#취향저격"),
-            new HashtagDTO(1108, "#꿈이자라는")
+            new HashtagDTO(1143, "#꿈이자라는")
     );
 
     /* ===============================

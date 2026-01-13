@@ -17,19 +17,38 @@
     <h2 class="page-title">이벤트 상세</h2>
 
     <section class="card" id="detail">
-        <!-- ✅ 배너(상세 이미지) -->
+
+        <!-- ✅ 배너/상세 이미지 출력 규칙 -->
+        <!-- 1) DETAIL 이미지가 1개라도 있으면: DETAIL만 출력 -->
+        <!-- 2) DETAIL이 없으면: THUMB 출력 -->
+        <!-- 3) THUMB도 없으면: 기본 이미지 -->
         <div class="hero">
-            <img
-                    th:src="${(event.images != null and !event.images.isEmpty()) ? event.images[0].imgUrl : '/images/default-event.jpg'}"
-                    th:alt="${event.eventTitle}" />
+
+            <!-- ✅ DETAIL 먼저 -->
+            <th:block th:if="${event.images != null}">
+                <th:block th:if="${#lists.size(event.images.?[imgType == 'CONTENT']) > 0}">
+                    <th:block th:each="img : ${event.images.?[imgType == 'CONTENT']}">
+                        <img th:src="${img.imgUrl}"
+                             th:alt="${event.eventTitle}"
+                             class="hero-img" />
+                    </th:block>
+                </th:block>
+            </th:block>
+
+            <!-- ✅ images 자체가 null이면 기본 -->
+            <th:block th:if="${event.images == null}">
+                <img src="/images/default-event.jpg"
+                     th:alt="${event.eventTitle}"
+                     class="hero-img" />
+            </th:block>
+
         </div>
 
         <!-- ✅ 본문 -->
         <div class="content">
             <div class="kicker">
-                <!-- tab을 상세에서 안 넘겨도 기본 진행중 -->
-                <span class="badge"
-                      th:text="${tab != null ? (tab == 'ongoing' ? '진행중' : (tab == 'closing' ? '마감임박' : '마감')) : '진행중'}">
+        <span class="badge"
+              th:text="${tab != null ? (tab == 'ongoing' ? '진행중' : (tab == 'closing' ? '마감임박' : '마감')) : '진행중'}">
           진행중
         </span>
 

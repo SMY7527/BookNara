@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
@@ -63,6 +63,20 @@
         <ul class="space-y-1">
             <li><a href="/admin/Settings" class="nav-item"><i class="fas fa-cog w-5 text-center"></i> 시스템 설정</a></li>
         </ul>
+    </div>
+    <div class="p-6 bg-black/10">
+        <div class="flex items-center justify-between group">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center font-bold text-sm border border-white/10">AD</div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-bold truncate">관리자 님</p>
+                    <p class="text-[10px] text-white/50 uppercase tracking-tighter font-medium">Master Account</p>
+                </div>
+            </div>
+            <form th:action="@{/logout}" method="post">
+                <button type="submit" class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-red-500/20 hover:text-red-300 transition-all text-white/50"><i class="fas fa-sign-out-alt text-sm"></i></button>
+            </form>
+        </div>
     </div>
 </nav>
 

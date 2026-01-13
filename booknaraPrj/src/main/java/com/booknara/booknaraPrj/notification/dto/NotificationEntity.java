@@ -27,8 +27,8 @@ public class NotificationEntity {
     @Column(name = "NOTI_CONTENT", nullable = false, length = 500)
     String notiContent;
 
-    @Column(name = "CREATED_AT", nullable = false)
-    private LocalDateTime createdAt;
+//    @Column(name = "CREATED_AT", nullable = false)
+//    private LocalDateTime createdAt;
 
     @Column(name = "CHECK_YN", nullable = false, length = 1)
     private char checkYn; // 'N' or 'Y'

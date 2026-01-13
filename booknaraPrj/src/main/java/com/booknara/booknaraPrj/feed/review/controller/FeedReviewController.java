@@ -20,8 +20,13 @@ public class FeedReviewController {
     private final FeedReviewService service;
 
     private String userId(Authentication auth) {
-        return auth == null ? null : auth.getName();
+        if (auth == null) return null;
+        String name = auth.getName();
+        if (name == null) return null;
+        if ("anonymousUser".equalsIgnoreCase(name)) return null; // 핵심
+        return name;
     }
+
 
     @GetMapping("/permission")
     public ReviewPermissionDTO permission(@RequestParam String isbn13, Authentication auth) {
@@ -48,6 +53,8 @@ public class FeedReviewController {
         String userId = (auth == null ? null : auth.getName());
         return service.getPage(isbn13, page, size, userId); //  추가
     }
+
+
 
     @DeleteMapping("/{feedId}")
     public Map<String, Object> delete(@PathVariable String feedId, Authentication auth) {

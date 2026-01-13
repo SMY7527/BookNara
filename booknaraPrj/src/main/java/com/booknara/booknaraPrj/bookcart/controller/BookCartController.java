@@ -11,6 +11,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Map;
+
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/book/cart")
@@ -29,7 +31,7 @@ public class BookCartController {
     @GetMapping
     public String cartPage(Authentication auth, Model model) {
         String userId = getUserId(auth);
-        model.addAttribute("items", service.list(userId));
+        model.addAttribute("items", service.listWithLendable(userId));
         model.addAttribute("quota", service.getLendQuota(userId));
         return "bookcart/cart";
     }
@@ -44,10 +46,18 @@ public class BookCartController {
 
     @GetMapping("/{isbn13}/status")
     @ResponseBody
-    public java.util.Map<String, Object> status(@PathVariable String isbn13, Authentication auth) {
-        boolean inCart = service.isInCart(getUserId(auth), isbn13);
-        return java.util.Map.of("inCart", inCart);
+    public Map<String, Object> cartStatus(@PathVariable String isbn13, Authentication auth) {
+
+        // ✅ 익명도 비로그인 취급
+        if (auth == null || auth instanceof AnonymousAuthenticationToken) {
+            return Map.of("inCart", false);
+        }
+
+        String userId = auth.getName();
+        boolean inCart = service.isInCart(userId, isbn13);
+        return Map.of("inCart", inCart);
     }
+
 
 
 

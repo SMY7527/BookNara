@@ -43,9 +43,10 @@
   async function copyText(text) {
     try {
       await navigator.clipboard.writeText(text);
-      toast("복사했어!");
+      toast("복사되었습니다!");
     } catch (e) {
-      toast("복사 실패! 드래그해서 복사해줘.");
+      // toast("복사 실패! 드래그해서 복사해줘.");
+      toast("복사 실패했습니다.\n관리자에게 문의해 주세요.");
     }
   }
 
@@ -72,7 +73,7 @@
           <span class="station-title">${name}</span>
         </div>
         <div class="station-actions">
-          <button class="small-btn" type="button" data-copy="${name}">복사</button>
+          <!--<button class="small-btn" type="button" data-copy="${name}">복사</button>-->
           <button class="small-btn" type="button" data-naver="${name}">네이버지도</button>
           <button class="small-btn" type="button" data-kakao="${name}">카카오맵</button>
         </div>

@@ -22,5 +22,4 @@ public class ReviewItemDTO {
 
     private LocalDateTime createdAt;
     private String mineYn;   // "Y" / "N"
-
 }

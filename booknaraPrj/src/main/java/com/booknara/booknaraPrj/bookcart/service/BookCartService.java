@@ -4,6 +4,7 @@ import com.booknara.booknaraPrj.bookcart.dto.BookCartDTO;
 import com.booknara.booknaraPrj.bookcart.dto.LendQuotaDTO;
 import com.booknara.booknaraPrj.bookcart.dto.UserAddressDTO;
 import com.booknara.booknaraPrj.bookcart.mapper.BookCartMapper;
+import com.booknara.booknaraPrj.bookcirculation.command.mapper.BookCirculationCommandMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,9 +39,12 @@ public class BookCartService {
         return true; // 이제 장바구니 됨
     }
 
-
-    public List<BookCartDTO> list(String userId) {
-        return mapper.selectList(userId);
+    public List<BookCartDTO> listWithLendable(String userId) {
+        List<BookCartDTO> list = mapper.selectList(userId);
+        for (BookCartDTO dto : list) {
+            dto.setLendableYn(isLendable(dto.getIsbn13()));
+        }
+        return list;
     }
 
     public LendQuotaDTO getLendQuota(String userId) {
@@ -77,6 +81,9 @@ public class BookCartService {
         mapper.updateMyDefaultAddress(dto);
     }
 
-
+    //대여 가능여부 판단
+    public boolean isLendable(String isbn13) {
+        return Boolean.TRUE.equals(mapper.isLendableByIsbn(isbn13));
+    }
 
 }

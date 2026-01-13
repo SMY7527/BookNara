@@ -36,10 +36,12 @@ public interface BookCartMapper {
     int existsByIsbn(@Param("userId") String userId,
                      @Param("isbn13") String isbn13);
 
-
     //유저 주소 삽입
     UserAddressDTO selectMyDefaultAddress(@Param("userId") String userId);
     int updateMyDefaultAddress(UserAddressDTO dto);
 
+
+    //isbn별 대여 가능 여부
+    Boolean isLendableByIsbn(@Param("isbn13") String isbn13);
 
 }

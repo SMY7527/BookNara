@@ -22,4 +22,10 @@ public class MyLendDto {
     private Integer extendCnt;
 
     private String overDue; // Y/N
+
+    // ✅ 추가
+    private String ebookYn;   // Y / N
+    private String epub;      // ebook 링크 (또는 파일 경로)
+
+
 }

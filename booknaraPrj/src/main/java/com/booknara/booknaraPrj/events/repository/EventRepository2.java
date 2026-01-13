@@ -1,6 +1,5 @@
 package com.booknara.booknaraPrj.events.repository;
 
-
 import com.booknara.booknaraPrj.events.dto.EventDTO;
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.stereotype.Repository;
@@ -28,20 +27,15 @@ public class EventRepository2 {
         return sqlSession.selectList("event.selectClosedWithMainImage");
     }
 
-    // (원하면 유지)
-    public List<EventDTO> findAll(){
+    public List<EventDTO> findAll() {
         return sqlSession.selectList("event.selectAll2");
     }
 
-
-    public  EventDTO  findById( String id){
-        return  sqlSession.selectOne("event.selectById", id);
-
+    public EventDTO findById(String id) {
+        return sqlSession.selectOne("event.selectById", id);
     }
 
     public int insertEvent(EventDTO dto) {
         return sqlSession.insert("event.insertEvent", dto);
     }
-
-
 }

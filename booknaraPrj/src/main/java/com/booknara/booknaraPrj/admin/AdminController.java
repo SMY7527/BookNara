@@ -17,6 +17,8 @@ import com.booknara.booknaraPrj.admin.settings.AdminSettingsService;
 import com.booknara.booknaraPrj.admin.statistics.StatisticsService;
 import com.booknara.booknaraPrj.admin.users.UserService;
 import com.booknara.booknaraPrj.admin.users.Users;
+import com.booknara.booknaraPrj.notification.dto.NotificationEntity;
+import com.booknara.booknaraPrj.notification.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
@@ -58,6 +60,7 @@ public class AdminController {
     private final AdminGenreService adminGenreService;
     private final StatisticsService statisticsService;
     private final AdminNotificationService adminNotificationService;
+    private final NotificationService notificationService;
 
     @GetMapping("/BookManageMent")
     public String bookManagement(
@@ -337,6 +340,15 @@ public class AdminController {
         adminInquiry.setRespUserId("admin");
 
         adminInquiryService.save(adminInquiry);
+
+        // 문의 답장 알림 저장
+        NotificationEntity notiEntity = new NotificationEntity();
+        notiEntity.setUserId(adminInquiry.getUser().getUserId());
+        notiEntity.setTargetType("INQUIRY_ANSWERED");
+        notiEntity.setTargetId(inqId);
+        notiEntity.setNotiContent("문의 답변이 완료되었습니다.");
+        notiEntity.setCheckYn('N');
+        notificationService.saveNotification(notiEntity);
         return "redirect:/admin/Inquiries";
     }
 

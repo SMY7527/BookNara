@@ -7,111 +7,114 @@
     <select id="getStatus" resultType="com.booknara.booknaraPrj.bookcirculation.status.dto.BookCirculationStatusDTO">
         WITH
         owned AS (
-        SELECT b.ISBN13, COUNT(*) AS ownedCnt
-        FROM BOOKS b
-        WHERE b.ISBN13 = #{isbn13}
-        AND b.BOOK_STATE = 'N'
-        GROUP BY b.ISBN13
+        SELECT B.ISBN13, COUNT(*) AS ownedCnt
+        FROM BOOKS B
+        WHERE B.ISBN13 = #{isbn13}
+        AND B.BOOK_STATE = 'N'
+        GROUP BY B.ISBN13
         ),
         lending AS (
-        SELECT bx.ISBN13, COUNT(*) AS lendingCnt
-        FROM LENDS l
-        JOIN BOOKS bx ON bx.BOOK_ID = l.BOOK_ID
-        WHERE bx.ISBN13 = #{isbn13}
-        AND l.RETURN_DONE_AT IS NULL
-        GROUP BY bx.ISBN13
+        SELECT BX.ISBN13, COUNT(*) AS lendingCnt
+        FROM LENDS L
+        JOIN BOOKS BX ON BX.BOOK_ID = L.BOOK_ID
+        WHERE BX.ISBN13 = #{isbn13}
+        AND L.RETURN_DONE_AT IS NULL
+        GROUP BY BX.ISBN13
         ),
         rsv AS (
-        SELECT r.ISBN13,
+        SELECT R.ISBN13,
         COUNT(*) AS rsvActiveCnt,
         CASE WHEN COUNT(*) >= 10 THEN 'Y' ELSE 'N' END AS rsvLimitYn
-        FROM RESERVATIONS r
-        WHERE r.ISBN13 = #{isbn13}
-        AND r.ACTIVE_FLAG = 1
-        GROUP BY r.ISBN13
+        FROM RESERVATIONS R
+        WHERE R.ISBN13 = #{isbn13}
+        AND R.ACTIVE_FLAG = 1
+        GROUP BY R.ISBN13
         )
 
         <if test="userId != null and userId != ''">
             ,
             my_lend AS (
-            SELECT bx.ISBN13,
-            MAX(l.LEND_ID) AS myLendId,
-            'Y' AS myLendYn,
+            SELECT BX.ISBN13,
+            MAX(L.LEND_ID) AS myLendId,
+            'Y'            AS myLendYn,
             CASE
-            WHEN MAX(l.EXTEND_CNT) = 0
-            AND MAX(l.RETURN_DUE_DATE) &lt;= (NOW() + INTERVAL 7 DAY)
+            WHEN MAX(L.EXTEND_CNT) = 0
+            AND MAX(L.RETURN_DUE_DATE) &lt;= (NOW() + INTERVAL 7 DAY)
             THEN 'Y' ELSE 'N'
-            END AS myExtendYn
-            FROM LENDS l
-            JOIN BOOKS bx ON bx.BOOK_ID = l.BOOK_ID
-            WHERE bx.ISBN13 = #{isbn13}
-            AND l.USER_ID = #{userId}
-            AND l.RETURN_DONE_AT IS NULL
-            GROUP BY bx.ISBN13
+            END            AS myExtendYn
+            FROM LENDS L
+            JOIN BOOKS BX ON BX.BOOK_ID = L.BOOK_ID
+            WHERE BX.ISBN13 = #{isbn13}
+            AND L.USER_ID = #{userId}
+            AND L.RETURN_DONE_AT IS NULL
+            GROUP BY BX.ISBN13
             ),
             my_rsv AS (
-            SELECT r.ISBN13,
-            MAX(r.RSV_ID) AS myRsvId,
-            'Y' AS myRsvYn
-            FROM RESERVATIONS r
-            WHERE r.ISBN13 = #{isbn13}
-            AND r.USER_ID = #{userId}
-            AND r.ACTIVE_FLAG = 1
-            GROUP BY r.ISBN13
+            SELECT R.ISBN13,
+            MAX(R.RSV_ID) AS myRsvId,
+            'Y'           AS myRsvYn
+            FROM RESERVATIONS R
+            WHERE R.ISBN13 = #{isbn13}
+            AND R.USER_ID = #{userId}
+            AND R.ACTIVE_FLAG = 1
+            GROUP BY R.ISBN13
             ),
             user_blocked AS (
-            SELECT CASE WHEN u.USER_STATE IN (3,4) THEN 'Y' ELSE 'N' END AS userBlockedYn
-            FROM USERS u
-            WHERE u.USER_ID = #{userId}
+            SELECT CASE WHEN U.USER_STATE IN (3,4) THEN 'Y' ELSE 'N' END AS userBlockedYn
+            FROM USERS U
+            WHERE U.USER_ID = #{userId}
             ),
             user_overdue AS (
             SELECT CASE WHEN EXISTS (
             SELECT 1
-            FROM LENDS l
-            WHERE l.USER_ID = #{userId}
-            AND l.RETURN_DONE_AT IS NULL
-            AND l.OVER_DUE = 'Y'
+            FROM LENDS L
+            WHERE L.USER_ID = #{userId}
+            AND L.RETURN_DONE_AT IS NULL
+            AND L.OVER_DUE = 'Y'
             ) THEN 'Y' ELSE 'N' END AS userOverdueYn
             )
         </if>
 
         SELECT
         #{isbn13} AS isbn13,
-        IFNULL(owned.ownedCnt, 0) AS ownedCnt,
+
+        IFNULL(owned.ownedCnt, 0)     AS ownedCnt,
         IFNULL(lending.lendingCnt, 0) AS lendingCnt,
+
         GREATEST(IFNULL(owned.ownedCnt,0) - IFNULL(lending.lendingCnt,0), 0) AS availableCnt,
-        IFNULL(rsv.rsvActiveCnt, 0) AS rsvActiveCnt,
-        IFNULL(rsv.rsvLimitYn, 'N') AS rsvLimitYn
+
+        IFNULL(rsv.rsvActiveCnt, 0)   AS rsvActiveCnt,
+        IFNULL(rsv.rsvLimitYn, 'N')   AS rsvLimitYn
 
         <choose>
             <when test="userId != null and userId != ''">
-                ,IFNULL(my_lend.myLendYn, 'N') AS myLendYn
+                ,IFNULL(my_lend.myLendYn, 'N')   AS myLendYn
                 ,IFNULL(my_lend.myExtendYn, 'N') AS myExtendYn
-                ,my_lend.myLendId AS myLendId
-                ,IFNULL(my_rsv.myRsvYn, 'N') AS myRsvYn
-                ,my_rsv.myRsvId AS myRsvId
+                ,my_lend.myLendId                AS myLendId
+                ,IFNULL(my_rsv.myRsvYn, 'N')     AS myRsvYn
+                ,my_rsv.myRsvId                  AS myRsvId
                 ,IFNULL((SELECT userBlockedYn FROM user_blocked), 'N') AS userBlockedYn
                 ,IFNULL((SELECT userOverdueYn FROM user_overdue), 'N') AS userOverdueYn
             </when>
             <otherwise>
-                ,'N' AS myLendYn
-                ,'N' AS myExtendYn
+                ,'N'  AS myLendYn
+                ,'N'  AS myExtendYn
                 ,NULL AS myLendId
-                ,'N' AS myRsvYn
+                ,'N'  AS myRsvYn
                 ,NULL AS myRsvId
-                ,'N' AS userBlockedYn
-                ,'N' AS userOverdueYn
+                ,'N'  AS userBlockedYn
+                ,'N'  AS userOverdueYn
             </otherwise>
         </choose>
 
         FROM (SELECT 1) x
-        LEFT JOIN owned ON owned.ISBN13 = #{isbn13}
+        LEFT JOIN owned   ON owned.ISBN13   = #{isbn13}
         LEFT JOIN lending ON lending.ISBN13 = #{isbn13}
-        LEFT JOIN rsv ON rsv.ISBN13 = #{isbn13}
+        LEFT JOIN rsv     ON rsv.ISBN13     = #{isbn13}
 
         <if test="userId != null and userId != ''">
             LEFT JOIN my_lend ON my_lend.ISBN13 = #{isbn13}
-            LEFT JOIN my_rsv ON my_rsv.ISBN13 = #{isbn13}
+            LEFT JOIN my_rsv  ON my_rsv.ISBN13  = #{isbn13}
         </if>
     </select>
 
@@ -128,8 +131,5 @@
         ORDER BY SETTINGS_ID DESC
             LIMIT 1
     </select>
-
-
-
 
 </mapper>

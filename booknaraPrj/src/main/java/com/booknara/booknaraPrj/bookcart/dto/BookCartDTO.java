@@ -11,5 +11,6 @@ public class BookCartDTO {
     private String naverImage;
     private String aladinImageBig;
     private String ebookYn;
+    private Boolean lendableYn;
 }
 

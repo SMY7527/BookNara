@@ -18,7 +18,7 @@
         <header class="card__header">
             <div class="badge">ADMIN</div>
             <h1 class="title">이벤트 등록</h1>
-            <p class="desc">제목, 기간, 썸네일을 등록하면 이벤트 목록에 바로 노출돼요.</p>
+            <p class="desc">제목, 기간, 이미지를 등록하면 이벤트 목록/상세에 바로 노출돼요. (첫 번째 파일=썸네일)</p>
         </header>
 
         <form class="form" th:action="@{/event/register}" method="post" enctype="multipart/form-data">
@@ -50,17 +50,31 @@
                               placeholder="이벤트 상세 안내를 작성하세요 (혜택/대상/유의사항 등)" required rows="7"></textarea>
                 </div>
 
-                <!-- 썸네일 -->
+                <!-- 이미지 업로드: files 하나로 통합 -->
                 <div class="field col-12">
-                    <label class="label" for="thumbFile">썸네일 이미지</label>
+                    <label class="label" for="files">이미지 업로드</label>
+
                     <div class="filebox">
-                        <input class="file" id="thumbFile" type="file" name="thumbFile" accept=".jpg,.jpeg,.png,image/jpeg,image/png">
-                        >
+                        <!-- ✅ name="files" + multiple (첫 번째=썸네일, 나머지=상세) -->
+                        <input class="file" id="files" type="file" name="files"
+                               accept="image/jpeg,image/png"
+                               multiple>
+
                         <div class="file__meta">
                             <div class="file__name" id="fileName">선택된 파일 없음</div>
-                            <div class="help">권장: 1200×675, JPG/PNG</div>
+
+                            <!-- ✅ 안내는 hint로 분리 -->
+                            <div class="file__hint">
+                                첫 번째 파일은 <b>썸네일</b>, 두 번째부터는 <b>메인 갤러리</b>로 저장, 세 번째 파일은<b> 상세 이미지</b>에 저장됨. (JPG/PNG)
+                            </div>
+
+                            <div class="help">용량 제한: 대표 10MB / 전체 40MB (권장: 1200×675)</div>
                         </div>
-                        <div class="preview" id="preview" aria-label="thumbnail preview"></div>
+
+
+
+                        <!-- 미리보기 영역 -->
+                        <div class="preview-list" id="previewList" aria-label="image previews"></div>
                     </div>
                 </div>
             </div>
@@ -71,55 +85,104 @@
             </footer>
         </form>
     </section>
-
-    <input type="file" name="thumbFile" accept="image/*" onchange="checkSize(this, 10)" />
-    <input type="file" name="detailFiles" accept="image/*" multiple onchange="checkMultiSize(this, 40)" />
-    <script>
-        function checkSize(input, limitMB){
-          const f = input.files?.[0];
-          if(!f) return;
-          const mb = f.size / (1024*1024);
-          if(mb > limitMB){
-            alert(`파일이 너무 큽니다. (최대 ${limitMB}MB)`);
-            input.value = "";
-          }
-        }
-        function checkMultiSize(input, limitMB){
-          const files = [...(input.files||[])];
-          const total = files.reduce((a,f)=>a+f.size,0)/(1024*1024);
-          if(total > limitMB){
-            alert(`전체 파일 용량이 너무 큽니다. (총합 최대 ${limitMB}MB)`);
-            input.value = "";
-          }
-        }
-    </script>
-
 </main>
 
 <script>
-    // 파일명 + 미리보기
-    const fileInput = document.getElementById('thumbFile');
-    const fileName = document.getElementById('fileName');
-    const preview = document.getElementById('preview');
+    // ====== 설정(용량 제한) ======
+    const THUMB_LIMIT_MB = 10;   // 첫번째 파일(썸네일)
+    const TOTAL_LIMIT_MB = 40;   // 전체 합계
 
+    // ====== DOM ======
+    const fileInput  = document.getElementById('files');
+    const fileNameEl = document.getElementById('fileName');
+    const previewList = document.getElementById('previewList');
+
+    // ====== 유틸 ======
+    function mb(bytes){ return bytes / (1024 * 1024); }
+
+    function clearPreview(){
+      previewList.innerHTML = '';
+    }
+
+    function addPreviewCard(url, labelText){
+      const card = document.createElement('div');
+      card.className = 'preview-card';
+
+      const badge = document.createElement('div');
+      badge.className = 'preview-badge';
+      badge.textContent = labelText;
+
+      const img = document.createElement('div');
+      img.className = 'preview-img';
+      img.style.backgroundImage = `url('${url}')`;
+
+      card.appendChild(badge);
+      card.appendChild(img);
+      previewList.appendChild(card);
+    }
+
+    function validateFiles(files){
+      if(!files || files.length === 0) return true;
+
+      // 1) 첫 파일 용량 체크
+      const first = files[0];
+      if(mb(first.size) > THUMB_LIMIT_MB){
+        alert(`대표(첫 번째) 이미지가 너무 큽니다. (최대 ${THUMB_LIMIT_MB}MB)`);
+        return false;
+      }
+
+      // 2) 전체 용량 체크
+      const totalBytes = files.reduce((sum, f) => sum + (f?.size || 0), 0);
+      if(mb(totalBytes) > TOTAL_LIMIT_MB){
+        alert(`전체 파일 용량이 너무 큽니다. (총합 최대 ${TOTAL_LIMIT_MB}MB)`);
+        return false;
+      }
+
+      // 3) 타입 체크 (브라우저에서 1차 거르지만 이중 안전)
+      for(const f of files){
+        if(!f) continue;
+        const ok = (f.type === 'image/jpeg' || f.type === 'image/png');
+        if(!ok){
+          alert('jpg, png 이미지만 업로드 가능합니다.');
+          return false;
+        }
+      }
+      return true;
+    }
+
+    // ====== 파일명 + 미리보기 ======
     fileInput?.addEventListener('change', (e) => {
-      const file = e.target.files?.[0];
-      if (!file) {
-        fileName.textContent = '선택된 파일 없음';
-        preview.style.backgroundImage = '';
-        preview.classList.remove('on');
+      const files = Array.from(e.target.files || []);
+      if(files.length === 0){
+        fileNameEl.textContent = '선택된 파일 없음';
+        clearPreview();
         return;
       }
-      fileName.textContent = file.name;
 
-      if (file.type.startsWith('image/')) {
-        const url = URL.createObjectURL(file);
-        preview.style.backgroundImage = `url('${url}')`;
-        preview.classList.add('on');
+      // 파일 검증
+      if(!validateFiles(files)){
+        e.target.value = '';
+        fileNameEl.textContent = '선택된 파일 없음';
+        clearPreview();
+        return;
       }
+
+      // 파일명 표시
+      fileNameEl.textContent = files.length === 1
+        ? files[0].name
+        : `${files[0].name} 외 ${files.length - 1}개`;
+
+      // 미리보기
+      clearPreview();
+      files.forEach((f, idx) => {
+        if(!f.type.startsWith('image/')) return;
+        const url = URL.createObjectURL(f);
+        const label = (idx === 0) ? '썸네일(대표)' : `상세 ${idx}`;
+        addPreviewCard(url, label);
+      });
     });
 
-    // 날짜 검증(UX)
+    // ====== 날짜 검증(UX) ======
     const startAt = document.getElementById('startAt');
     const endAt = document.getElementById('endAt');
     const warn = document.getElementById('dateWarn');
@@ -128,13 +191,141 @@
       if (!startAt.value || !endAt.value) { warn.style.display = 'none'; return; }
       const s = new Date(startAt.value);
       const e = new Date(endAt.value);
-      const ok = e > s;
-      warn.style.display = ok ? 'none' : 'block';
+      warn.style.display = (e > s) ? 'none' : 'block';
     }
     startAt?.addEventListener('change', validateDates);
     endAt?.addEventListener('change', validateDates);
+
+
+    (function () {
+      const fileInput = document.getElementById('files');
+      const fileNameEl = document.getElementById('fileName');
+      const previewList = document.getElementById('previewList');
+
+      // 용량 제한(원하면 여기만 바꾸면 됨)
+      const THUMB_LIMIT_MB = 10;   // 첫 번째 파일(썸네일)
+      const TOTAL_LIMIT_MB = 40;   // 전체 합
+
+      // 허용 타입(서버 검사와 맞추기)
+      const ALLOWED_MIME = new Set(['image/jpeg', 'image/png']);
+      const ALLOWED_EXT = new Set(['jpg', 'jpeg', 'png']);
+
+      function bytesToMB(bytes) {
+        return bytes / (1024 * 1024);
+      }
+
+      function resetUI(message) {
+        if (message) alert(message);
+        if (fileInput) fileInput.value = "";
+        if (fileNameEl) fileNameEl.textContent = "선택된 파일 없음";
+        if (previewList) previewList.innerHTML = "";
+      }
+
+      function isAllowedFile(file) {
+        // 1) MIME 우선 체크
+        if (file.type && !ALLOWED_MIME.has(file.type)) return false;
+
+        // 2) 확장자도 체크(이중 안전장치)
+        const name = (file.name || "").toLowerCase();
+        const dot = name.lastIndexOf('.');
+        if (dot < 0) return false;
+        const ext = name.substring(dot + 1);
+        return ALLOWED_EXT.has(ext);
+      }
+
+      function renderPreviews(files) {
+        previewList.innerHTML = "";
+
+        files.forEach((file, idx) => {
+          const item = document.createElement('div');
+          item.className = 'preview-item' + (idx === 0 ? ' is-thumb' : '');
+
+          const img = document.createElement('img');
+          img.alt = file.name;
+
+          // 이미지 URL 생성(미리보기용)
+          const url = URL.createObjectURL(file);
+          img.src = url;
+
+          // 메모리 누수 방지
+          img.addEventListener('load', () => URL.revokeObjectURL(url));
+
+          item.appendChild(img);
+          previewList.appendChild(item);
+        });
+      }
+
+      function updateFileNameText(files) {
+        if (!files.length) {
+          fileNameEl.textContent = "선택된 파일 없음";
+          return;
+        }
+        const first = files[0]?.name ?? "";
+        fileNameEl.textContent = files.length === 1
+          ? first
+          : `${files.length}개 선택됨 (썸네일: ${first})`;
+      }
+
+      function validateFiles(files) {
+        // 0) 파일 없음
+        if (!files.length) return true;
+
+        // 1) 타입 검사
+        for (const f of files) {
+          if (!isAllowedFile(f)) {
+            resetUI("jpg/png 이미지만 업로드 가능합니다.");
+            return false;
+          }
+        }
+
+        // 2) 용량 검사: 썸네일(첫 파일)
+        const thumbMB = bytesToMB(files[0].size);
+        if (thumbMB > THUMB_LIMIT_MB) {
+          resetUI(`대표(첫 번째) 이미지가 너무 큽니다. (최대 ${THUMB_LIMIT_MB}MB)`);
+          return false;
+        }
+
+        // 3) 용량 검사: 전체 합
+        const totalBytes = files.reduce((sum, f) => sum + f.size, 0);
+        const totalMB = bytesToMB(totalBytes);
+        if (totalMB > TOTAL_LIMIT_MB) {
+          resetUI(`전체 파일 용량이 너무 큽니다. (총합 최대 ${TOTAL_LIMIT_MB}MB)`);
+          return false;
+        }
+
+        return true;
+      }
+
+      if (!fileInput) return;
+
+      fileInput.addEventListener('change', (e) => {
+        const files = Array.from(e.target.files || []);
+
+        // UI 초기 상태
+        if (!files.length) {
+          updateFileNameText(files);
+          previewList.innerHTML = "";
+          return;
+        }
+
+        // 검사
+        if (!validateFiles(files)) return;
+
+        // 정상일 때 UI 반영
+        updateFileNameText(files);
+        renderPreviews(files);
+      });
+    })();
+
+
 </script>
 <div th:replace="fragments/footer :: footer"></div>
+
+<!--
+  ✅ 참고:
+  preview-list / preview-card / preview-badge / preview-img 클래스는 eventForm.css에 스타일 추가하면 더 예뻐짐.
+
+-->
 
 </body>
 </html>

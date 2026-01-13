@@ -15,7 +15,10 @@ public class InformationController {
 
     }
 
-
+    @GetMapping("/location")
+    public String locationView(){
+        return "/information/location";
+    }
 
     @GetMapping("/flow")
     public String flowView(){

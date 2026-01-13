@@ -5,7 +5,6 @@
 
 <mapper namespace="com.booknara.booknaraPrj.bookMark.mapper.BookmarkMapper">
 
-    <!-- 북마크 여부 -->
     <select id="selectBookmarkYn" resultType="string">
         SELECT BOOKMARK_YN
         FROM BOOKMARK
@@ -13,25 +12,31 @@
           AND USER_ID = #{userId}
     </select>
 
-    <!-- 없으면 INSERT / 있으면 Y로 UPDATE -->
     <insert id="upsertBookmark">
-        INSERT INTO BOOKMARK (ISBN13, USER_ID, BOOKMARK_YN)
-        VALUES (#{isbn13}, #{userId}, 'Y')
+        INSERT INTO BOOKMARK (
+            ISBN13,
+            USER_ID,
+            BOOKMARK_YN
+        )
+        VALUES (
+                   #{isbn13},
+                   #{userId},
+                   'Y'
+               )
             ON DUPLICATE KEY UPDATE
                                  BOOKMARK_YN = 'Y',
-                                 UPDATED_AT = CURRENT_TIMESTAMP
+                                 UPDATED_AT  = CURRENT_TIMESTAMP
     </insert>
 
-    <!-- 북마크 해제 -->
     <update id="cancelBookmark">
         UPDATE BOOKMARK
-        SET BOOKMARK_YN = 'N',
-            UPDATED_AT = CURRENT_TIMESTAMP
+        SET
+            BOOKMARK_YN = 'N',
+            UPDATED_AT  = CURRENT_TIMESTAMP
         WHERE ISBN13 = #{isbn13}
           AND USER_ID = #{userId}
     </update>
 
-    <!-- 특정 책 북마크 수(활성만 카운트) -->
     <select id="countBookmarkByIsbn" resultType="int">
         SELECT COUNT(*)
         FROM BOOKMARK

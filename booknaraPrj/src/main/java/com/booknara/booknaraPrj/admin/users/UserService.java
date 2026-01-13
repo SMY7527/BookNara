@@ -1,5 +1,7 @@
 package com.booknara.booknaraPrj.admin.users;
 
+import com.booknara.booknaraPrj.notification.dto.NotificationEntity;
+import com.booknara.booknaraPrj.notification.service.NotificationService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -17,6 +19,7 @@ import java.util.Map;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final NotificationService notificationService;
 
     /**
      * 전체 유저 리스트 조회
@@ -82,6 +85,18 @@ public class UserService {
                 .orElseThrow(() -> new IllegalArgumentException("해당 유저가 존재하지 않습니다. ID: " + userId));
 
         user.setUserState(newState); // 더티 체킹에 의해 자동 업데이트
+
+        System.out.println(newState);
+        if(newState.equals("3")) {
+            // 문의 답장 알림 저장
+            NotificationEntity notiEntity = new NotificationEntity();
+            notiEntity.setUserId(userId);
+            notiEntity.setTargetType("ACCOUNT_RESTRICTED");
+            notiEntity.setTargetId(null);
+            notiEntity.setNotiContent("정책 위반으로 계정이 제한되었습니다.");
+            notiEntity.setCheckYn('N');
+            notificationService.saveNotification(notiEntity);
+        }
     }
 
     @Transactional

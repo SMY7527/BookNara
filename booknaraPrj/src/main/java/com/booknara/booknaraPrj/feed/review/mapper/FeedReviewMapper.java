@@ -53,4 +53,5 @@ public interface FeedReviewMapper {
     int deleteReviewFeedByOwner(@Param("feedId") String feedId,
                                 @Param("userId") String userId);
 
+
 }

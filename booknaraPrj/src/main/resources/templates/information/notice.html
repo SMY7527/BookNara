@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>공지사항</title>
+
+    <link rel="stylesheet" th:href="@{/css/common.css}" />
+    <link rel="stylesheet" th:href="@{/css/notice.css}" />
+  </head>
+
+  <body>
+  <!-- ================= 헤더 ================= -->
+  <div th:replace="fragments/header :: header"></div>
+
+    <main class="container">
+      <h2 class="page-title">공지사항</h2>
+
+      <section class="notice-card">
+        <div class="notice-top">
+          <div class="search">
+            <input id="searchInput" type="text" placeholder="검색어 입력" />
+            <button id="searchBtn" type="button" aria-label="검색">🔍</button>
+          </div>
+        </div>
+
+        <ul id="noticeList" class="notice-list"></ul>
+
+        <div id="paging" class="paging"></div>
+      </section>
+    </main>
+
+    <script th:src="@{/js/common.js}" defer></script>
+    <script th:src="@{/js/notice.js}" defer></script>
+  </body>
+</html>

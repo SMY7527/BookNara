@@ -402,7 +402,7 @@
 </head>
 
 <body>
-<div th:replace="fragments/header :: header"></div>
+<div th:replace="~{fragments/header :: header}"></div>
 
 <div class="wrap">
     <div class="wrap-inner">
@@ -607,55 +607,39 @@
 <script th:inline="javascript">
     document.addEventListener("DOMContentLoaded", () => {
 
-        // ==========================================
-    // [추가] 최근 본 책 저장 로직
-    // ==========================================
-    const saveRecentBook = () => {
-        const bookData = {
-            isbn13: /*[[${view.bookDetailDTO.isbn13}]]*/ "",
-            bookTitle: /*[[${view.bookDetailDTO.bookTitle}]]*/ "",
-            // 네이버 이미지가 없으면 알라딘 이미지를 저장
-            bookImg: /*[[${#strings.isEmpty(view.bookDetailDTO.naverImage) ? view.bookDetailDTO.aladinImageBig : view.bookDetailDTO.naverImage}]]*/ ""
-        };
-
-        if (!bookData.isbn13) return;
-
-        let recent = JSON.parse(localStorage.getItem("recentBooks")) || [];
-
-        // 1. 중복 제거 (이미 목록에 있으면 삭제)
-        recent = recent.filter(item => item.isbn13 !== bookData.isbn13);
-
-        // 2. 새로운 책을 맨 앞에 추가
-        recent.unshift(bookData);
-
-        // 3. 최대 10개까지만 유지
-        if (recent.length > 3) {
-            recent = recent.slice(0, 3);
-        }
-
-        // 4. 로컬 스토리지 저장
-        localStorage.setItem("recentBooks", JSON.stringify(recent));
-    };
-
-    saveRecentBook(); // 페이지 로드 시 실행
-    // ==========================================
-
+        // -----------------------------
+        // 1. 공통 변수 및 초기화
+        // -----------------------------
         let lastReviewItems = [];
-
         const isbn13 = /*[[${view.bookDetailDTO.isbn13}]]*/ "";
         const initialBookmarkedYn = /*[[${view.bookmarkedYn}]]*/ "N";
 
         let reviewPage = 1;
         const reviewSize = 5;
 
+        // [추가된 기능] 최근 본 책 저장
+        saveRecentBook({
+            isbn13: isbn13,
+            bookImg: document.querySelector(".cover img")?.src
+        });
+
+        function saveRecentBook(book) {
+            let recent = JSON.parse(localStorage.getItem("recentBooks")) || [];
+            recent = recent.filter(item => item.isbn13 !== book.isbn13);
+            recent.unshift(book);
+            if (recent.length > 3) recent.length = 3;
+            localStorage.setItem("recentBooks", JSON.stringify(recent));
+        }
+
         // -----------------------------
-        // 공통
+        // 2. 유틸리티 함수 (fetchJson, postForm, postJson)
         // -----------------------------
         function goLoginReturnHere() {
             const returnUrl = location.pathname + location.search + location.hash;
             location.href = "/users/login?redirect=" + encodeURIComponent(returnUrl);
         }
 
+        // [복구됨] 사라졌던 fetchJson 함수 복구
         async function fetchJson(url, options = {}, onAuth = "silent") {
             const res = await fetch(url, {
                 headers: {"Accept": "application/json", ...(options.headers || {})},
@@ -671,7 +655,7 @@
             }
             if (!res.ok) throw new Error("HTTP " + res.status);
             return await res.json();
-        }
+        } catch {}
 
         async function postForm(url, bodyObj, onAuth = "redirect") {
             const body = new URLSearchParams(bodyObj).toString();
@@ -690,6 +674,34 @@
             }
             if (!res.ok) throw new Error("HTTP " + res.status);
             return res;
+        }
+
+        // [정상화] 위치가 꼬여있던 postJson 함수 정상 배치
+        async function postJson(url, bodyObj, onAuth = "redirect") {
+            const res = await fetch(url, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Accept": "application/json"
+                },
+                body: JSON.stringify(bodyObj ?? {})
+            });
+
+            const ct = res.headers.get("content-type") || "";
+            const authFail = (res.status === 401 || res.status === 403 || ct.includes("text/html") || res.redirected);
+
+            if (authFail) {
+                if (onAuth === "redirect") goLoginReturnHere();
+                return null;
+            }
+
+            // 서버가 400/500 에러여도 JSON 메시지를 줄 수 있으므로 파싱 시도
+            const data = await res.json().catch(() => ({}));
+
+            if (!res.ok) {
+                throw new Error(data.message || ("HTTP " + res.status));
+            }
+            return data;
         }
 
         function esc(s){
@@ -712,7 +724,7 @@
         }
 
         // -----------------------------
-        // 북마크
+        // 3. 북마크 로직 (수정됨)
         // -----------------------------
         const btnBm = document.getElementById("btnBookmark");
         const iconEl = document.getElementById("bookmarkIcon");
@@ -738,6 +750,7 @@
         btnBm?.addEventListener("click", async () => {
             btnBm.disabled = true;
             try {
+                // [복구] fetchJson 사용
                 const data = await fetchJson(`/api/bookmarks/${encodeURIComponent(isbn13)}/toggle`, { method: "POST" }, "redirect");
                 if (!data) return;
                 renderBookmark(data.bookmarkedYn);
@@ -750,7 +763,7 @@
         });
 
         // -----------------------------
-        // 장바구니
+        // 4. 장바구니
         // -----------------------------
         const btnCart = document.getElementById("btnCart");
         const cartTextEl = document.getElementById("cartText");
@@ -786,7 +799,7 @@
         loadCartStatus();
 
         // -----------------------------
-        // 공유
+        // 5. 공유 기능
         // -----------------------------
         const btnShare = document.getElementById("btnShare");
 
@@ -816,7 +829,7 @@
         });
 
         // -----------------------------
-        // 대여/예약/연장
+        // 6. 대여/예약/연장 로직
         // -----------------------------
         const $rentActions = document.getElementById("rentActions");
         const $rentHint = document.getElementById("rentHint");
@@ -827,6 +840,13 @@
 
         function buildRentButtons(it) {
             if (!it) return `<button class="btn" disabled>상태 조회 실패</button>`;
+            console.log('it.myLendYn : ', it.myLendYn);
+            console.log('it.myExtendYn : ', it.myExtendYn);
+            console.log('it.availableCnt : ', it.availableCnt);
+            console.log('it.myRsvYn : ', it.myRsvYn);
+            console.log('it.userBlockedYn : ', it.userBlockedYn);
+            console.log('it.userOverdueYn : ', it.userOverdueYn);
+            console.log('it.rsvLimitYn : ', it.rsvLimitYn);
 
             if (it.myLendYn === "Y") {
                 if (it.myExtendYn === "Y") {
@@ -877,6 +897,7 @@
         async function loadCirculationStatus() {
             try {
                 const dto = await fetchJson(`/book/circulation/status?isbn13=${encodeURIComponent(isbn13)}`, {}, "silent");
+                console.log('dto : ', dto);
 
                 if (!dto) {
                     setRentHint("로그인 후 대여/예약이 가능합니다.");
@@ -934,7 +955,7 @@
         loadCirculationStatus();
 
         // -----------------------------
-        // 리뷰 KPI + 리스트
+        // 7. 리뷰 관련 (목록, 작성, 수정, 삭제)
         // -----------------------------
         const ratingAvgEl = document.getElementById("ratingAvg");
         const reviewCntEl = document.getElementById("reviewCnt");
@@ -987,37 +1008,30 @@
                 const mine = isMine(r);
 
                 const actions = mine ? `
-          <div class="review-actions">
-            <button type="button" class="review-act js-review-edit" data-feed-id="${esc(r.feedId)}">수정</button>
-            <button type="button" class="review-act danger js-review-del" data-feed-id="${esc(r.feedId)}">삭제</button>
-          </div>
-        ` : ``;
+                  <div class="review-actions">
+                    <button type="button" class="review-act js-review-edit" data-feed-id="${esc(r.feedId)}">수정</button>
+                    <button type="button" class="review-act danger js-review-del" data-feed-id="${esc(r.feedId)}">삭제</button>
+                  </div>
+                ` : ``;
 
                 const reportBtn = (!mine) ? `
-          <button type="button"
-                  class="review-report js-report"
-                  data-feed-id="${esc(r.feedId)}"
-                  title="리뷰 신고">신고</button>
-        ` : ``;
+                  <button type="button" class="review-report js-report" data-feed-id="${esc(r.feedId)}" title="리뷰 신고">신고</button>
+                ` : ``;
 
                 return `
-          <div class="review-card" data-feed-id="${esc(r.feedId)}">
-            <div class="review-meta">
-              <div class="review-meta-left">
-                <span class="review-rate">★ ${esc(r.rate)}</span>
-                <span class="review-author">
-                  ${esc(r.profileNm)} · ${esc(fmtDate(r.createdAt))}
-                </span>
-                ${reportBtn}
-              </div>
-
-              ${actions ? `<div class="review-meta-right">${actions}</div>` : ``}
-            </div>
-
-            ${r.title ? `<div style="font-weight:bold; margin-bottom:6px;">${esc(r.title)}</div>` : ``}
-            <div class="review-body">${esc(r.content)}</div>
-          </div>
-        `;
+                  <div class="review-card" data-feed-id="${esc(r.feedId)}">
+                    <div class="review-meta">
+                      <div class="review-meta-left">
+                        <span class="review-rate">★ ${esc(r.rate)}</span>
+                        <span class="review-author">${esc(r.profileNm)} · ${esc(fmtDate(r.createdAt))}</span>
+                        ${reportBtn}
+                      </div>
+                      ${actions ? `<div class="review-meta-right">${actions}</div>` : ``}
+                    </div>
+                    ${r.title ? `<div style="font-weight:bold; margin-bottom:6px;">${esc(r.title)}</div>` : ``}
+                    <div class="review-body">${esc(r.content)}</div>
+                  </div>
+                `;
             }).join("");
         }
 
@@ -1036,45 +1050,30 @@
             }
 
             const mkBtn = (label, target, disabled=false, active=false) => `
-        <button type="button"
-          data-page="${target}"
-          ${disabled ? "disabled" : ""}
-          style="
-            border:1px solid var(--line);
-            background:${active ? "var(--accent)" : "#fff"};
-            color:${active ? "#fff" : "var(--text)"};
-            padding:8px 12px;
-            border-radius:999px;
-            font-weight:800;
-            cursor:${disabled ? "not-allowed" : "pointer"};
-          ">
-          ${label}
-        </button>
-      `;
+                <button type="button" data-page="${target}" ${disabled ? "disabled" : ""}
+                  style="border:1px solid var(--line); background:${active ? "var(--accent)" : "#fff"};
+                  color:${active ? "#fff" : "var(--text)"}; padding:8px 12px; border-radius:999px;
+                  font-weight:800; cursor:${disabled ? "not-allowed" : "pointer"};">
+                  ${label}
+                </button>`;
 
             const windowSize = 5;
-            const half = Math.floor(windowSize / 2);
-            let start = Math.max(1, cur - half);
+            let start = Math.max(1, cur - Math.floor(windowSize / 2));
             let end = Math.min(totalPages, start + windowSize - 1);
             start = Math.max(1, end - windowSize + 1);
 
-            let html = "";
-            html += mkBtn("이전", cur - 1, cur <= 1);
-
-            if(start > 1){
+            let html = mkBtn("이전", cur - 1, cur <= 1);
+            if(start > 1) {
                 html += mkBtn("1", 1, false, cur === 1);
                 if(start > 2) html += `<span style="padding:8px 6px; color:#999;">…</span>`;
             }
-
-            for(let p = start; p <= end; p++){
+            for(let p = start; p <= end; p++) {
                 html += mkBtn(String(p), p, false, p === cur);
             }
-
-            if(end < totalPages){
+            if(end < totalPages) {
                 if(end < totalPages - 1) html += `<span style="padding:8px 6px; color:#999;">…</span>`;
                 html += mkBtn(String(totalPages), totalPages, false, cur === totalPages);
             }
-
             html += mkBtn("다음", cur + 1, cur >= totalPages);
             pagerEl.innerHTML = html;
         }
@@ -1089,13 +1088,12 @@
             }
         });
 
-        // 초기 로드
         loadReviewStatus();
         loadReviewList(reviewPage);
 
-        // =============================
-        // 리뷰 작성/저장/수정/삭제
-        // =============================
+        // -----------------------------
+        // 8. 리뷰 작성/저장/수정 모달 로직
+        // -----------------------------
         const btnOpenReview = document.getElementById("btnOpenReview");
         const myReviewBox = document.getElementById("myReviewBox");
         const reviewPermMsg = document.getElementById("reviewPermMsg");
@@ -1105,7 +1103,6 @@
         const reviewTitleEl = document.getElementById("reviewTitle");
         const reviewContentEl = document.getElementById("reviewContent");
 
-        // 수정 모드 프리필용(클라 상태)
         let editingFeedId = null;
 
         function openMyReviewBox(modeText, msg){
@@ -1122,16 +1119,12 @@
                 if (!perm) return;
 
                 const allowed = (perm.allowedYn === "Y");
-                const msg = (perm.message ?? "");
-
                 btnReviewSave.disabled = !allowed;
+                editingFeedId = (perm.hasReviewYn === "Y") ? (perm.myFeedId ?? null) : null;
 
-                const hasReview = (perm.hasReviewYn === "Y");
-                editingFeedId = hasReview ? (perm.myFeedId ?? null) : null;
+                openMyReviewBox(perm.hasReviewYn === "Y" ? "리뷰 수정" : "리뷰 작성", perm.message ?? "");
 
-                openMyReviewBox(hasReview ? "리뷰 수정" : "리뷰 작성", msg);
-
-                if (hasReview && editingFeedId) {
+                if (perm.hasReviewYn === "Y" && editingFeedId) {
                     const mine = lastReviewItems.find(x => String(x.feedId) === String(editingFeedId));
                     if (mine) {
                         if (reviewRateEl) reviewRateEl.value = String(mine.rate ?? 5);
@@ -1139,7 +1132,6 @@
                         if (reviewContentEl) reviewContentEl.value = mine.content ?? "";
                     }
                 }
-
                 if (allowed) reviewContentEl?.focus();
             } catch (e) {
                 console.error(e);
@@ -1152,43 +1144,31 @@
             const title = (reviewTitleEl?.value ?? "").trim();
             const content = (reviewContentEl?.value ?? "").trim();
 
-            if (!content) {
-                alert("리뷰 내용을 입력해주세요.");
-                reviewContentEl?.focus();
-                return;
-            }
+            if (!content) { alert("리뷰 내용을 입력해주세요."); reviewContentEl?.focus(); return; }
 
             btnReviewSave.disabled = true;
             try {
-                const data = await fetchJson(
-                    "/book/review/save",
-                    {
-                        method: "POST",
-                        headers: {"Content-Type": "application/json"},
-                    },
-                    "redirect"
-                );
+                const payload = { isbn13, rate, title, content };
+                // 새로 추가된 postJson 사용
+                const data = await postJson("/book/review/save", payload, "redirect");
+                if (!data) return;
 
-                if (!data?.ok) {
-                    alert("리뷰가 등록되지 않았습니다.");
-                    return;
-                }
-
+                // postJson은 에러시 throw하므로 여기 왔으면 성공
                 editingFeedId = data.feedId ?? editingFeedId;
-
                 alert("리뷰가 등록되었습니다.");
                 await loadReviewList(1);
+                await loadReviewStatus();
             } catch (e) {
                 console.error(e);
-                alert("리뷰 등록 중 오류가 발생했습니다.");
+                alert("리뷰 등록 중 오류가 발생했습니다: " + e.message);
             } finally {
                 btnReviewSave.disabled = false;
             }
         });
 
-        // =============================
-        // 신고 처리(추가)
-        // =============================
+        // -----------------------------
+        // 9. 신고 처리 로직
+        // -----------------------------
         function markReported(btn){
             if (!btn) return;
             btn.textContent = "신고됨";
@@ -1198,86 +1178,63 @@
 
         async function checkReported(feedId){
             const data = await fetchJson(`/api/reports/exists?feedId=${encodeURIComponent(feedId)}`, {}, "redirect");
-            if (!data) return null; // redirect 됐거나 인증 실패
+            if (!data) return null;
             return !!data.reported;
         }
 
         async function createReport(feedId, reason){
+            // postJson을 사용하여 간결하게 처리
             const res = await fetch("/api/reports", {
                 method: "POST",
-                headers: {"Content-Type": "application/json", "Accept":"application/json"},
-                body: JSON.stringify({ feedId, reportContent: reason })
+                headers: {"Content-Type":"application/json","Accept":"application/json"},
+                body: JSON.stringify({ feedId, reportContent: reason.trim() })
             });
+
+            if (res.status === 401) {
+                goLoginReturnHere();
+                return { res, data: { code:"UNAUTHORIZED" } };
+            }
             const data = await res.json().catch(() => ({}));
             return { res, data };
         }
 
-        // 리스트 내부 수정/삭제/신고
         document.getElementById("reviewList")?.addEventListener("click", async (e) => {
             const delBtn = e.target.closest(".js-review-del");
             const editBtn = e.target.closest(".js-review-edit");
             const reportBtn = e.target.closest(".js-report");
 
-            // ---- 신고 ----
+            // 신고
             if (reportBtn) {
                 const feedId = reportBtn.dataset.feedId;
-                if (!feedId) return;
+                if (!feedId || reportBtn.disabled) return;
 
-                // 이미 UI에서 신고됨이면 종료
-                if (reportBtn.dataset.reported === "Y" || reportBtn.disabled) {
-                    alert("이미 신고한 리뷰입니다.");
-                    return;
-                }
-
-                // 1) 사전 체크(이미 신고했는지)
                 try {
                     reportBtn.disabled = true;
-
                     const already = await checkReported(feedId);
-                    if (already === null) return; // 로그인 redirect 됨
+                    if (already === null) return;
                     if (already) {
                         alert("이미 신고한 리뷰입니다.");
                         markReported(reportBtn);
                         return;
                     }
 
-                    // 2) 사유 입력
                     const reason = prompt("신고 사유를 입력해 주세요.");
-                    if (!reason || !reason.trim()) {
-                        reportBtn.disabled = false;
-                        return;
-                    }
+                    if (!reason || !reason.trim()) { reportBtn.disabled = false; return; }
 
-                    // 3) 신고 등록
                     const { res, data } = await createReport(feedId, reason.trim());
 
-                    if (res.status === 401 || data.code === "UNAUTHORIZED") {
-                        alert("로그인이 필요합니다.");
-                        goLoginReturnHere();
-                        return;
-                    }
-
-                    if (data.code === "ALREADY_REPORTED") {
-                        alert("이미 신고한 리뷰입니다.");
+                    if (data.code === "ALREADY_REPORTED" || data.code === "OK") {
+                        alert(data.code === "OK" ? "신고가 접수되었습니다." : "이미 신고한 리뷰입니다.");
                         markReported(reportBtn);
-                        return;
-                    }
-
-                    if (data.code === "INVALID_TARGET") {
-                        alert("존재하지 않거나 삭제된 리뷰입니다.");
+                    } else if (data.code === "SELF_REPORT_NOT_ALLOWED") {
+                        alert("본인 리뷰는 신고할 수 없습니다.");
                         reportBtn.disabled = false;
-                        return;
+                    } else if (data.code === "INVALID_TARGET") {
+                        alert("존재하지 않는 리뷰입니다.");
+                    } else {
+                        alert("신고 처리 중 오류가 발생했습니다.");
+                        reportBtn.disabled = false;
                     }
-
-                    if (data.code === "OK") {
-                        alert("신고가 접수되었습니다.");
-                        markReported(reportBtn);
-                        return;
-                    }
-
-                    alert("신고 처리 중 오류가 발생했습니다.");
-                    reportBtn.disabled = false;
-
                 } catch (err) {
                     console.error(err);
                     alert("네트워크 오류가 발생했습니다.");
@@ -1286,14 +1243,13 @@
                 return;
             }
 
-            // ---- 수정 ----
+            // 수정
             if (editBtn) {
                 const feedId = editBtn.dataset.feedId;
                 const item = lastReviewItems.find(x => String(x.feedId) === String(feedId));
                 if (!item) return;
 
                 editingFeedId = feedId;
-
                 if (reviewRateEl) reviewRateEl.value = String(item.rate ?? 5);
                 if (reviewTitleEl) reviewTitleEl.value = item.title ?? "";
                 if (reviewContentEl) reviewContentEl.value = item.content ?? "";
@@ -1305,26 +1261,18 @@
                     btnReviewSave.disabled = !allowed;
                     openMyReviewBox("리뷰 수정", perm.message ?? "");
                     if (allowed) reviewContentEl?.focus();
-                } catch (err) {
-                    console.error(err);
-                    openMyReviewBox("리뷰 수정", "");
-                }
+                } catch (err) { console.error(err); }
                 return;
             }
 
-            // ---- 삭제 ----
+            // 삭제
             if (delBtn) {
                 const feedId = delBtn.dataset.feedId;
-                if (!feedId) return;
-
-                if (!confirm("리뷰를 삭제할까요?")) return;
+                if (!feedId || !confirm("리뷰를 삭제할까요?")) return;
 
                 try {
                     const data = await fetchJson(`/book/review/${encodeURIComponent(feedId)}`, { method: "DELETE" }, "redirect");
-                    if (!data?.ok) {
-                        alert("삭제 실패");
-                        return;
-                    }
+                    if (!data?.ok) { alert("삭제 실패"); return; }
 
                     alert("삭제되었습니다.");
                     await loadReviewList(Math.max(1, reviewPage));
@@ -1346,6 +1294,6 @@
     });
 </script>
 
-<div th:replace="fragments/footer :: footer"></div>
+<div th:replace="~{fragments/footer :: footer}"></div>
 </body>
 </html>

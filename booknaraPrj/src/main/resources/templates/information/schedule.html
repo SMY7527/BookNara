@@ -9,7 +9,7 @@
     <link rel="stylesheet" th:href="@{/css/schedule.css}" />
   </head>
   <body>
-    <header id="siteHeader"></header>
+  <div th:replace="fragments/header :: header"></div>
 
     <main class="container">
       <h2 class="page-title">배송/반납 일정 안내</h2>
@@ -107,5 +107,6 @@
 
     <script th:src="@{/js/common.js}" defer></script>
     <script th:src="@{/js/schedule.js}" defer></script>
+    <div th:replace="fragments/footer :: footer"></div>
   </body>
 </html>

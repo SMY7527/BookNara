@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" xmlns:th="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="faq.css" />
   </head>
   <body>
-    <header id="siteHeader"></header>
+  <div th:replace="fragments/header :: header"></div>
 
     <main class="container">
       <h2 class="page-title">Q&A 자주묻는 질문</h2>
@@ -36,5 +36,7 @@
 
     <script src="../../../../../../../../../Desktop/북나라_이벤트,%20Q&A,%20가이드,%20공지사항,%20고객문의/root/FAQ/common.js" defer></script>
     <script src="faq.js" defer></script>
+  <div th:replace="fragments/footer :: footer"></div>
+
   </body>
 </html>

@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
   <head>
+
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>이용안내 상세</title>
     <link rel="stylesheet" th:href="@{/css/detail.css}" />
   </head>
   <body>
-    <header class="site-header">
-      <div class="header-inner">헤더</div>
-    </header>
+  <div th:replace="fragments/header :: header"></div>
 
-    <main class="container">
+
+  <main class="container">
       <h2 class="page-title">이용안내 상세</h2>
 
       <section class="card" id="detail"></section>
@@ -28,5 +28,7 @@
     </script>
 
     <script th:src="@{/js/guideDetail.js}"></script>
+    <div th:replace="fragments/footer :: footer"></div>
+
   </body>
 </html>

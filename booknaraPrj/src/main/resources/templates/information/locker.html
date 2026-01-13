@@ -13,7 +13,7 @@
     <script th:src="@{/js/locker.js}" defer></script>
   </head>
   <body>
-    <header id="siteHeader"></header>
+  <div th:replace="fragments/header :: header"></div>
 
     <main class="container">
       <h1 class="page-title">수거함 안내</h1>
@@ -80,5 +80,7 @@
         </div>
       </section>
     </main>
+  <div th:replace="fragments/footer :: footer"></div>
+
   </body>
 </html>

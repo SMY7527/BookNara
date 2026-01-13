@@ -11,6 +11,7 @@
     <link rel="stylesheet" th:href="@{/css/eventForm.css}">
 </head>
 <body>
+<div th:replace="fragments/header :: header"></div>
 
 <main class="page">
     <section class="card">
@@ -133,6 +134,7 @@
     startAt?.addEventListener('change', validateDates);
     endAt?.addEventListener('change', validateDates);
 </script>
+<div th:replace="fragments/footer :: footer"></div>
 
 </body>
 </html>

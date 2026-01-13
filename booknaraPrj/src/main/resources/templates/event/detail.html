@@ -10,9 +10,8 @@
 </head>
 
 <body>
-<header class="site-header">
-    <div class="header-inner">헤더</div>
-</header>
+<div th:replace="fragments/header :: header"></div>
+
 
 <main class="container">
     <h2 class="page-title">이벤트 상세</h2>
@@ -54,6 +53,7 @@
         </button>
     </div>
 </main>
+<div th:replace="fragments/footer :: footer"></div>
 
 </body>
 </html>

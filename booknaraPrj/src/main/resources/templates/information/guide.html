@@ -9,7 +9,7 @@
     
   </head>
   <body>
-    <header id="siteHeader"></header>
+  <div th:replace="fragments/header :: header"></div>
 
     <main class="container">
       <h2 class="page-title">이용안내</h2>
@@ -31,5 +31,7 @@
     <script th:src="@{/js/common.js}" defer></script>
 
     <script th:src="@{/js/guide.js}" defer></script>
+  <div th:replace="fragments/footer :: footer"></div>
+
   </body>
 </html>

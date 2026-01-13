@@ -655,7 +655,7 @@
             }
             if (!res.ok) throw new Error("HTTP " + res.status);
             return await res.json();
-        } catch {}
+        }
 
         async function postForm(url, bodyObj, onAuth = "redirect") {
             const body = new URLSearchParams(bodyObj).toString();

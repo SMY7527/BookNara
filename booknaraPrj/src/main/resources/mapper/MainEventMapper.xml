@@ -5,20 +5,22 @@
 
 <mapper namespace="event">
 
-    <!--  event  전체 조회 -->
-    <select id="selectAll" resultType="EventDTO">
+    <!-- event 전체 조회(필요하면 유지) -->
+    <select id="selectAll" resultType="com.booknara.booknaraPrj.events.dto.EventDTO">
         <![CDATA[
-    SELECT *
-    FROM EVENTS
-    WHERE END_AT >= CURDATE()
-    ORDER BY START_AT ASC
-    ]]>
+        SELECT *
+        FROM EVENTS
+        WHERE END_AT >= CURDATE()
+        ORDER BY START_AT ASC
+        ]]>
     </select>
 
+    <!-- ✅ 이벤트 등록: eventId 자동 채우기 -->
     <insert id="insertEvent"
             parameterType="com.booknara.booknaraPrj.events.dto.EventDTO"
             useGeneratedKeys="true"
-            keyProperty="eventId">
+            keyProperty="eventId"
+            keyColumn="EVENT_ID">
         INSERT INTO EVENTS (
         USER_ID,
         EVENT_TITLE,
@@ -35,133 +37,117 @@
         )
     </insert>
 
-
-
-
-
-
-    <!-- 마감된 거 조회하기  -->
-    <select id="findClosedEvents" resultType="EventDTO">
+    <!-- 마감된 거 조회(필요하면 유지) -->
+    <select id="findClosedEvents" resultType="com.booknara.booknaraPrj.events.dto.EventDTO">
         <![CDATA[
         SELECT *
         FROM EVENTS
         WHERE END_AT < CURDATE()
         ORDER BY END_AT DESC
-    ]]>
+        ]]>
     </select>
 
-    <resultMap id="EventWithImagesMap" type="EventDTO">
+    <!-- ✅ 이벤트 + 이미지(리스트/상세 공통) 매핑 -->
+    <resultMap id="EventWithImagesMap" type="com.booknara.booknaraPrj.events.dto.EventDTO">
         <id property="eventId" column="EVENT_ID"/>
         <result property="eventTitle" column="EVENT_TITLE"/>
         <result property="eventContent" column="EVENT_CONTENT"/>
         <result property="startAt" column="START_AT"/>
         <result property="endAt" column="END_AT"/>
 
-        <!-- 이미지 리스트 매핑 -->
-        <collection property="images" ofType="ImageDTO">
+        <collection property="images" ofType="com.booknara.booknaraPrj.events.dto.ImageDTO">
             <id property="imageId" column="IMAGE_ID"/>
             <result property="imgUrl" column="IMG_URL"/>
             <result property="imgType" column="IMG_TYPE"/>
         </collection>
     </resultMap>
 
-
-
-
+    <!-- ✅ 전체 리스트: THUMB만 -->
     <select id="selectAll2" resultMap="EventWithImagesMap">
         <![CDATA[
         SELECT
-        e.EVENT_ID,
-        e.EVENT_TITLE,
-        e.EVENT_CONTENT,
-        e.START_AT,
-        e.END_AT,
-        i.IMAGE_ID,
-        i.IMG_TYPE,
-        i.IMG_URL
+          e.EVENT_ID,
+          e.EVENT_TITLE,
+          e.EVENT_CONTENT,
+          e.START_AT,
+          e.END_AT,
+          i.IMAGE_ID,
+          i.IMG_TYPE,
+          i.IMG_URL
         FROM EVENTS e
         LEFT JOIN IMAGES i
-        ON i.TARGET_TYPE = 'EVENT'
-        AND i.TARGET_ID = e.EVENT_ID
-        AND i.IMG_TYPE = 'THUMB'
+          ON i.TARGET_TYPE = 'EVENT'
+         AND i.TARGET_ID   = e.EVENT_ID
+         AND i.IMG_TYPE    = 'THUMB'
         ORDER BY e.START_AT ASC
-          ]]>
+        ]]>
     </select>
 
-
-
-    <!-- 진행중: START_AT <= NOW() AND END_AT >= NOW() -->
+    <!-- 진행중: THUMB만 -->
     <select id="selectOngoingWithMainImage" resultMap="EventWithImagesMap">
         <![CDATA[
         SELECT
-        e.EVENT_ID, e.EVENT_TITLE, e.EVENT_CONTENT, e.START_AT, e.END_AT,
-        i.IMAGE_ID, i.IMG_TYPE, i.IMG_URL
+          e.EVENT_ID, e.EVENT_TITLE, e.EVENT_CONTENT, e.START_AT, e.END_AT,
+          i.IMAGE_ID, i.IMG_TYPE, i.IMG_URL
         FROM EVENTS e
         LEFT JOIN IMAGES i
-        ON i.TARGET_TYPE = 'EVENT'
-        AND i.TARGET_ID   = e.EVENT_ID
-        AND i.IMG_TYPE    = 'THUMB'
+          ON i.TARGET_TYPE = 'EVENT'
+         AND i.TARGET_ID   = e.EVENT_ID
+         AND i.IMG_TYPE    = 'THUMB'
         WHERE e.START_AT <= NOW()
-        AND e.END_AT   >= NOW()
+          AND e.END_AT   >= NOW()
         ORDER BY e.END_AT ASC
         ]]>
     </select>
 
-
-
-
-    <!-- 마감임박: 진행중이면서, END_AT가 soonDays 이내 -->
-    <select id="selectClosingWithMainImage" resultMap="EventWithImagesMap">
+    <!-- ✅ 마감임박: THUMB로 통일 (기존 MAIN -> THUMB) -->
+    <select id="selectClosingWithMainImage" resultMap="EventWithImagesMap" parameterType="int">
         <![CDATA[
-    SELECT
-        e.EVENT_ID, e.EVENT_TITLE, e.EVENT_CONTENT, e.START_AT, e.END_AT,
-        i.IMAGE_ID, i.IMG_TYPE, i.IMG_URL
-    FROM EVENTS e
-    LEFT JOIN IMAGES i
-        ON i.TARGET_TYPE = 'EVENT'
-        AND i.TARGET_ID   = e.EVENT_ID
-        AND i.IMG_TYPE    = 'MAIN'
-    WHERE e.START_AT <= NOW()
-      AND e.END_AT   >= NOW()
-      AND e.END_AT   < DATE_ADD(NOW(), INTERVAL #{soonDays} DAY)
-    ORDER BY e.END_AT ASC
-]]>
+        SELECT
+          e.EVENT_ID, e.EVENT_TITLE, e.EVENT_CONTENT, e.START_AT, e.END_AT,
+          i.IMAGE_ID, i.IMG_TYPE, i.IMG_URL
+        FROM EVENTS e
+        LEFT JOIN IMAGES i
+          ON i.TARGET_TYPE = 'EVENT'
+         AND i.TARGET_ID   = e.EVENT_ID
+         AND i.IMG_TYPE    = 'THUMB'
+        WHERE e.START_AT <= NOW()
+          AND e.END_AT   >= NOW()
+          AND e.END_AT   < DATE_ADD(NOW(), INTERVAL #{soonDays} DAY)
+        ORDER BY e.END_AT ASC
+        ]]>
     </select>
 
-    <!-- 마감됨 -->
+    <!-- ✅ 마감됨: THUMB로 통일 (기존 MAIN -> THUMB) -->
     <select id="selectClosedWithMainImage" resultMap="EventWithImagesMap">
         <![CDATA[
         SELECT
-        e.EVENT_ID, e.EVENT_TITLE, e.EVENT_CONTENT, e.START_AT, e.END_AT,
-        i.IMAGE_ID, i.IMG_TYPE, i.IMG_URL
+          e.EVENT_ID, e.EVENT_TITLE, e.EVENT_CONTENT, e.START_AT, e.END_AT,
+          i.IMAGE_ID, i.IMG_TYPE, i.IMG_URL
         FROM EVENTS e
         LEFT JOIN IMAGES i
-        ON i.TARGET_TYPE = 'EVENT'
-        AND i.TARGET_ID   = e.EVENT_ID
-        AND i.IMG_TYPE    = 'MAIN'
+          ON i.TARGET_TYPE = 'EVENT'
+         AND i.TARGET_ID   = e.EVENT_ID
+         AND i.IMG_TYPE    = 'THUMB'
         WHERE e.END_AT < NOW()
         ORDER BY e.END_AT DESC
-         ]]>
+        ]]>
     </select>
 
-
+    <!-- ✅ 상세: THUMB + DETAIL 모두 가져오기 (기존 THUMB만 -> IN으로 변경) -->
     <select id="selectById" parameterType="String" resultMap="EventWithImagesMap">
         <![CDATA[
-    SELECT
-      e.EVENT_ID, e.EVENT_TITLE, e.EVENT_CONTENT, e.START_AT, e.END_AT,
-      i.IMAGE_ID, i.IMG_TYPE, i.IMG_URL
-    FROM EVENTS e
-    LEFT JOIN IMAGES i
-      ON i.TARGET_TYPE='EVENT'
-     AND i.TARGET_ID=e.EVENT_ID
-     AND i.IMG_TYPE='THUMB'
-    WHERE e.EVENT_ID = #{id}
-  ]]>
+        SELECT
+          e.EVENT_ID, e.EVENT_TITLE, e.EVENT_CONTENT, e.START_AT, e.END_AT,
+          i.IMAGE_ID, i.IMG_TYPE, i.IMG_URL
+        FROM EVENTS e
+        LEFT JOIN IMAGES i
+          ON i.TARGET_TYPE = 'EVENT'
+         AND i.TARGET_ID   = e.EVENT_ID
+         AND i.IMG_TYPE  = 'CONTENT'
+        WHERE e.EVENT_ID = #{id}
+        ]]>
     </select>
 
-    <insert id="insertEventThumb" parameterType="map">
-        INSERT INTO IMAGES (TARGET_TYPE, TARGET_ID, IMG_TYPE, IMG_URL)
-        VALUES ('EVENT', #{targetId}, 'THUMB', #{imgUrl})
-    </insert>
-
+    <!-- ✅ insertEventThumb는 이제 image namespace로 옮기므로 여기서 삭제 -->
 </mapper>

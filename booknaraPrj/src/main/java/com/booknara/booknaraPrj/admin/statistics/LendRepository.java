@@ -11,11 +11,11 @@ import java.util.Map;
 public interface LendRepository extends JpaRepository<Lend, String> {
 
     // 연도-월별 통계를 위한 전용 쿼리 (MariaDB/MySQL 기준)
-    @Query("SELECT new map(FUNCTION('DATE_FORMAT', l.lendDate, '%Y-%m') as label, COUNT(l) as count) " +
-            "FROM Lend l " +
-            "WHERE l.lendDate >= :startDate AND l.lendDate <= :endDate " + // 여기에 String이 아닌 LocalDateTime 객체가 들어가야 함
-            "GROUP BY FUNCTION('DATE_FORMAT', l.lendDate, '%Y-%m') " +
-            "ORDER BY label ASC")
+    @Query("SELECT new map(FUNCTION('DATE_FORMAT', L.LEND_DATE, '%Y-%m') as LABEL, COUNT(L) as COUNT) " +
+            "FROM LEND L " +
+            "WHERE L.LEND_DATE >= :startDate AND L.LEND_DATE <= :endDate " +
+            "GROUP BY FUNCTION('DATE_FORMAT', L.LEND_DATE, '%Y-%m') " +
+            "ORDER BY LABEL ASC")
     List<Map<String, Object>> findMonthlyLendStats(@Param("startDate") LocalDateTime startDate,
                                                    @Param("endDate") LocalDateTime endDate);
 

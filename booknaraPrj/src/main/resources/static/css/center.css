@@ -264,3 +264,175 @@
     height: 160px;
   }
 }
+
+
+/* 리스트 */
+.faq-list {
+  list-style: none;
+  padding: 14px 0 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* FAQ 아이템(아코디언) */
+.faq-item {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #fff;
+  overflow: hidden;
+  transition: 0.15s ease;
+}
+.faq-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(17, 24, 39, 0.08);
+  border-color: rgba(37, 99, 235, 0.25);
+}
+
+.faq-q {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 14px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+}
+
+.q-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.badge {
+  font-weight: 900;
+  font-size: 12px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(215, 162, 74, 0.15);
+  color: #8a5a12;
+  border: 1px solid rgba(215, 162, 74, 0.25);
+  white-space: nowrap;
+}
+.q-title {
+  font-weight: 900;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chev {
+  color: var(--muted);
+  font-weight: 900;
+  transition: transform 0.15s ease;
+}
+
+/* 답변 영역 */
+.faq-a {
+  display: none;
+  padding: 0 14px 14px;
+  color: #374151;
+  line-height: 1.6;
+}
+.faq-a .answer-box {
+  border-top: 1px dashed var(--line);
+  padding-top: 12px;
+  margin-top: 2px;
+}
+
+/* 열림 상태 */
+.faq-item.open .faq-a {
+  display: block;
+}
+.faq-item.open .chev {
+  transform: rotate(180deg);
+}
+
+/* 모바일 */
+@media (max-width: 520px) {
+  .page-title {
+    font-size: 22px;
+  }
+  .search input {
+    width: 220px;
+  }
+}
+.top-wrap {
+  margin-top: 14px;
+  padding: 14px;
+  border: 1px solid rgba(215, 162, 74, 0.35);
+  background: rgba(215, 162, 74, 0.1);
+  border-radius: 14px;
+}
+
+.top-title {
+  font-weight: 900;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+
+/* 리스트 */
+.notice-list {
+  list-style: none;
+  padding: 14px 0 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.notice-item {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 14px 14px;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  transition: 0.15s ease;
+  cursor: pointer;
+}
+.notice-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(17, 24, 39, 0.08);
+  border-color: rgba(37, 99, 235, 0.25);
+}
+
+.notice-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.badge {
+  font-weight: 900;
+  font-size: 12px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(215, 162, 74, 0.15);
+  color: #8a5a12;
+  border: 1px solid rgba(215, 162, 74, 0.25);
+  white-space: nowrap;
+}
+
+.notice-title {
+  font-weight: 900;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.notice-meta {
+  font-size: 12px;
+  color: var(--muted);
+  white-space: nowrap;
+}

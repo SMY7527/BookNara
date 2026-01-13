@@ -18,8 +18,8 @@
             ZIPCODE      AS zipcode,
             ADDR         AS addr,
             DETAIL_ADDR  AS detailAddr
-        FROM USERS
-        WHERE USER_ID = #{userId}
+            FROM USERS
+            WHERE USER_ID = #{userId}
     </select>
 
     <!-- ================= 내 정보 수정 ================= -->

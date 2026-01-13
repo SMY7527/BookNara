@@ -9,14 +9,13 @@
             resultType="com.booknara.booknaraPrj.mainpage.dto.MallangPickDTO">
 
         WITH RECURSIVE GenreHierarchy AS (
-        -- 1. 기준이 되는 부모 장르
         SELECT GENRE_ID
         FROM GENRE
         WHERE GENRE_ID = #{genreId}
 
         UNION ALL
 
-        -- 2. 자식 장르들을 재귀적으로 탐색
+
         SELECT g.GENRE_ID
         FROM GENRE g
         INNER JOIN GenreHierarchy gh ON g.PARENT_ID = gh.GENRE_ID
@@ -32,7 +31,7 @@
         FROM BOOK_ISBN B
         JOIN GenreHierarchy GH ON B.GENRE_ID = GH.GENRE_ID
         JOIN GENRE G ON B.GENRE_ID = G.GENRE_ID
-        -- 랜덤으로 정렬 후 상위 3개만 선택
+
         ORDER BY RAND()
         LIMIT #{limit};
     </select>

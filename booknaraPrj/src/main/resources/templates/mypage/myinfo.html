@@ -12,7 +12,7 @@
     <div class="section-header">
       <h3>회원 정보</h3>
       <div class="btn-group">
-        <button type="button" class="btn btn-outline">비밀번호 변경</button>
+        <button type="button" class="btn btn-outline" id="pwChangeBtn">비밀번호 변경</button>
         <button type="button" class="btn btn-primary" id="editBtn">수정</button>
       </div>
     </div>
@@ -183,8 +183,55 @@
     </form>
   </section>
 
-  <!-- ================= 선호 장르 =================
+  <!-- ================= 선호 장르 =================-->
   <section id="genreSection" class="genre-section">
+    <!-- ================= 비밀번호 변경 모달 ================= -->
+    <div class="pw-modal-overlay" id="pwModal">
+        <div class="pw-modal">
+
+            <h3 class="pw-modal-title">비밀번호 변경</h3>
+
+            <!-- 현재 비밀번호 -->
+            <div class="pw-row">
+                <label class="pw-input-wrap">현재 비밀번호</label>
+                <div class="pw-input-group">
+                    <input type="password" id="currentPw" placeholder="현재 비밀번호 입력">
+                    <button type="button" class="btn btn-outline small" id="verifyPwBtn">
+                        확인
+                    </button>
+                </div>
+                <p class="pw-msg" id="currentPwMsg"></p>
+            </div>
+
+            <!-- 새 비밀번호 -->
+            <div class="pw-row">
+                <label class="pw-input-wrap">새 비밀번호</label>
+                <input type="password"
+                       id="newPw"
+                       disabled
+                       placeholder="영문·숫자·특수문자 포함 8~16자">
+                <p class="pw-msg" id="newPwMsg"></p>
+            </div>
+
+            <!-- 새 비밀번호 확인 -->
+            <div class="pw-row">
+                <label class="pw-input-wrap">새 비밀번호 확인</label>
+                <input type="password"
+                       id="newPwConfirm"
+                       disabled>
+                <p class="pw-msg" id="newPwConfirmMsg"></p>
+            </div>
+
+            <!-- 버튼 -->
+            <div class="pw-modal-actions">
+                <button type="button" class="btn btn-outline" id="pwCancelBtn">취소</button>
+                <button type="button" class="btn btn-primary" id="pwSubmitBtn" disabled>
+                    변경하기
+                </button>
+            </div>
+
+        </div>
+    </div>
 
   </section>
   -->
@@ -193,7 +240,7 @@
 <script th:src="@{/js/signup-extra.js}"></script>
 -->
 
-<!-- ================= Bootpay ================= -->
+    <!-- ================= Bootpay ================= -->
 <script src="https://js.bootpay.co.kr/bootpay-4.2.0.min.js"></script>
 
 <!-- ================= 로그인 사용자 정보 (안전하게) ================= -->

@@ -23,27 +23,27 @@ public interface AdminNotificationRepository extends JpaRepository<AdminNotifica
      * - 동적 필터링: 타입(대여/반납/연체) 및 검색어(회원명/ID/대여ID/도서제목) 통합
      */
     @Query("SELECT new com.booknara.booknaraPrj.admin.notifications.AdminNotiResponseDto(" +
-            "an.notiId, an.notiType, " +
-            "CONCAT(u.userNm, '님이 [', COALESCE(bi.bookTitle, '알 수 없는 도서'), '] 도서를 ', " +
-            "CASE WHEN an.notiType = '연체' THEN '연체 중입니다.' " +
-            "     WHEN an.notiType = '대여' THEN '대여 신청하였습니다.' " +
+            "AN.NOTI_ID, AN.NOTI_TYPE, " +
+            "CONCAT(U.USER_NM, '님이 [', COALESCE(BI.BOOK_TITLE, '알 수 없는 도서'), '] 도서를 ', " +
+            "CASE WHEN AN.NOTI_TYPE = '연체' THEN '연체 중입니다.' " +
+            "     WHEN AN.NOTI_TYPE = '대여' THEN '대여 신청하였습니다.' " +
             "     ELSE '반납 완료하였습니다.' END), " +
-            "u.userId, u.userNm, l.lendId, bi.bookTitle, " +
-            "bi.isbn13, " + // <--- 여기도 b.isbn13 대신 bi.isbn13 사용 권장
-            "an.createdAt, an.updatedAt) " +
-            "FROM AdminNotification an " +
-            "JOIN Users u ON an.userId = u.userId " +
-            "LEFT JOIN Lend l ON an.lendId = l.lendId " +
-            "LEFT JOIN AdminBooks b ON l.bookId = b.bookId " +
-            "LEFT JOIN AdminBookIsbn bi ON b.bookIsbn.isbn13 = bi.isbn13 " + // <--- [핵심 수정!] b.bookIsbn.isbn13으로 변경
-            "WHERE (:type IS NULL OR :type = '전체' OR an.notiType = :type) " +
-            "AND (:keyword IS NULL OR u.userNm LIKE :keyword OR u.userId LIKE :keyword OR CAST(l.lendId AS string) LIKE :keyword OR bi.bookTitle LIKE :keyword)")
+            "U.USER_ID, U.USER_NM, L.LEND_ID, BI.BOOK_TITLE, " +
+            "BI.ISBN13, " +
+            "AN.CREATED_AT, AN.UPDATED_AT) " +
+            "FROM ADMIN_NOTIFICATION AN " +
+            "JOIN USERS U ON AN.USER_ID = U.USER_ID " +
+            "LEFT JOIN LEND L ON AN.LEND_ID = L.LEND_ID " +
+            "LEFT JOIN ADMIN_BOOKS B ON L.BOOK_ID = B.BOOK_ID " +
+            "LEFT JOIN ADMIN_BOOK_ISBN BI ON B.BOOK_ISBN.ISBN13 = BI.ISBN13 " +
+            "WHERE (:type IS NULL OR :type = '전체' OR AN.NOTI_TYPE = :type) " +
+            "AND (:keyword IS NULL OR U.USER_NM LIKE :keyword OR U.USER_ID LIKE :keyword OR CAST(L.LEND_ID AS STRING) LIKE :keyword OR BI.BOOK_TITLE LIKE :keyword)")
     Page<AdminNotiResponseDto> findDetailedNotifications(
             @Param("type") String type,
             @Param("keyword") String keyword,
             Pageable pageable);
 
     @Modifying(clearAutomatically = true)
-    @Query("UPDATE AdminNotification n SET n.checkYn = 'Y', n.updatedAt = :now WHERE n.checkYn = 'N'")
+    @Query("UPDATE ADMIN_NOTIFICATION N SET N.CHECK_YN = 'Y', N.UPDATED_AT = :now WHERE N.CHECK_YN = 'N'")
     int markAllAsRead(@Param("now") LocalDateTime now);
 }

@@ -1,14 +1,19 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>이벤트 페이지</title>
+
     <link rel="stylesheet" th:href="@{/css/common.css}" />
     <link rel="stylesheet" th:href="@{/css/event.css}" />
 </head>
 <body>
-<header id="siteHeader"></header>
+<!--<header id="siteHeader"></header>-->
+<!-- ================= 헤더 ================= -->
+<div th:replace="fragments/header :: header"></div>
 
 <main class="container">
     <h2 class="page-title">이벤트 페이지</h2>
@@ -32,24 +37,30 @@
                 >마감된이벤트</a>
             </div>
 
-            <div class="search">
-                <input id="searchInput" type="text" placeholder="검색어 입력" />
-                <button id="searchBtn">🔍</button>
+            <div class="right-tools">
+                <!-- ✅ 관리자만 보이는 등록 버튼 -->
+                <div class="admin-actions" sec:authorize="hasRole('ADMIN')">
+                    <a class="btn btn--primary" th:href="@{/event/register}">등록하기</a>
+                </div>
+
+                <div class="search">
+                    <input id="searchInput" type="text" placeholder="검색어 입력" />
+                    <button id="searchBtn" type="button" aria-label="search">🔍</button>
+                </div>
             </div>
         </div>
 
         <div id="eventGrid" class="event-grid">
-
             <a class="event-card"
                th:each="event : ${list}"
                th:classappend="${tab} == 'closed' ? ' is-closed' : ''"
                th:href="@{/event/detail(id=${event.eventId})}">
 
                 <div class="thumb">
-      <span class="badge"
-            th:text="${tab == 'closing' ? '마감임박' : (tab == 'closed' ? '마감됨' : '진행중')}">
-        진행중
-      </span>
+          <span class="badge"
+                th:text="${tab == 'closing' ? '마감임박' : (tab == 'closed' ? '마감됨' : '진행중')}">
+            진행중
+          </span>
 
                     <img th:src="${(event.images != null and !event.images.isEmpty()) ? event.images[0].imgUrl : '/images/default-event.jpg'}"
                          th:alt="${event.eventTitle}" />
@@ -60,27 +71,19 @@
                     <div class="desc" th:text="${event.eventContent}">이벤트 설명</div>
 
                     <div class="meta">
-        <span th:text="${#temporals.format(event.startAt, 'yyyy.MM.dd')} + ' ~ ' + ${#temporals.format(event.endAt, 'MM.dd')}">
-          2026.01.01 ~ 01.31
-        </span>
+            <span th:text="${#temporals.format(event.startAt, 'yyyy.MM.dd')} + ' ~ ' + ${#temporals.format(event.endAt, 'MM.dd')}">
+              2026.01.01 ~ 01.31
+            </span>
                         <span>자세히 →</span>
                     </div>
                 </div>
             </a>
-
         </div>
 
-
-
-
-
-
-
-        <button id="moreBtn" class="more-btn">더보기</button>
+        <button id="moreBtn" class="more-btn" type="button">더보기</button>
     </section>
 </main>
 
 <script th:src="@{/js/common.js}" defer></script>
-<!-- <script th:src="@{/js/event.js}" defer></script> -->
 </body>
 </html>

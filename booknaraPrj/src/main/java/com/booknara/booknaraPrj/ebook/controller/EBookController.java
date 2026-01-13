@@ -27,6 +27,7 @@ public class EBookController {
     public String ebookView(Authentication auth,
                             Model model) throws IOException {
         // DB에서 회원의 현재 대여중인 전자책 정보 가져오기
+        System.out.println("ebook");
         String userId = auth.getName();
         List<MyEBookItemDTO> e_list = service.findEBookList(userId);
         e_list.forEach(System.out::println);

@@ -4,7 +4,7 @@
   --text:#1f2937;
   --muted:#6b7280;
   --line:#e5e7eb;
-  --brand:#f2b44b;   /* 말랑/Booknara 톤 */
+  --brand:#f2b44b;
   --brand2:#ffdd8a;
   --shadow: 0 18px 50px rgba(17,24,39,.10);
   --radius: 18px;
@@ -121,14 +121,15 @@ body{
 
 .help.warn{ color:#b42318; font-weight:700; }
 
+/* ✅ 업로드 박스(대표+상세 안내 강화) */
 .filebox{
   display:grid;
-  grid-template-columns: 1fr 220px;
+  grid-template-columns: 1fr 240px;
   gap: 14px;
   padding: 14px;
-  border: 1px dashed rgba(229,231,235,.9);
+  border: 1px dashed rgba(229,231,235,.95);
   border-radius: 16px;
-  background: rgba(249,250,251,.8);
+  background: rgba(249,250,251,.85);
 }
 
 @media (max-width: 720px){
@@ -147,12 +148,24 @@ body{
 }
 
 .file__name{
-  font-weight: 800;
+  font-weight: 900;
   font-size: 13px;
   color:#111827;
   white-space: nowrap;
   overflow:hidden;
   text-overflow: ellipsis;
+}
+
+/* ✅ “첫번째=썸네일, 나머지=상세” 안내 텍스트 */
+.file__hint{
+  margin-top: 2px;
+  font-size: 12px;
+  font-weight: 800;
+  color: #7a4b00;
+  background: rgba(242,180,75,.18);
+  border: 1px solid rgba(242,180,75,.25);
+  padding: 8px 10px;
+  border-radius: 12px;
 }
 
 .preview{
@@ -168,7 +181,7 @@ body{
 }
 
 .preview::after{
-  content:"미리보기";
+  content:"대표 미리보기";
   font-weight: 900;
   color: rgba(31,41,55,.55);
   font-size: 13px;
@@ -208,12 +221,94 @@ body{
 
 .btn:hover{ transform: translateY(-1px); }
 
-.btn--ghost{
-  background: transparent;
-}
+.btn--ghost{ background: transparent; }
 
 .btn--primary{
   border-color: rgba(242,180,75,.9);
   background: linear-gradient(180deg, var(--brand2), var(--brand));
   color: #4a2a00;
+}
+/* =========================
+   ✅ multiple 미리보기( preview-list ) 지원
+   ========================= */
+
+/* file input이 너무 길어 보이는 거 정리 */
+.file{
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #fff;
+}
+
+/* 오른쪽 미리보기 영역: 여러 장 그리드 */
+.preview-list{
+  min-height: 140px;
+  border-radius: 14px;
+  border: 1px solid rgba(229,231,235,.9);
+  background: linear-gradient(135deg, rgba(242,180,75,.18), rgba(99,102,241,.08));
+  padding: 10px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  align-content: start;
+  overflow: hidden;
+}
+
+/* 모바일에서는 2열 */
+@media (max-width: 720px){
+  .preview-list{
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* 빈 상태 안내 문구 */
+.preview-list:empty{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.preview-list:empty::after{
+  content:"이미지 미리보기";
+  font-weight: 900;
+  color: rgba(31,41,55,.55);
+  font-size: 13px;
+}
+
+/* 미리보기 아이템 */
+.preview-item{
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(229,231,235,.9);
+  background:#fff;
+  aspect-ratio: 16 / 9;     /* ✅ 썸네일은 16:9로 통일 */
+}
+
+/* 썸네일은 cover로 예쁘게 */
+.preview-item img{
+  width: 100%;
+  height: 100%;
+  object-fit: cover;        /* ✅ 추천: 썸네일은 cover */
+  display:block;
+}
+
+/* 첫 번째(대표/썸네일) 배지 */
+.preview-item.is-thumb::after{
+  content:"썸네일";
+  position:absolute;
+  left: 8px;
+  top: 8px;
+  padding: 6px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 900;
+  background: rgba(242,180,75,.92);
+  color:#4a2a00;
+  box-shadow: 0 8px 20px rgba(17,24,39,.12);
+}
+
+/* hover 효과 */
+.preview-item:hover img{
+  transform: scale(1.03);
+  transition: transform .2s ease;
 }

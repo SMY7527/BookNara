@@ -7,8 +7,6 @@
   --brand: #d7a24a;
   --accent: #2563eb;
   --radius: 16px;
-
-  /* ✅ 레이아웃 폭 변수(원래 없어서 추가) */
   --wrap: 1100px;
 }
 
@@ -59,30 +57,28 @@ body {
   overflow: hidden;
 }
 
-/* =========================
-   ✅ 상세 카드(왼쪽 디자인 핵심)
-   ========================= */
+/* 상세 카드 */
 #detail.card {
   max-width: 1100px;
   margin: 0 auto;
 }
 
-/* 배너(상세 이미지) */
+/* ✅ 배너(상세 이미지) */
 #detail .hero {
   width: 100%;
-  aspect-ratio: 16/6;
+  aspect-ratio: 16 / 9;     /* ✅ 안정적인 배너 비율 */
   background: #f3f4f6;
   overflow: hidden;
 }
 
-#detail .hero img {
+/* ✅ 상세 배너는 기본 cover (예쁘게) */
+#detail .hero img,
+#detail .hero .hero-img {
   width: 100%;
   height: 100%;
-  object-fit: contain;   /* ✅ 전체 보이게 (안 잘림) */
+  object-fit: cover;        /* ✅ 추천 */
   display: block;
-  background: #fff;      /* 남는 여백이 거슬리면 색 조정 */
 }
-
 
 /* 본문 */
 #detail .content {
@@ -125,7 +121,7 @@ body {
 #detail .text {
   color: #374151;
   line-height: 1.8;
-  white-space: pre-wrap;     /* 줄바꿈 유지 */
+  white-space: pre-wrap;
   margin: 0;
 }
 
@@ -146,12 +142,18 @@ body {
   cursor: pointer;
 }
 
+.ghost-btn:hover {
+  transform: translateY(-1px);
+}
+
 /* 모바일 */
 @media (max-width: 520px) {
   .page-title { font-size: 22px; }
   #detail .title { font-size: 18px; }
   #detail .content { padding: 18px; }
 }
+
+/* (목록 카드에 적용되던 흔적이 있길래 유지) */
 .event-card.is-closed {
   opacity: .75;
   filter: grayscale(.35);
@@ -161,6 +163,7 @@ body {
 .thumb, .thumb * {
   pointer-events: none;
 }
+
 .event-card:hover .title {
   text-decoration: underline;
 }

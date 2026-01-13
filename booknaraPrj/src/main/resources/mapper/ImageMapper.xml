@@ -5,12 +5,14 @@
 
 <mapper namespace="image">
 
-    <!--  event  전체 조회 -->
-    <select id="selectAll" resultType="ImageDTO">
-    SELECT *
-    FROM IMAGES
+    <insert id="insertEventImage" parameterType="map">
+        INSERT INTO IMAGES (TARGET_TYPE, TARGET_ID, IMG_TYPE, IMG_URL)
+        VALUES ('EVENT', #{eventId}, #{imgType}, #{imgUrl})
+    </insert>
 
+    <!-- (이미 있으면 유지) -->
+    <select id="selectAll" resultType="com.booknara.booknaraPrj.events.dto.ImageDTO">
+        SELECT * FROM IMAGES ORDER BY IMAGE_ID DESC
     </select>
-
 
 </mapper>

@@ -44,6 +44,7 @@ public class SecurityConfig {
                                 "/information/**",
                                 "/guide",
                                 "/guideDetail",
+                                "/uploads/**",
                                 "/location",
                                 "/locker",
                                 "/flow",

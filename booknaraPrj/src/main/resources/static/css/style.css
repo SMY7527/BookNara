@@ -1,0 +1,22 @@
+/* Google Fonts에서 주아체 불러오기 */
+@import url('https://fonts.googleapis.com/css2?family=Jua&display=swap');
+
+/* 1. 전체 페이지 기본 폰트 설정 (선택 사항) */
+body {
+    font-family: 'Pretendard', sans-serif; /* 기본 본문은 깔끔한 고딕 추천 */
+    margin: 0;
+    padding: 0;
+}
+
+/* 2. 주아체를 적용할 특정 클래스 만들기 */
+.font-jua {
+    font-family: 'Jua', sans-serif;
+}
+
+/* 3. Booknara 페이지의 제목 스타일 예시 */
+.main-title {
+    font-family: 'Jua', sans-serif;
+    font-size: 3rem;
+    color: #ff6b6b; /* 페이지 톤에 맞춘 색상 */
+    letter-spacing: -0.5px;
+}

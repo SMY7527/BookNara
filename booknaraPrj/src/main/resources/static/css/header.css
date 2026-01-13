@@ -21,7 +21,7 @@
   .header.scrolled {
     box-shadow: 0 2px 8px rgba(0,0,0,0.08);
   }
-}
+
 a{
   text-decoration: none;
   color: inherit;
@@ -148,7 +148,7 @@ a{
 }
 
 .profile-name {
-  font-size: 10px;
+  font-size: 12px;
   cursor: pointer;
 }
 
@@ -245,35 +245,51 @@ gap:15px
   align-items: center;
   gap: 10px;
 }
-/*검색바*/
+/* 검색바 외형 유지 */
 .search-bar {
   width: 140px;
   height: 32px;
   background: #e0e0e0;
   border-radius: 999px;
-  gap:10px;
+  /* padding은 form 내부로 옮기는 것이 더 정확합니다 */
+  overflow: hidden;
+}
+
+/* ⭐ form 태그가 실질적인 flex 컨테이너 역할을 하도록 수정 */
+.search-bar form {
   display: flex;
   align-items: center;
+  justify-content: space-between; /* 요소 사이 간격 최적화 */
+  width: 100%;
+  height: 100%;
   padding: 0 12px;
+  gap: 5px; /* input과 버튼 사이 간격 */
 }
+
+/* 입력창 */
 .search-bar input {
-  width: 80%;
-  flex: 1;
+  flex: 1; /* 남은 공간을 꽉 채우도록 설정 */
+  min-width: 0; /* flex 자식 요소의 최소 너비 버그 방지 */
   border: none;
   background: transparent;
   font-size: 11px;
   outline: none;
-  background-color: transparent;
 }
+
+/* 돋보기 버튼 */
 .search-btn {
   width: 15px;
   height: 15px;
   border: none;
   background: transparent;
   cursor: pointer;
-  position: relative;
+  display: flex; /* 이미지 중앙 정렬을 위해 추가 */
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0; /* 버튼이 눌리지 않게 고정 */
 }
-.search-btn img{
+
+.search-btn img {
   width: 15px;
   height: 15px;
 }

@@ -1,226 +1,262 @@
-/* ===== Reset ===== */
+/* ================= Reset ================= */
 * {
     box-sizing: border-box;
-    font-family: "Apple SD Gothic Neo", sans-serif;
+    font-family: "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
 }
 
-/* ===== 내 정보 컨테이너 (우측 fragment 기준) ===== */
-.myinfo-container {
-    width: 100%;
-    background: #fff;
-    border-radius: 10px;
-    padding: 32px;
+body {
+    background: #f6f6f6;
 }
 
-/* ===== 타이틀 ===== */
-.page-title {
-    font-size: 22px;
-    margin-bottom: 24px;
-}
-
-/* ===== 섹션 ===== */
+/* ================= 메인 섹션 ================= */
 .info-section {
-    margin-bottom: 40px;
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 36px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.06);
 }
 
+/* ================= 헤더 ================= */
 .section-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 16px;
+    margin-bottom: 28px;
 }
 
 .section-header h3 {
-    margin: 0;
+    font-size: 19px;
+    font-weight: 700;
+    color: #222;
 }
 
-/* ===== 버튼 ===== */
+/* ================= 버튼 ================= */
 .btn {
-    padding: 8px 14px;
-    border-radius: 6px;
+    padding: 9px 16px;
+    border-radius: 8px;
+    font-size: 14px;
     cursor: pointer;
     border: none;
-    font-size: 14px;
+    transition: all 0.2s ease;
 }
 
 .btn-primary {
-    background: #000;
-    color: #fff;
+    background: #FDBA74; /* 북나라 메인 */
+    color: #4a2c00;
+    font-weight: 700;
+}
+
+.btn-primary:hover {
+    background: #FB923C;
 }
 
 .btn-outline {
     background: #fff;
-    border: 1px solid #ccc;
+    border: 1.5px solid #ddd;
+    color: #444;
+}
+
+.btn-outline:hover {
+    border-color: #FDBA74;
+    color: #FB923C;
 }
 
 .btn-outline.small {
-    padding: 6px 10px;
+    padding: 7px 12px;
     font-size: 13px;
 }
-
-.btn-text {
-    background: none;
-    border: none;
-    color: #888;
-    cursor: pointer;
-    font-size: 13px;
-}
-
-/* ===== 폼 ===== */
+/* ================= 폼 ================= */
 .info-form {
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    gap: 18px;
 }
 
+/* 🔥 label / input 시작선 정확히 맞춤 */
 .form-row {
-    display: flex;
+    display: grid;
+    grid-template-columns: 180px 1fr;
     align-items: center;
-    gap: 16px;
-}
-
-.form-row.right {
-    justify-content: flex-end;
+    gap: 18px;
 }
 
 .form-row label {
-    width: 120px;
     font-size: 14px;
+    font-weight: 600;
     color: #555;
 }
 
+/* 기본 input */
 .form-row input {
-    flex: 1;
-    padding: 10px;
-    border-radius: 6px;
-    border: 1px solid #ddd;
-    background: #f3f3f3;
+    width: 100%;
+    padding: 11px 12px;
+    border-radius: 8px;
+    border: 1.5px solid #e5e5e5;
+    background: #fafafa;
+    font-size: 14px;
 }
 
+/* 비활성화 */
 .form-row input:disabled {
-    color: #666;
+    background: #f2f2f2;
+    color: #777;
 }
 
-/* ===== 주소 ===== */
+/* ================= 주소 ================= */
+.address-row {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+}
+
+/* 우편번호만 작게 */
+.address-row input[name="zipcode"] {
+    width: 120px;
+    flex-shrink: 0;
+}
+
+.address-row input[name="addr"] {
+    flex: 1;
+}
+
+/* ================= 주소 ================= */
 .address-row {
     display: flex;
     gap: 8px;
-    flex: 1;
-}
-
-/* ===== 장르 ===== */
-.genre-tags {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-}
-
-.tag {
-    padding: 6px 10px;
-    border-radius: 14px;
-    font-size: 13px;
-    background: #eee;
-}
-
-.tag.active {
-    background: #000;
-    color: #fff;
-}
-
-/* ===== 탈퇴 ===== */
-.withdraw {
-    margin-top: 40px;
-}
-
-/* ================= 회원탈퇴 모달 ================= */
-.modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.35);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 9999;
-}
-
-.modal {
-    width: 420px;
-    background: #fff;
-    border-radius: 10px;
-    padding: 18px 18px 16px;
-    position: relative;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.18);
-}
-
-.modal-close {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    border: none;
-    background: transparent;
-    cursor: pointer;
-    font-size: 18px;
-}
-
-.modal-title {
-    margin: 6px 0 12px;
-    text-align: center;
-    font-size: 18px;
-}
-
-.modal-box {
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 12px;
-    height: 140px;
-    overflow: auto;
-    font-size: 13px;
-    color: #444;
-    background: #fafafa;
-}
-
-.captcha-row {
-    margin-top: 12px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-#captchaImg {
-    width: 180px;
-    height: 48px;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    background: #fff;
-}
-
-.modal-field {
-    margin-top: 10px;
-}
-
-.modal-field input {
     width: 100%;
-    padding: 10px;
-    border-radius: 6px;
-    border: 1px solid #ddd;
-    background: #fff;
 }
 
-.password-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.pw-label {
-    width: 70px;
+/* ================= 장르 설명 ================= */
+.form-row p {
+    margin: 6px 0 14px;
     font-size: 13px;
-    color: #555;
+    color: #888;
 }
+
+/* ================= 장르 영역 ================= */
+.genre-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 6px;
+}
+
+/* ================= 장르 카드 ================= */
+.genre-card {
+    padding: 9px 18px;
+    border-radius: 22px;
+    font-size: 13px;
+    font-weight: 600;
+    border: 1.5px solid #e0e0e0;
+    background: #fff;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    user-select: none;
+}
+
+/* 선택됨 */
+.genre-card.active {
+    background: linear-gradient(135deg, #FDBA74, #FB923C);
+    color: #3b2200;
+    border-color: #FB923C;
+    box-shadow: 0 4px 10px rgba(251,146,60,0.25);
+}
+
+/* 수정 불가 상태 */
+.genre-card.disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+
+/* 수정 가능 hover */
+.genre-card:not(.disabled):hover {
+    border-color: #FDBA74;
+    color: #FB923C;
+}
+
+/* ================= 저장 버튼 위치 ================= */
+.form-row.right {
+    justify-content: flex-end;
+    margin-top: 26px;
+}
+
 
 .modal-actions {
     margin-top: 14px;
     display: flex;
     justify-content: center;
     gap: 10px;
+}
+
+/*======비밀번호 변경========*/
+/* ================= 비밀번호 변경 모달 ================= */
+.pw-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.35);
+    display: none;              /* ⭐ 처음엔 안 보이게 */
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+}
+
+.pw-modal {
+    width: 420px;
+    background: #fff;
+    border-radius: 10px;
+    padding: 22px 24px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.18);
+}
+
+.pw-modal-title {
+    text-align: center;
+    font-size: 18px;
+    margin-bottom: 18px;
+}
+
+.pw-row {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 14px;
+}
+
+.pw-input-wrap {
+    font-size: 13px;
+    color: #555;
+}
+
+.pw-row input {
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+    font-size: 14px;
+}
+
+.pw-row input:disabled {
+    background: #f3f3f3;
+    color: #777;
+}
+
+.pw-input-group {
+    display: flex;
+    gap: 8px;
+}
+
+.pw-modal-actions {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+}
+
+.pw-msg {
+  font-size: 12px;
+  margin-top: 4px;
+  color: #d9534f;
+}
+
+.pw-msg.success {
+  color: #2e8b57;
 }

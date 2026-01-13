@@ -28,20 +28,21 @@ body {
     border-radius: 10px;
 }
 
-.profile-img {
+.profile-box .profile-img {
     border: 1px solid black;
     margin: 0 auto;
-    width: 72px;
-    height: 72px;
+    width: 150px;
+    height: 150px;
     border-radius: 10%;
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
 }
 
-.profile-name {
+.profile-box .profile-name {
     text-align: center;
     font-weight: bold;
+    font-size: 20px;
 }
 
 /* 메뉴 */
@@ -97,4 +98,22 @@ body {
 
 .profile-menu .write-btn{
     width: 100%;
+}
+
+.inquiry-title .write-btn{
+    width: 100px;
+}
+
+
+/* ================= 우측 콘텐츠 (🔥 핵심) ================= */
+.mypage-content {
+    flex: 1;                     /* 남은 영역 전부 사용 */
+    min-width: 760px;            /* ✅ 최소 가로 크기 */
+    min-height: 720px;           /* ✅ 최소 세로 크기 */
+    background: #fff;
+    border-radius: 12px;
+    padding: 32px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+
+    /*border:2px solid #FDBA74;*/
 }

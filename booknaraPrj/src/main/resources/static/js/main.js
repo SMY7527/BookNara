@@ -1,5 +1,32 @@
 /*이벤트 배너 슬라이드*/
 document.addEventListener("DOMContentLoaded", () => {
+  fetch("/api/main/events")
+    .then(res => res.json())
+    .then(events => {
+      const track = document.querySelector(".banner-track");
+      const indicator = document.querySelector(".banner-indicator");
+
+      if (!events || events.length === 0) return;
+
+      track.innerHTML = "";
+      indicator.innerHTML = "";
+
+      events.forEach((e, idx) => {
+        track.innerHTML += `
+          <div class="banner-slide">
+            <img src="${e.imgUrl}" alt="${e.eventTitle}">
+          </div>
+        `;
+        indicator.innerHTML += `
+          <span class="dot ${idx === 0 ? 'active' : ''}"></span>
+        `;
+      });
+
+      initBannerSlider();
+    });
+});
+
+function initBannerSlider() {
   const track = document.querySelector(".banner-track");
   const slides = document.querySelectorAll(".banner-slide");
   const dots = document.querySelectorAll(".banner-indicator .dot");
@@ -31,8 +58,7 @@ document.addEventListener("DOMContentLoaded", () => {
       updateSlide(currentIndex);
     });
   });
-});
-
+}
 
 /* ===============================
    말랑이픽 (해시태그 + 도서)

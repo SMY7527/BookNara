@@ -1,3 +1,5 @@
+      @import url('https://fonts.googleapis.com/css2?family=Jua&display=swap');
+
       * {
           margin: 0;
           padding: 0;
@@ -18,11 +20,13 @@
       /* ===== 이벤트 배너 ===== */
       .event-banner {
       width: 100vw;
-      height: 500px;                 /* ⭐ 세로 고정 */
+      height: 550px;                 /* ⭐ 세로 고정 */
       margin-left: calc(50% - 50vw); /* ⭐ 전체폭 보정 */
       position: relative;
       overflow: hidden;
       background: #f5e2bf;
+      aspect-ratio: 3 / 4;
+
       }
 
       /* 슬라이더 */
@@ -74,13 +78,13 @@
       }
 
       .banner-nav.next {
-      right: 20px;   /* ⭐ 화면 오른쪽 끝 */
+      right: 20px;
       }
 
       /* 인디케이션 */
       .banner-indicator {
       position: absolute;
-      bottom: 32px;             /* ⭐ 중앙 하단 */
+      bottom: 32px;
       left: 50%;
       transform: translateX(-50%);
       display: flex;
@@ -92,59 +96,58 @@
       width: 10px;
       height: 10px;
       border-radius: 50%;
-      background: #dcdbdb;      /* ⭐ 요청 색상 */
+      background: #dcdbdb;
       cursor: pointer;
       }
 
       .banner-indicator .dot.active {
-      background: #9a9a9a;      /* 활성은 좀 더 진하게 */
+      background: #9a9a9a;
       }
 
 
 
           /* ===== 검색바 ===== */
-          .search-section{
-              width: 1280px;
-              height: 200px;
-              margin: 0 auto;
-              display: flex;
-              justify-content: center;
-              align-items: center;
-          }
           .main-search-bar {
-          width: 100%;
-          max-width: 1000px;
-          margin: 0 auto;
-          height: 64px;
-          border: 4px solid #DCA244;   /* ⭐ 테두리 색 */
-          border-radius: 999px;
-          display: flex;
-          align-items: center;
-          padding: 0 18px 0 24px;
-          background: #fff;
+              width: 100%;
+              max-width: 1000px;
+              margin: 70px auto;
+              height: 64px;
+              border: 4px solid #DCA244;
+              border-radius: 999px;
+              background: #fff;
+              /* padding 제거 (form 내부에서 조절하는 것이 더 정확합니다) */
+              overflow: hidden; /* 테두리 밖으로 내용이 나가지 않게 설정 */
+          }
+
+          /* ⭐ form 태그에 flex를 적용하여 내부 input과 button을 정렬합니다. */
+          .main-search-bar form {
+              display: flex;
+              align-items: center;
+              width: 100%;
+              height: 100%;
+              padding: 0 18px 0 24px; /* 기존 부모에 있던 패딩을 이쪽으로 이동 */
           }
 
           /* 입력창 */
           .main-search-bar input {
-          flex: 1;
-          border: none;
-          outline: none;
-          font-size: 20px;
-          color: #333;
-          }
-
-          .main-search-bar input::placeholder {
-          color: #d1a6a6;   /* 연한 핑크톤 */
+              flex: 1; /* 남은 공간을 모두 차지 */
+              height: 100%;
+              border: none;
+              outline: none;
+              font-size: 20px;
+              color: #333;
+              background: transparent;
           }
 
           /* 돋보기 버튼 */
           .main-search-btn {
-          width: 36px;
-          height: 36px;
-          border: none;
-          background: url("../images/icon1.png") no-repeat center;
-          background-size: 24px;
-          cursor: pointer;
+              width: 36px;
+              height: 36px;
+              border: none;
+              background: url("../images/icon1.png") no-repeat center;
+              background-size: 24px;
+              cursor: pointer;
+              flex-shrink: 0; /* 버튼 크기가 줄어들지 않도록 고정 */
           }
 
       /* ===== 말랑이 추천 도서 ===== */

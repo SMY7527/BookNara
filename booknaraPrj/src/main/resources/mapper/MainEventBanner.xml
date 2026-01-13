@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.booknara.booknaraPrj.mainpage.mapper.MainEventBannerMapper">
+
+    <select id="findActiveOrUpcomingEvents"
+            resultType="com.booknara.booknaraPrj.mainpage.dto.EventBannerDTO">
+
+        SELECT e.EVENT_ID      AS eventId,
+        e.EVENT_TITLE   AS eventTitle,
+        i.IMG_URL       AS imgUrl
+        FROM EVENTS e
+        JOIN IMAGES i
+        ON i.TARGET_TYPE = 'EVENT'
+        AND i.TARGET_ID = e.EVENT_ID
+        AND i.IMG_TYPE = 'MAIN'
+        WHERE e.END_AT >= NOW()
+        ORDER BY e.START_AT ASC
+    </select>
+
+</mapper>

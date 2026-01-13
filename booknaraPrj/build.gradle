@@ -1,7 +1,7 @@
 plugins {
-	id 'java'
-	id 'org.springframework.boot' version '3.5.9'
-	id 'io.spring.dependency-management' version '1.1.7'
+    id 'java'
+    id 'org.springframework.boot' version '3.5.9'
+    id 'io.spring.dependency-management' version '1.1.7'
 }
 
 group = 'com.booknara'
@@ -9,63 +9,60 @@ version = '0.0.1-SNAPSHOT'
 description = 'Demo project for Spring Boot'
 
 java {
-	toolchain {
-		languageVersion = JavaLanguageVersion.of(17)
-	}
-}
-
-tasks.withType(JavaCompile).configureEach {
-	options.compilerArgs << "-parameters"
-}
-
-configurations {
-	compileOnly {
-		extendsFrom annotationProcessor
-	}
-}
-
-repositories {
-	mavenCentral()
-}
-
-dependencies {
-    dependencies {
-        // [Core]
-        implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-        implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
-        implementation 'org.springframework.boot:spring-boot-starter-web'
-        implementation 'org.springframework.boot:spring-boot-starter-validation'
-        implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.5'
-
-        // [Security & Social]
-        implementation 'org.springframework.boot:spring-boot-starter-security'
-        implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
-        implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
-
-        // [Mail & Auth]
-        implementation 'org.springframework.boot:spring-boot-starter-mail'
-        implementation 'com.google.auth:google-auth-library-oauth2-http:1.23.0'
-
-        // [External SDKs]
-        implementation 'io.github.bootpay:backend:+'
-
-        // [Lombok]
-        compileOnly 'org.projectlombok:lombok'
-        annotationProcessor 'org.projectlombok:lombok'
-
-        // [Runtime & Dev]
-        developmentOnly 'org.springframework.boot:spring-boot-devtools'
-        runtimeOnly 'com.mysql:mysql-connector-j'
-
-        // [Test]
-        testImplementation 'org.springframework.boot:spring-boot-starter-test'
-        testImplementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter-test:3.0.5'
-        testImplementation 'org.springframework.security:spring-security-test'
-        testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
     }
 }
 
+tasks.withType(JavaCompile).configureEach {
+    options.compilerArgs << "-parameters"
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // [Core]
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.5'
+
+    // [Security & Social]
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+    implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
+
+    // [Mail & Auth]
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
+    implementation 'com.google.auth:google-auth-library-oauth2-http:1.23.0'
+
+    // [External SDKs]
+    implementation 'io.github.bootpay:backend:+'
+
+    // [Lombok]
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    // [Runtime & Dev]
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    runtimeOnly 'com.mysql:mysql-connector-j'
+
+    // [Test]
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter-test:3.0.5'
+    testImplementation 'org.springframework.security:spring-security-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
 
 tasks.named('test') {
-	useJUnitPlatform()
+    useJUnitPlatform()
 }

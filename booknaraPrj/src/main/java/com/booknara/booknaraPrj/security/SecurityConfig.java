@@ -42,6 +42,7 @@ public class SecurityConfig {
                                 "/information/**",
                                 "/guide",
                                 "/guideDetail",
+                                "/uploads/**",
 
 
                                 "/users/signup",

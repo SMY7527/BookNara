@@ -30,16 +30,20 @@
                         <span sec:authentication="principal.profileNm"></span> 님 🔻
                     </div>
 
-                    <div class="user-dropdown">
-                        <a th:href="@{/mypage}">마이페이지</a>
-                        <a th:href="@{/my/booklist}">내 서재</a>
-                        <a th:href="@{/mypage}">북마크</a>
-                        <!-- ⭐ 관리자 전용 -->
-                        <a th:href="@{/admin/Statistics}"
-                           sec:authorize="hasRole('ADMIN')">
-                            관리자페이지
-                        </a>
-                        <hr>
+                    <div class="user-dropdown" sec:authorize="isAuthenticated()">
+
+                        <th:block sec:authorize="hasRole('USER')">
+                            <a th:href="@{/mypage}">마이페이지</a>
+                            <a th:href="@{/my/booklist}">내 서재</a>
+                            <a th:href="@{/mypage}">북마크</a>
+                            <hr>
+                        </th:block>
+
+                        <th:block sec:authorize="hasRole('ADMIN')">
+                            <a th:href="@{/admin/Statistics}">관리자페이지</a>
+                            <hr>
+                        </th:block>
+
                         <form th:action="@{/logout}" method="post">
                             <button type="submit" class="logout-btn">로그아웃</button>
                         </form>

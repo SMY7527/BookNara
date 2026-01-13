@@ -30,6 +30,8 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
 
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
+
                         .requestMatchers(HttpMethod.GET,
                                 "/book/review/list"
                         ).permitAll()

@@ -12,13 +12,13 @@ import org.springframework.transaction.annotation.Transactional;
 public interface AdminBookManagementRepository extends JpaRepository<AdminBooks, Long> {
 
     @Query("SELECT new com.booknara.booknaraPrj.admin.bookManagement.AdminBookListResponseDto(" +
-            "b.bookId, i.isbn13, i.bookTitle, i.authors, i.description, i.publisher, i.pubDate, " + // b.bookId 추가
-            "i.naverImage, i.aladinImageBig, i.eBookYn, i.epub, g.genreNm, b.bookState) " +
-            "FROM AdminBooks b " +
-            "LEFT JOIN b.bookIsbn i " +
-            "LEFT JOIN i.adminGenre g " +
-            "WHERE (:keyword IS NULL OR i.bookTitle LIKE %:keyword% OR i.authors LIKE %:keyword% OR i.isbn13 = :keyword) " +
-            "AND (:bookState IS NULL OR :bookState = '' OR b.bookState = :bookState)")
+            "B.BOOK_ID, I.ISBN13, I.BOOK_TITLE, I.AUTHORS, I.DESCRIPTION, I.PUBLISHER, I.PUB_DATE, " +
+            "I.NAVER_IMAGE, I.ALADIN_IMAGE_BIG, I.EBOOK_YN, I.EPUB, G.GENRE_NM, B.BOOK_STATE) " +
+            "FROM ADMIN_BOOKS B " +
+            "LEFT JOIN B.BOOK_ISBN I " +
+            "LEFT JOIN I.ADMIN_GENRE G " +
+            "WHERE (:keyword IS NULL OR I.BOOK_TITLE LIKE %:keyword% OR I.AUTHORS LIKE %:keyword% OR I.ISBN13 = :keyword) " +
+            "AND (:bookState IS NULL OR :bookState = '' OR B.BOOK_STATE = :bookState)")
     Slice<AdminBookListResponseDto> findByFiltersDto(
             @Param("keyword") String keyword,
             @Param("bookState") String bookState,
@@ -27,6 +27,6 @@ public interface AdminBookManagementRepository extends JpaRepository<AdminBooks,
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Transactional
 // [수정] WHERE 절을 b.bookId 기준으로 변경합니다.
-    @Query("UPDATE AdminBooks b SET b.bookState = :bookState WHERE b.bookId = :bookId")
+    @Query("UPDATE ADMIN_BOOKS B SET B.BOOK_STATE = :bookState WHERE B.BOOK_ID = :bookId")
     void updateBookState(@Param("bookId") Long bookId, @Param("bookState") String bookState);
 }

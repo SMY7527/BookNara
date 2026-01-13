@@ -192,6 +192,24 @@ button:disabled{
     opacity: 0.5;
     cursor: not-allowed;
 }
+.ebook-badge {
+    display: inline-block;
+    margin-top: 6px;
+    padding: 4px 8px;
+    font-size: 12px;
+    border-radius: 12px;
+    background: #eef6ff;
+    color: #1d4ed8;
+    cursor: pointer;
+    width: fit-content;
+}
+
+.ebook-badge:hover {
+    background: #dbeafe;
+}
+
+
+
 
 /* ===== 반응형 ===== */
 @media (max-width: 920px){

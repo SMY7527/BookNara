@@ -35,12 +35,21 @@
 
       <div class="form-row">
         <label>프로필명</label>
+
         <input type="text"
+               id="profileNm"
                name="profileNm"
                th:value="${myInfo.profileNm}"
                class="editable"
                disabled/>
+
+        <input type="hidden"
+               id="originalProfileNm"
+               th:value="${myInfo.profileNm}">
+
+        <span id="profileNmMsg" class="input-msg"></span>
       </div>
+
 
       <div class="form-row">
         <label>생년월일</label>

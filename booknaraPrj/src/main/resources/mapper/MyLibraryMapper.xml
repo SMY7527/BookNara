@@ -12,30 +12,41 @@
     <select id="selectCurrentLends"
             parameterType="string"
             resultType="com.booknara.booknaraPrj.mypage.mylibrary.MyLendDto">
-        <![CDATA[
+<![CDATA[
         SELECT
-            l.LEND_ID AS lendId,
-            l.BOOK_ID AS bookId,
-            b.ISBN13 AS isbn13,
-            bi.BOOK_TITLE AS bookTitle,
-            bi.AUTHORS AS authors,
-            bi.ALADIN_IMAGE_BIG AS coverImg,
-            l.LEND_DATE AS lendDate,
-            l.RETURN_DUE_DATE AS returnDueDate,
-            l.RETURN_DONE_AT AS returnDoneAt,
-            l.EXTEND_CNT AS extendCnt,
+            l.LEND_ID            AS lendId,
+            l.BOOK_ID            AS bookId,
+            b.ISBN13             AS isbn13,
+
+            bi.BOOK_TITLE        AS bookTitle,
+            bi.AUTHORS           AS authors,
+            bi.ALADIN_IMAGE_BIG  AS coverImg,
+
+            -- ✅ EBOOK 정보
+            bi.EBOOK_YN          AS ebookYn,
+            bi.EPUB              AS epub,
+
+            l.LEND_DATE          AS lendDate,
+            l.RETURN_DUE_DATE    AS returnDueDate,
+            l.RETURN_DONE_AT     AS returnDoneAt,
+            l.EXTEND_CNT         AS extendCnt,
+
             CASE
-                WHEN l.RETURN_DONE_AT IS NULL AND l.RETURN_DUE_DATE < NOW() THEN 'Y'
+                WHEN l.RETURN_DONE_AT IS NULL
+                    AND l.RETURN_DUE_DATE < NOW()
+                    THEN 'Y'
                 ELSE 'N'
                 END AS overDue
         FROM LENDS l
-                 JOIN BOOKS b ON l.BOOK_ID = b.BOOK_ID
-                 JOIN BOOK_ISBN bi ON b.ISBN13 = bi.ISBN13
+                 JOIN BOOKS b
+                      ON l.BOOK_ID = b.BOOK_ID
+                 JOIN BOOK_ISBN bi
+                      ON b.ISBN13 = bi.ISBN13
         WHERE l.USER_ID = #{userId}
           AND l.RETURN_DONE_AT IS NULL
         ORDER BY l.LEND_DATE DESC
         ]]>
-    </select>
+</select>
 
     <!-- =========================
          대여 기록 (반납 완료된 것만)

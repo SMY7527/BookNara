@@ -150,4 +150,16 @@ WHERE PROFILE_NM = #{profileNm}
         FROM USERS
         WHERE USER_ID = #{userId}
     </select>
+
+    <select id="countByProfileNmExceptMe" resultType="int">
+        SELECT COUNT(*)
+        FROM USERS
+        WHERE PROFILE_NM = #{profileNm}
+          AND USER_ID != #{userId}
+    </select>
+
+
+
+
+
 </mapper>

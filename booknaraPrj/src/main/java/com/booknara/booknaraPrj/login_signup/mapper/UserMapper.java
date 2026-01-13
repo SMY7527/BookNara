@@ -52,6 +52,16 @@ public interface UserMapper {
 
     int updatePassword(@Param("userId") String userId,
                        @Param("password") String password);
+
+    // 회원수정시 프로필명 중복 확인
+    int countByProfileNmExceptMe(
+            @Param("profileNm") String profileNm,
+            @Param("userId") String userId
+    );
+
+
+
+
 }
 
 

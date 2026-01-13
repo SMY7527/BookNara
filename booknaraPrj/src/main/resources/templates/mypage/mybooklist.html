@@ -25,6 +25,8 @@
 
         <div class="book-list" th:if="${!#lists.isEmpty(currentLends)}">
             <div class="book-card" th:each="book : ${currentLends}">
+
+                <!-- 책 이미지 -->
                 <img class="book-img rent-img"
                      th:src="${book.coverImg}"
                      th:data-lend-id="${book.lendId}"
@@ -35,21 +37,31 @@
                      th:data-overdue="${book.overDue}"
                      th:data-img="${book.coverImg}">
 
-
-
+                <!-- 제목 -->
                 <div class="book-title" th:text="${book.bookTitle}"></div>
 
+                <!-- 반납 예정일 -->
                 <div class="book-meta">
                     반납예정일 :
                     <span th:text="${#temporals.format(book.returnDueDate,'yyyy-MM-dd')}"></span>
                 </div>
 
+                <!-- ✅ EBOOK 배지 -->
+                <div class="ebook-badge"
+                     th:if="${book.ebookYn == 'Y'}"
+                     th:data-epub="${book.epub}"
+                     onclick="openEbook(this)">
+                    📘 EBOOK
+                </div>
+
+                <!-- 버튼 -->
                 <div class="book-btns">
                     <button type="button"
                             th:data-lend-id="${book.lendId}"
                             onclick="returnBook(this)">
                         반납
                     </button>
+
                     <button type="button"
                             th:if="${book.extendCnt == null || book.extendCnt == 0}"
                             th:data-lend-id="${book.lendId}"
@@ -57,15 +69,15 @@
                         연장
                     </button>
 
-                    <!-- (선택) 이미 연장한 책이면 텍스트만 보여주기 -->
                     <span class="book-meta"
                           th:if="${book.extendCnt != null && book.extendCnt > 0}">
-    연장 완료
-</span>
-
+        연장 완료
+      </span>
                 </div>
+
             </div>
         </div>
+
     </div>
 
     <!-- 대여 기록 -->
@@ -212,6 +224,24 @@
         extendBook({ dataset: { lendId: modalLendId } });
     }
 </script>
+
+    <script>
+        function openEbook(el) {
+            const epubUrl = el.dataset.epub;
+
+            if (!epubUrl) {
+                alert("전자책 파일이 없습니다.");
+                return;
+            }
+
+            // ✅ 1안: 새 탭으로 열기 (가장 간단)
+            window.open("/ebook/epub/" + isbn, "_blank");
+
+
+            // ✅ 2안: 내부 뷰어로 보내고 싶으면
+            // location.href = "/ebook/view?url=" + encodeURIComponent(epubUrl);
+        }
+    </script>
 
 
 </th:block>>

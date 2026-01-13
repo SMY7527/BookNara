@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+    .img-wrap {
+        display: flex;
+        width: 1280px;
+        height: 800px;
+        margin: 0 auto;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .img-wrap img {
+        width: 900px;
+    }
+    </style>
+    <link rel="stylesheet" th:href="@{/css/footer.css}">
+</head>
+<body>
+  <!-- ================= 헤더 ================= -->
+  <div th:replace="fragments/header :: header"></div>
+
+  <div class="img-wrap">
+    <img th:src="@{/images/error/500.png}">
+  </div>
+
+  <!-- ================= 푸터 ================= -->
+  <div th:replace="fragments/footer :: footer"></div>
+</body>
+</html>

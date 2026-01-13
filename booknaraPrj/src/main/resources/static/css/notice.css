@@ -1,11 +1,9 @@
 :root {
-  --wrap: 1280px;
   --bg: #f6f7fb;
   --card: #ffffff;
   --line: #e6e8ef;
   --text: #111827;
   --muted: #6b7280;
-  --brand: #d7a24a;
   --accent: #2563eb;
   --radius: 16px;
 }
@@ -17,24 +15,10 @@ body {
   margin: 0;
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans KR",
     sans-serif;
-  /*background: var(--bg);*/
+  background: var(--bg);
   color: var(--text);
 }
 
-/* 헤더 */
-/*
-.site-header {
-  background: linear-gradient(90deg, var(--brand), #e7b35a);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
-}
-.header-inner {
-  max-width: var(--wrap);
-  margin: 0 auto;
-  padding: 18px 16px;
-  font-weight: 900;
-  text-align: center;
-}
-*/
 /* 레이아웃 */
 .container {
   max-width: var(--wrap);
@@ -49,7 +33,7 @@ body {
 }
 
 /* 카드 */
-.guide-card {
+.notice-card {
   background: var(--card);
   border: 1px solid var(--line);
   border-radius: var(--radius);
@@ -57,8 +41,8 @@ body {
   padding: 18px;
 }
 
-/* 검색 */
-.guide-top {
+/* 상단 검색 */
+.notice-top {
   display: flex;
   justify-content: center;
   padding-bottom: 12px;
@@ -95,7 +79,7 @@ body {
 }
 
 /* 리스트 */
-.guide-list {
+.notice-list {
   list-style: none;
   padding: 14px 0 0;
   margin: 0;
@@ -103,8 +87,7 @@ body {
   flex-direction: column;
   gap: 10px;
 }
-
-.guide-item {
+.notice-item {
   border: 1px solid var(--line);
   border-radius: 14px;
   padding: 14px 14px;
@@ -116,18 +99,19 @@ body {
   transition: 0.15s ease;
   cursor: pointer;
 }
-.guide-item:hover {
+.notice-item:hover {
   transform: translateY(-2px);
   box-shadow: 0 10px 24px rgba(17, 24, 39, 0.08);
   border-color: rgba(37, 99, 235, 0.25);
 }
 
-.guide-left {
+.notice-left {
   display: flex;
   align-items: center;
   gap: 10px;
   min-width: 0;
 }
+
 .badge {
   font-weight: 900;
   font-size: 12px;
@@ -138,13 +122,15 @@ body {
   border: 1px solid rgba(215, 162, 74, 0.25);
   white-space: nowrap;
 }
-.guide-title {
+
+.notice-title {
   font-weight: 900;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.guide-meta {
+
+.notice-meta {
   font-size: 12px;
   color: var(--muted);
   white-space: nowrap;
@@ -159,6 +145,7 @@ body {
   flex-wrap: wrap;
   user-select: none;
 }
+
 .page-btn {
   min-width: 36px;
   height: 36px;
@@ -183,6 +170,7 @@ body {
   color: var(--accent);
 }
 
+/* 모바일 */
 @media (max-width: 520px) {
   .page-title {
     font-size: 22px;
@@ -190,16 +178,7 @@ body {
   .search input {
     width: 220px;
   }
-  .guide-meta {
+  .notice-meta {
     display: none;
   }
-}
-/* a.guide-item 쓸 때 밑줄/색 제거 */
-.guide-item {
-  text-decoration: none;
-  color: inherit;
-}
-.guide-item {
-  text-decoration: none;
-  color: inherit;
 }

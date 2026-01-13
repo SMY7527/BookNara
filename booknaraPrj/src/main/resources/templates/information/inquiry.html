@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>1:1 고객문의</title>
+
+    <link rel="stylesheet" th:href="@{/css/common.css}" />
+    <link rel="stylesheet" th:href="@{/css/inquiry.css}" />
+  </head>
+
+  <body>
+  <!-- ================= 헤더 ================= -->
+  <div th:replace="fragments/header :: header"></div>
+
+    <main class="container">
+      <h2 class="page-title">1:1 고객문의</h2>
+
+      <section class="card">
+        <div class="topbar">
+          <div class="search">
+            <input
+              id="searchInput"
+              type="text"
+              placeholder="검색어 입력(제목/내용/작성자)"
+            />
+            <button id="searchBtn" type="button" aria-label="검색">🔍</button>
+          </div>
+
+          <button id="openModalBtn" class="primary-btn" type="button">
+            문의 등록
+          </button>
+        </div>
+
+        <ul id="inquiryList" class="list"></ul>
+
+        <div id="paging" class="paging"></div>
+      </section>
+    </main>
+
+    <!-- =========================
+      등록 모달
+    ========================== -->
+    <div id="modalBackdrop" class="modal-backdrop hidden"></div>
+
+    <div
+      id="modal"
+      class="modal hidden"
+      role="dialog"
+      aria-modal="true"
+      aria-label="문의 등록"
+    >
+      <div class="modal-head">
+        <div class="modal-title">문의 등록</div>
+        <button
+          id="closeModalBtn"
+          class="icon-btn"
+          type="button"
+          aria-label="닫기"
+        >
+          ✕
+        </button>
+      </div>
+
+      <form id="form" class="form">
+        <label class="field">
+          <span class="label">카테고리</span>
+          <select id="category" required>
+            <option value="배송">배송</option>
+            <option value="대여/반납">대여/반납</option>
+            <option value="결제/환불">결제/환불</option>
+            <option value="계정/회원">계정/회원</option>
+            <option value="기타">기타</option>
+          </select>
+        </label>
+
+        <label class="field">
+          <span class="label">작성자(성명)</span>
+          <input
+            id="writer"
+            type="text"
+            maxlength="20"
+            placeholder="예: 홍길동"
+            required
+          />
+        </label>
+
+        <label class="field">
+          <span class="label">제목</span>
+          <input
+            id="title"
+            type="text"
+            maxlength="60"
+            placeholder="제목을 입력하세요"
+            required
+          />
+        </label>
+
+        <label class="field">
+          <span class="label">내용</span>
+          <textarea
+            id="content"
+            rows="6"
+            maxlength="1000"
+            placeholder="문의 내용을 입력하세요"
+            required
+          ></textarea>
+        </label>
+
+        <!-- ✅ 첨부파일 -->
+        <label class="field">
+          <span class="label">첨부파일(이미지/파일)</span>
+          <input
+            id="files"
+            type="file"
+            multiple
+            accept="image/*,.pdf,.zip,.txt,.hwp,.doc,.docx,.ppt,.pptx,.xls,.xlsx"
+          />
+          <div class="hint">
+            이미지 파일은 미리보기 표시됩니다. (용량이 너무 크면 저장이 제한될
+            수 있어요)
+          </div>
+          <div id="filePreview" class="file-preview"></div>
+        </label>
+
+        <div id="formMsg" class="form-msg" aria-live="polite"></div>
+
+        <!-- ✅ 비공개 -->
+        <label class="check">
+          <input id="secret" type="checkbox" />
+          <span>비공개 문의</span>
+        </label>
+
+        <!-- ✅ 비공개 비밀번호(체크 시만 표시) -->
+        <div id="secretPassWrap" class="secret-pass hidden">
+          <label class="field">
+            <span class="label">비공개 비밀번호</span>
+            <input
+              id="secretPass"
+              type="password"
+              maxlength="30"
+              placeholder="비밀번호 입력"
+              autocomplete="new-password"
+            />
+          </label>
+          <label class="field">
+            <span class="label">비공개 비밀번호 확인</span>
+            <input
+              id="secretPass2"
+              type="password"
+              maxlength="30"
+              placeholder="비밀번호 재입력"
+              autocomplete="new-password"
+            />
+          </label>
+          <div class="hint">
+            비공개 문의는 비밀번호를 아는 사람만 열람할 수 있습니다.
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button class="ghost-btn" id="cancelBtn" type="button">취소</button>
+          <button class="primary-btn" type="submit">등록</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- =========================
+      ✅ 비공개 열람 비밀번호 모달
+    ========================== -->
+    <div id="passBackdrop" class="modal-backdrop hidden"></div>
+
+    <div
+      id="passModal"
+      class="modal hidden"
+      role="dialog"
+      aria-modal="true"
+      aria-label="비공개 열람"
+    >
+      <div class="modal-head">
+        <div class="modal-title">비공개 문의 열람</div>
+        <button
+          id="passCloseBtn"
+          class="icon-btn"
+          type="button"
+          aria-label="닫기"
+        >
+          ✕
+        </button>
+      </div>
+
+      <div class="form">
+        <div class="hint">
+          비공개 문의입니다. 비밀번호를 입력해야 내용을 볼 수 있어요.
+        </div>
+
+        <label class="field">
+          <span class="label">비밀번호</span>
+          <input
+            id="passInput"
+            type="password"
+            placeholder="비밀번호 입력"
+            autocomplete="current-password"
+          />
+        </label>
+
+        <div id="passMsg" class="form-msg" aria-live="polite"></div>
+
+        <div class="form-actions">
+          <button id="passCancelBtn" class="ghost-btn" type="button">
+            취소
+          </button>
+          <button id="passOkBtn" class="primary-btn" type="button">확인</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ✅ 공통 JS 먼저 (헤더/토스트) -->
+    <script th:src="@{/js/common.js}" defer></script>
+    <!-- ✅ 페이지 JS -->
+    <script th:src="@{/js/inquiry.js}" defer></script>
+  </body>
+</html>

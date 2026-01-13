@@ -9,7 +9,8 @@
     <link rel="stylesheet" th:href="@{/css/schedule.css}" />
   </head>
   <body>
-    <header id="siteHeader"></header>
+  <!-- ================= 헤더 ================= -->
+  <div th:replace="fragments/header :: header"></div>
 
     <main class="container">
       <h2 class="page-title">배송/반납 일정 안내</h2>
@@ -68,10 +69,10 @@
             <li>수거함 반납은 “수거함 수거일” 기준으로 처리돼요.</li>
           </ul>
           <div class="actions">
-            <a class="ghost-btn" href="/root/guide-page/flow.html"
+            <a class="ghost-btn" th:href="@{/flow}"
               >대여·반납 한눈에 보기</a
             >
-            <a class="primary-btn" href="/root/inquiry-page/inquiry.html"
+            <a class="primary-btn" th:href="@{/inquiry}"
               >1:1 문의</a
             >
           </div>
@@ -101,7 +102,7 @@
       </section>
 
       <div class="bottom-actions">
-        <a class="ghost-btn" href="/root/guide-page/guide.html">이용안내로</a>
+        <a class="ghost-btn" th:href="@{/guide}">이용안내로</a>
       </div>
     </main>
 

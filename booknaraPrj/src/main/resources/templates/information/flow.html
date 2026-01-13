@@ -9,7 +9,8 @@
     <link rel="stylesheet" th:href="@{/css/flow.css}" />
   </head>
   <body>
-    <header id="siteHeader"></header>
+  <!-- ================= 헤더 ================= -->
+  <div th:replace="fragments/header :: header"></div>
 
     <main class="container">
       <h2 class="page-title">대여·반납 한눈에 보기</h2>
@@ -22,21 +23,21 @@
           </div>
 
           <div class="hero-actions">
-            <a class="primary-btn" href="/root/inquiry-page/inquiry.html"
+            <a class="primary-btn" th:href="@{/inquiry}"
               >1:1 문의하기</a
             >
-            <a class="ghost-btn" href="/root/guide-page/schedule.html"
+            <a class="ghost-btn" th:href="@{/schedule}"
               >배송/반납 일정 보기</a
             >
           </div>
         </div>
 
         <div class="hero-right">
-          <img
+          <!-- <img
             class="hero-img"
             src="/root/assets/home-mallang.png"
             alt="말랑이"
-          />
+          /> -->
         </div>
       </section>
 
@@ -131,14 +132,14 @@
         <div class="chips" id="chips"></div>
 
         <div class="hint">
-          * 버튼을 누르면 FAQ로 이동합니다. (검색어가 자동 입력되도록 하려면 FAQ
-          쪽에 query 파싱을 붙이면 돼요)
+          * 버튼을 누르면 FAQ로 이동합니다. <!--(검색어가 자동 입력되도록 하려면 FAQ
+          쪽에 query 파싱을 붙이면 돼요)-->
         </div>
       </section>
 
       <div class="bottom-actions">
-        <a class="ghost-btn" href="/root/guide-page/guide.html">이용안내로</a>
-        <a class="primary-btn" href="/root/inquiry-page/inquiry.html"
+        <a class="ghost-btn" th:href="@{/guide}">이용안내로</a>
+        <a class="primary-btn" th:href="@{/inquiry}"
           >1:1 문의 등록</a
         >
       </div>

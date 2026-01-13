@@ -12,8 +12,8 @@
   </head>
 
   <body>
-    <!-- common.js가 헤더 그려줌 -->
-    <header id="siteHeader"></header>
+  <!-- ================= 헤더 ================= -->
+  <div th:replace="fragments/header :: header"></div>
 
     <main class="container">
       <h2 class="page-title">찾아오는길</h2>
@@ -28,7 +28,7 @@
               alt="서교동 354-8 위치 지도 스크린샷"
             />
             <figcaption class="map-cap">
-              지도 API 없이 스크린샷으로 표시됩니다.
+<!--              지도 API 없이 스크린샷으로 표시됩니다.-->
             </figcaption>
           </figure>
 

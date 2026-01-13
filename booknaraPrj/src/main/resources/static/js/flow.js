@@ -29,7 +29,7 @@ QUICK.forEach((x) => {
 
   b.addEventListener("click", () => {
     // FAQ로 이동 (q는 선택: FAQ에서 query 파싱하면 자동검색 가능)
-    location.href = `/root/FAQ/faq.html?q=${encodeURIComponent(x.q)}`;
+    location.href = `/faq/search?q=${encodeURIComponent(x.q)}`;
   });
 
   chips.appendChild(b);

@@ -160,6 +160,18 @@
   box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
 }
 
+.search button {
+  border: 1px solid var(--line);
+  background-color: #fff;
+  padding: 12px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.search button:hover {
+  background-color: #f3f4f6;
+}
+
 .muted {
   margin: 10px 0 0;
   color: var(--muted);

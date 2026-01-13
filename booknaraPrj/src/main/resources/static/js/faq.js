@@ -186,3 +186,14 @@ searchInput.addEventListener("keydown", (e) => {
 });
 
 render();
+
+// URL에서 query 파라미터 읽기
+const params = new URLSearchParams(window.location.search);
+const q = params.get("q");
+
+if (q) {
+  keyword = q;                 // 기존 검색 로직에 연결
+  searchInput.value = q;       // 검색창에도 자동 입력
+  page = 1;
+  render();                    // 바로 검색 결과 렌더
+}

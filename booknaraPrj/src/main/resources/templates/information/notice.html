@@ -3,39 +3,34 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>자주하는 질문</title>
+    <title>공지사항</title>
+
     <link rel="stylesheet" th:href="@{/css/common.css}" />
-    <link rel="stylesheet" th:href="@{/css/faq.css}" />
+    <link rel="stylesheet" th:href="@{/css/notice.css}" />
   </head>
+
   <body>
   <!-- ================= 헤더 ================= -->
   <div th:replace="fragments/header :: header"></div>
 
     <main class="container">
-      <h2 class="page-title">Q&A 자주묻는 질문</h2>
+      <h2 class="page-title">공지사항</h2>
 
-      <section class="faq-card">
-        <div class="faq-top">
+      <section class="notice-card">
+        <div class="notice-top">
           <div class="search">
             <input id="searchInput" type="text" placeholder="검색어 입력" />
             <button id="searchBtn" type="button" aria-label="검색">🔍</button>
           </div>
         </div>
-        <!-- 🔥 자주 묻는 TOP 3 -->
-        <div class="top-wrap">
-          <div class="top-title">🔥 자주 묻는 TOP 3</div>
-          <ul id="topList" class="faq-list"></ul>
-        </div>
 
-        <!-- 일반 FAQ -->
-        <ul id="faqList" class="faq-list"></ul>
+        <ul id="noticeList" class="notice-list"></ul>
 
-        <!--페이지네이션 -->
         <div id="paging" class="paging"></div>
       </section>
     </main>
 
     <script th:src="@{/js/common.js}" defer></script>
-    <script th:src="@{/js/faq.js}" defer></script>
+    <script th:src="@{/js/notice.js}" defer></script>
   </body>
 </html>

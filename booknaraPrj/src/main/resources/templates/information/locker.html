@@ -13,14 +13,16 @@
     <script th:src="@{/js/locker.js}" defer></script>
   </head>
   <body>
-    <header id="siteHeader"></header>
+  <!-- ================= 헤더 ================= -->
+  <div th:replace="fragments/header :: header"></div>
 
     <main class="container">
       <h1 class="page-title">수거함 안내</h1>
 
       <section class="guide-card">
         <div class="top-actions">
-          <a class="btn" href="./guide.html">← 가이드 허브</a>
+          <!-- <a class="btn" href="./guide.html">← 가이드 허브</a> -->
+          <a class="btn" th:href="@{/information}">이전으로</a>
           <div class="right-actions">
             <button class="btn btn-primary" type="button" id="copyAllBtn">
               역 리스트 복사
@@ -43,7 +45,7 @@
 
           <div class="summary-right">
             <span class="chip">🔎 역 검색 가능</span>
-            <span class="chip">🗺️ 지도 API 없음</span>
+<!--            <span class="chip">🗺️ 지도 API 없음</span>-->
             <span class="chip">📦 포장 후 투입</span>
           </div>
         </div>
@@ -56,7 +58,7 @@
               type="text"
               placeholder="역 이름을 검색해봐 (예: 홍대, 합정, DMC)"
             />
-            <button id="searchBtn" type="button">검색</button>
+            <button id="searchBtn" type="button">🔎</button>
           </div>
           <p class="muted">
             ※ 실제 수거함 상세 위치(출구/층 등)는 운영 안내에 따라 추후 추가

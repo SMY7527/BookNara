@@ -10,7 +10,9 @@
   </head>
 
   <body>
-    <header id="siteHeader"></header>
+<!--    <header id="siteHeader"></header>-->
+    <!-- ================= 헤더 ================= -->
+    <div th:replace="fragments/header :: header"></div>
 
     <main class="container cc">
       <!-- HERO -->
@@ -51,7 +53,7 @@
         <div class="hero-right">
           <!-- ✅ 여기 이미지 파일만 넣으면 됨 -->
           <!-- assets 폴더 만들고, 말랑 이미지 저장: assets/mallang.png -->
-          <img class="hero-img" src="images/m2" alt="말랑이" />
+          <img class="hero-img" th:src="@{/images/info_mallang.png}" alt="말랑이" />
         </div>
       </section>
 
@@ -96,15 +98,19 @@
               <a class="panel-more" th:href="@{/faq}">FAQ 전체보기 →</a>
             </div>
 
-            <ul class="mini-list">
-              <li class="mini-item">
-                배송이 멈춘 것 같아요. (답변 확인은 FAQ)
-              </li>
-              <li class="mini-item">환불은 언제 처리되나요?</li>
-              <li class="mini-item">대여 기간 연장은 가능한가요?</li>
-              <li class="mini-item">비밀번호를 잊어버렸어요.</li>
-              <li class="mini-item">배송비는 얼마인가요?</li>
-            </ul>
+<!--            <ul class="mini-list">-->
+<!--              <li class="mini-item">-->
+<!--                배송이 멈춘 것 같아요. (답변 확인은 FAQ)-->
+<!--              </li>-->
+<!--              <li class="mini-item">환불은 언제 처리되나요?</li>-->
+<!--              <li class="mini-item">대여 기간 연장은 가능한가요?</li>-->
+<!--              <li class="mini-item">비밀번호를 잊어버렸어요.</li>-->
+<!--              <li class="mini-item">배송비는 얼마인가요?</li>-->
+<!--            </ul>-->
+            <div class="top-wrap">
+              <div class="top-title">🔥 자주 묻는 TOP 3</div>
+              <ul id="topList" class="faq-list"></ul>
+            </div>
           </section>
 
           <section class="card panel">
@@ -115,11 +121,12 @@
               >
             </div>
 
-            <ul class="mini-list">
-              <li class="mini-item">공식 연락처 안내</li>
-              <li class="mini-item">검색 불가 오류 안내</li>
-              <li class="mini-item">서비스 이용약관 개정 공지</li>
-            </ul>
+<!--            <ul class="mini-list">-->
+<!--              <li class="mini-item">공식 연락처 안내</li>-->
+<!--              <li class="mini-item">검색 불가 오류 안내</li>-->
+<!--              <li class="mini-item">서비스 이용약관 개정 공지</li>-->
+<!--            </ul>-->
+            <ul id="noticeList" class="notice-list"></ul>
           </section>
 
           <section class="card cta">
@@ -138,6 +145,7 @@
     </main>
 
     <script th:src="@{/js/common.js}" defer></script>
+    <script th:src="@{/js/information.js}" defer></script>
 
     <script>
       document.addEventListener("DOMContentLoaded", () => {
@@ -149,7 +157,7 @@
           if (!q) return window.toast?.("검색어를 입력해 주세요!", "warn");
           localStorage.setItem("cc_global_q", q);
           window.toast?.("FAQ로 이동해서 검색할게요!", "success");
-          location.href = "./FAQ/faq.html";
+          location.href = "/faq/search?q=" + q;
         }
 
         btn.addEventListener("click", go);

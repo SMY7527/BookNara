@@ -22,6 +22,7 @@ body {
 }
 
 /* 헤더 */
+/*
 .site-header {
   background: linear-gradient(90deg, var(--brand), #e7b35a);
   border-bottom: 1px solid rgba(0, 0, 0, 0.06);
@@ -34,7 +35,7 @@ body {
   font-weight: 900;
   text-align: center;
 }
-
+*/
 /* 컨테이너 */
 .container {
   max-width: var(--wrap);

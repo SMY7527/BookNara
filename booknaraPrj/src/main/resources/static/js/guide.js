@@ -8,10 +8,10 @@ const GUIDES = [
   { id: 2, tag: "배송", title: "배송비 안내", desc: "배송비/무료배송 조건" },
   { id: 3, tag: "정책", title: "반송정보 안내", desc: "반품/교환/오배송" },
   { id: 4, tag: "위치", title: "도서관 위치 안내", desc: "오시는 길/운영시간" },
-  { id: 5, tag: "수령", title: "수거함 위치 안내", desc: "반납함/수거함 위치" },
-  { id: 6, tag: "회원", title: "회원등급 안내", desc: "등급/혜택/포인트" },
-  { id: 7, tag: "결제", title: "결제수단 안내", desc: "카드/계좌/간편결제" },
-  { id: 8, tag: "보안", title: "개인정보 처리 안내", desc: "약관/개인정보" },
+  { id: 5, tag: "수령", title: "수거함 위치 안내", desc: "반납함/수거함 위치" }
+//  { id: 6, tag: "회원", title: "회원등급 안내", desc: "등급/혜택/포인트" },
+//  { id: 7, tag: "결제", title: "결제수단 안내", desc: "카드/계좌/간편결제" },
+//  { id: 8, tag: "보안", title: "개인정보 처리 안내", desc: "약관/개인정보" },
 ];
 
 const listEl = document.getElementById("guideList");

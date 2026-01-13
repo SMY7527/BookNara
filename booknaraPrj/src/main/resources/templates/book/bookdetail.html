@@ -603,6 +603,8 @@
     isbn13: isbn13,
     bookImg: document.querySelector(".cover img")?.src
   });
+
+//   toggleBookmark();
 });
     function saveRecentBook(book) {
   let recent = JSON.parse(localStorage.getItem("recentBooks")) || [];
@@ -632,6 +634,7 @@
     }
 
     async function toggleBookmark(){
+        console.log('toggle');
         btn.disabled = true;
 
         try{
@@ -649,7 +652,7 @@
             }
             if (!res.ok) throw new Error("HTTP " + res.status);
             return await res.json();
-        }
+        } catch {}
 
         async function postForm(url, bodyObj, onAuth = "redirect") {
             const body = new URLSearchParams(bodyObj).toString();
@@ -786,6 +789,13 @@
 
         function buildRentButtons(it) {
             if (!it) return `<button class="btn" disabled>상태 조회 실패</button>`;
+            console.log('it.myLendYn : ', it.myLendYn);
+            console.log('it.myExtendYn : ', it.myExtendYn);
+            console.log('it.availableCnt : ', it.availableCnt);
+            console.log('it.myRsvYn : ', it.myRsvYn);
+            console.log('it.userBlockedYn : ', it.userBlockedYn);
+            console.log('it.userOverdueYn : ', it.userOverdueYn);
+            console.log('it.rsvLimitYn : ', it.rsvLimitYn);
 
             if (it.myLendYn === "Y") {
                 if (it.myExtendYn === "Y") {
@@ -836,6 +846,7 @@
         async function loadCirculationStatus() {
             try {
                 const dto = await fetchJson(`/book/circulation/status?isbn13=${encodeURIComponent(isbn13)}`, {}, "silent");
+                console.log('dto : ', dto);
 
                 if (!dto) {
                     setRentHint("로그인 후 대여/예약이 가능합니다.");
@@ -1229,8 +1240,7 @@
                 }
             }
         });
-
-    });
+    };
 
 
 

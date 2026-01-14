@@ -46,7 +46,7 @@ public interface StatisticsRepository extends JpaRepository<Users,String> {
             "ROUND(COUNT(*) * 100.0 / (SELECT COUNT(*) FROM USERS WHERE GENDER = :gender), 1) AS percentage " +
             "FROM USERS " +
             "WHERE GENDER = :gender " +
-            "GROUP BY label " +
-            "ORDER BY label", nativeQuery = true)
+            "GROUP BY LABEL " +
+            "ORDER BY LABEL", nativeQuery = true)
     List<UserAgeStatProjection> findAgeGroupStatisticsByGender(@Param("gender") String gender);
 }

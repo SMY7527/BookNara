@@ -35,7 +35,6 @@ function initBannerSlider() {
 
   let currentIndex = 0;
   const slideCount = slides.length;
-  let slideInterval;
 
   function updateSlide(index) {
     track.style.transform = `translateX(-${index * 100}%)`;
@@ -59,44 +58,6 @@ function initBannerSlider() {
       updateSlide(currentIndex);
     });
   });
-
-  function updateSlide(index) {
-      track.style.transform = `translateX(-${index * 100}%)`;
-      dots.forEach(dot => dot.classList.remove("active"));
-      dots[index].classList.add("active");
-    }
-
-    // ✅ 다음 슬라이드로 이동하는 기능 (재사용을 위해 분리)
-    function nextSlide() {
-      currentIndex = (currentIndex + 1) % slideCount;
-      updateSlide(currentIndex);
-    }
-
-    // ✅ 자동 넘김 시작 함수 (3초마다 실행)
-    function startAutoSlide() {
-      stopAutoSlide(); // 중복 방지
-      slideInterval = setInterval(nextSlide, 3000); // 3000ms = 3초
-    }
-
-    nextBtn.addEventListener("click", () => {
-        nextSlide();
-        startAutoSlide(); // 수동 조작 시 타이머 리셋
-      });
-
-      prevBtn.addEventListener("click", () => {
-        currentIndex = (currentIndex - 1 + slideCount) % slideCount;
-        updateSlide(currentIndex);
-        startAutoSlide(); // 수동 조작 시 타이머 리셋
-      });
-
-      dots.forEach((dot, index) => {
-        dot.addEventListener("click", () => {
-          currentIndex = index;
-          updateSlide(currentIndex);
-          startAutoSlide(); // 수동 조작 시 타이머 리셋
-        });
-      });
-      startAutoSlide();
 }
 
 /* ===============================

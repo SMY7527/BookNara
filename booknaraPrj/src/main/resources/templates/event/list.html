@@ -11,8 +11,9 @@
     <link rel="stylesheet" th:href="@{/css/event.css}" />
 </head>
 <body>
+<!--<header id="siteHeader"></header>-->
+<!-- ================= 헤더 ================= -->
 <div th:replace="fragments/header :: header"></div>
-
 
 <main class="container">
     <h2 class="page-title">이벤트 페이지</h2>
@@ -84,8 +85,5 @@
 </main>
 
 <script th:src="@{/js/common.js}" defer></script>
-<!-- <script th:src="@{/js/event.js}" defer></script> -->
-<div th:replace="fragments/footer :: footer"></div>
-
 </body>
 </html>

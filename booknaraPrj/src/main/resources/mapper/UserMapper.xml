@@ -76,7 +76,7 @@ WHERE PROFILE_NM = #{profileNm}
             parameterType="String"
             resultMap="UserResultMap">
         SELECT *
-        FROM USERS
+        FROM users
         WHERE email = #{email}
     </select>
 
@@ -100,18 +100,18 @@ WHERE PROFILE_NM = #{profileNm}
             parameterType="String"
             resultType="boolean">
         SELECT COUNT(*) > 0
-        FROM USERS
-        WHERE PROFILE_NM = #{nickname}
+        FROM users
+        WHERE profile_nm = #{nickname}
     </select>
 
     <update id="updateExtraInfoDone">
-        UPDATE USERS
+        UPDATE users
         SET EXTRA_INFO_DONE = 'Y'
         WHERE USER_ID = #{userId}
     </update>
 
     <update id="updateAddress">
-        UPDATE USERS
+        UPDATE users
         SET
         ZIPCODE = #{zipcode},
         ADDR = #{addr},

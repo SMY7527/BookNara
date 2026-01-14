@@ -3,7 +3,7 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.booknara.booknaraPrj.bookcirculation.command.mapper.BookCirculationCommandMapper">
+<mapper namespace="com.booknara.booknaraPrj.bookcirculation.command.mapper.BookCommandMapper">
 
     <select id="selectUserBlockedYn" resultType="string">
         SELECT CASE WHEN USER_STATE IN (3,4) THEN 'Y' ELSE 'N' END
@@ -47,6 +47,8 @@
         FOR UPDATE
     </select>
 
+
+    <!--도서 대여-->
     <insert id="insertLend">
         INSERT INTO LENDS (
             LEND_ID,
@@ -143,5 +145,21 @@
           AND USER_ID = #{userId}
           AND RETURN_DONE_AT IS NULL
     </update>
+
+    <select id="selectMaxLendCount" resultType="int">
+        SELECT MAX_LEND_COUNT
+        FROM SETTINGS
+        ORDER BY SETTINGS_ID DESC
+            LIMIT 1
+    </select>
+
+    <select id="countMyActiveLends" resultType="int">
+        SELECT COUNT(*)
+        FROM LENDS
+        WHERE USER_ID = #{userId}
+          AND RETURN_DONE_AT IS NULL
+    </select>
+
+
 
 </mapper>

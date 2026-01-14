@@ -138,14 +138,14 @@ const NOTI_META = {
     tab: 'SYSTEM',
     icon: 'lend_expiration_noti',
     title: '반납 기한',
-    href: () => '/my/booklist' // 내 서재
+    href: () => '/my/library' // 내 서재
   },
 
   PAST_DUE: {
     tab: 'SYSTEM',
     icon: 'past_due_noti',
     title: '연체',
-    href: () => '/my/booklist' // 내 서재
+    href: () => '/my/library' // 내 서재
   },
 
   RESERVATION_AVAILABLE: {
@@ -201,14 +201,14 @@ const NOTI_META = {
     tab: 'DELIVERY',
     icon: 'delivery_start_noti',
     title: '배송 시작',
-    href: (n) => `/my/booklist` // 마이페이지 도서 상세
+    href: (n) => `/mypage/${n.targetId}` // 마이페이지 도서 상세
   },
 
   DELIVERY_ARRIVE: {
     tab: 'DELIVERY',
     icon: 'delivery_arrive_noti',
     title: '배송 도착',
-    href: (n) => `/my/booklist` // 마이페이지 도서 상세
+    href: (n) => `/mypage/${n.targetId}` // 마이페이지 도서 상세
   }
 };
 

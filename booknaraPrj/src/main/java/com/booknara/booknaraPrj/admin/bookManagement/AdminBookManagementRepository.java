@@ -1,3 +1,4 @@
+/*
 package com.booknara.booknaraPrj.admin.bookManagement;
 
 import org.springframework.data.domain.Page;
@@ -31,7 +32,6 @@ public interface AdminBookManagementRepository extends JpaRepository<AdminBooks,
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Transactional
-// [수정] WHERE 절을 b.bookId 기준으로 변경합니다.
     @Query("UPDATE AdminBooks b SET b.bookState = :bookState WHERE b.bookId = :bookId")
     void updateBookState(@Param("bookId") Long bookId, @Param("bookState") String bookState);
 }

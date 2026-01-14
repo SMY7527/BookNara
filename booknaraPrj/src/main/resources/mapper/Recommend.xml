@@ -24,14 +24,14 @@
         END AS AGE_GROUP
         FROM USERS u
         ),
-        LEND_STAT AS (
+        lend_stat AS (
         SELECT
         us.AGE_GROUP,
         us.GENDER,
         l.ISBN13,
         COUNT(*) AS LEND_CNT
         FROM LENDS l
-        JOIN USER_SEGMENT us ON us.USER_ID = l.USER_ID
+        JOIN user_segment us ON us.USER_ID = l.USER_ID
         WHERE us.AGE_GROUP IS NOT NULL
         GROUP BY us.AGE_GROUP, us.GENDER, l.ISBN13
         ),
@@ -42,14 +42,14 @@
         PARTITION BY ls.AGE_GROUP, ls.GENDER
         ORDER BY ls.LEND_CNT DESC, ls.ISBN13
         ) AS RN
-        FROM LEND_STAT ls
+        FROM lend_stat ls
         )
         SELECT
         r.AGE_GROUP,
         r.GENDER,
         b.ISBN13,
         b.BOOK_TITLE
-        FROM RANKED r
+        FROM ranked r
         JOIN BOOK_ISBN b ON b.ISBN13 = r.ISBN13
         WHERE r.RN <![CDATA[<=]]> 6
         ORDER BY r.AGE_GROUP, r.GENDER, r.LEND_CNT DESC

@@ -442,20 +442,17 @@
 
 <div class="wrap">
 
-    <div class="steps-wrap">
-        <div class="steps">
-            <div class="step" th:classappend="${(step == null or step == '' or step == 'CART')} ? ' active'">
-                <span class="dot"></span>장바구니
-            </div>
-            <span class="sep">›</span>
-            <div class="step" th:classappend="${step == 'PAY'} ? ' active'">
-                <span class="dot"></span>결제하기
-            </div>
-            <span class="sep">›</span>
-            <div class="step" th:classappend="${step == 'DONE'} ? ' active'">
-                <span class="dot"></span>주문완료
-            </div>
-
+    <div class="steps">
+        <div id="step-cart" class="step" th:classappend="${(step == null or step == '' or step == 'CART')} ? ' active'">
+            <span class="dot"></span>장바구니
+        </div>
+        <span class="sep">›</span>
+        <div id="step-pay" class="step" th:classappend="${step == 'PAY'} ? ' active'">
+            <span class="dot"></span>결제하기
+        </div>
+        <span class="sep">›</span>
+        <div class="step" th:classappend="${step == 'DONE'} ? ' active'">
+            <span class="dot"></span>주문완료
         </div>
     </div>
 
@@ -680,23 +677,24 @@
 </div>
 
 <script th:inline="javascript">
+    /* =========================================
+       1. 사용자 및 초기 데이터 설정
+       ========================================= */
     const loginUser = {
         id: /*[[${#authentication.name}]]*/ '',
         username: /*[[${#authentication.name}]]*/ ''
     };
 
-    const hasQuotaExceeded = /*[[${hasQuotaExceeded}]]*/ false;
+    // 타임리프 변수 JS로 바인딩
+    const hasQuotaExceeded = /*[[${quota != null and quota.availableCount < quota.cartCount}]]*/ false;
+    const hasUnlendable = /*[[${!#lists.isEmpty(items.?[lendableYn == false])}]]*/ false;
+    const hasPaper = /*[[${hasPaper}]]*/ false; // 종이책 포함 여부
 
-    //대여가능여부
-    const hasUnlendable = /*[[${hasUnlendable}]]*/ false;
-    // 종이책 포함 여부(Thymeleaf)
-    const hasPaper = /*[[${hasPaper}]]*/ false;
 
-    // ----------------------------
-    // 기본 기능
-    // ----------------------------
-
-    //장바구니 아이템 삭제
+    /* =========================================
+       2. 장바구니/주소 관련 기능
+       ========================================= */
+    // 장바구니 아이템 삭제
     function removeItem(btn){
         fetch('/book/cart/remove',{
             method:'POST',
@@ -705,185 +703,21 @@
         }).then(()=>location.reload());
     }
 
-    //장바구니 비우기
+    // 장바구니 전체 비우기
     function clearAll(){
         fetch('/book/cart/clear',{method:'POST'})
             .then(()=>location.reload());
     }
 
-
+    // 주소 입력 상태 확인 헬퍼
     function getAddrState(){
         const zip = document.getElementById('zip')?.value.trim() || '';
         const addr = document.getElementById('addr')?.value.trim() || '';
         const detail = document.getElementById('detail')?.value.trim() || '';
         return { zip, addr, detail, ok: (zip && addr && detail) };
     }
-    function isCheckoutBlocked(){
-        // 0) 대여권수 초과
-        if (hasQuotaExceeded){
-            return { blocked:true, msg:'대여 가능 권수를 초과했습니다.', reason:'대여권수 초과' };
-        }
 
-        // 1) 대여불가 포함
-        if (hasUnlendable){
-            return { blocked:true, msg:'대여가 불가능한 도서가 포함되어있습니다.', reason:'대여불가 도서 포함' };
-        }
-
-        // 2) 종이책이면 주소 필수
-        if (hasPaper){
-            const st = getAddrState();
-            if (!st.ok){
-                return { blocked:true, msg:'종이책 배송을 위해 주소를 입력해주세요.', reason:'배송지 입력 필요' };
-            }
-        }
-
-        return { blocked:false, msg:'', reason:'' };
-    }
-
-
-    function syncCheckoutButton(){
-        const btn = document.getElementById('checkoutBtn') || document.querySelector('.cta');
-        if(!btn) return;
-
-        const baseDisabled = (btn.getAttribute('data-base-disabled') === 'true');
-        if (baseDisabled) return;
-
-        const guard = isCheckoutBlocked();
-
-        // disabled 처리
-        btn.disabled = guard.blocked;
-
-        // ✅ 문구 변경
-        const defaultLabel = btn.getAttribute('data-label') || '결제하기';
-        if (guard.blocked){
-            btn.textContent = `결제 불가 · ${guard.reason}`;
-            btn.classList.add('is-blocked');
-        } else {
-            btn.textContent = defaultLabel;
-            btn.classList.remove('is-blocked');
-        }
-    }
-
-    async function requestPayment() {
-        try {
-            const payload = {
-                application_id: "696053425fd7d0429f0ad118",
-                price: 3000,
-                order_name: "도서 배송비",
-                order_id: "ORDER_" + Date.now(),
-                user: { id: loginUser.id, username: loginUser.username || loginUser.id }
-            };
-
-            const res = await Bootpay.requestPayment(payload);
-
-            // ✅ 버전에 따라 res.event 로 단계가 내려옴
-            if (res?.event === 'confirm') {
-                // 서버 최종검증
-                let j = null;
-                try {
-                    const pre = await fetch('/book/order/precheck', { method: 'GET' });
-                    j = await pre.json();
-                    if (!pre.ok || !j.ok) {
-                        alert(j?.message || '주문 사전검증 실패');
-                        // 승인 거절(버전에 따라 cancel/close 처리)
-                        if (Bootpay.destroy) Bootpay.destroy();
-                        return;
-                    }
-                } catch (e) {
-                    console.error(e);
-                    alert('사전검증 중 오류');
-                    if (Bootpay.destroy) Bootpay.destroy();
-                    return;
-                }
-
-
-                // ✅ 여기 호출이 없으면 무한로딩
-                if (Bootpay.confirm) Bootpay.confirm(res);
-                else if (Bootpay.transactionConfirm) Bootpay.transactionConfirm(res);
-                return;
-            }
-
-            if (res?.event === 'done' || res?.receipt_id || res?.receipt_data?.receipt_id) {
-                const receiptId = res?.receipt_id || res?.receipt_data?.receipt_id;
-
-                const r = await fetch("/book/order/confirm-paid", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ receiptId })
-                });
-
-                const jr = await r.json().catch(() => ({}));
-                if (!r.ok || !jr.ok) {
-                    alert(jr.message || '결제 확정 실패');
-                    return;
-                }
-
-                alert('결제 완료');
-                location.href = "/book/order";
-                return;
-            }
-
-            if (res?.event === 'cancel') {
-                console.log('cancel', res);
-                return;
-            }
-
-        } catch (e) {
-            console.error("Bootpay error:", e);
-            alert("결제 중 오류가 발생했습니다.");
-        }
-    }
-
-    function extractReceiptId(data) {
-        return (
-            data?.receipt_id ||
-            data?.receipt_data?.receipt_id ||
-            data?.data?.receipt_id ||
-            null
-        );
-    }
-
-
-
-
-    async function goCheckout(){
-        // 1) 서버에게 최종 판정 받기
-        const pre = await fetch('/book/order/precheck', { method:'GET' });
-        const preJson = await pre.json().catch(()=> ({}));
-
-        if(!pre.ok || !preJson.ok){
-            alert(preJson.message || '주문 사전검증 실패');
-            syncCheckoutButton();
-            return;
-        }
-
-        // 2) 서버 판정대로 진행
-        if (preJson.hasPaper){
-            requestPayment();
-            return;
-        }
-
-        // 3) 전자책-only 무료 확정
-        const r = await fetch('/book/order/confirm-free', { method:'POST' });
-        const j = await r.json().catch(()=> ({}));
-        if(!r.ok || !j.ok){
-            alert(j.message || '무료 대여 처리 실패');
-            return;
-        }
-        alert('대여 완료');
-        location.href='/book/order';
-    }
-
-
-
-
-    // ✅ 입력될 때마다 버튼 동기화
-    document.addEventListener('input', (e)=>{
-        if(e.target && (e.target.id === 'detail' || e.target.id === 'zip' || e.target.id === 'addr')) {
-            syncCheckoutButton();
-        }
-    });
-
+    // 기본주소 가져오기
     async function useDefaultAddr(){
         const msg = document.getElementById('addrEmptyMsg');
         if(msg) msg.style.display = 'none';
@@ -900,9 +734,11 @@
 
         if(!json.exists || !json.data){
             if(msg) msg.style.display = 'block';
-            if(document.getElementById('zip')) document.getElementById('zip').value = '';
-            if(document.getElementById('addr')) document.getElementById('addr').value = '';
-            if(document.getElementById('detail')) document.getElementById('detail').value = '';
+            // 값 비우기
+            ['zip', 'addr', 'detail'].forEach(id => {
+                const el = document.getElementById(id);
+                if(el) el.value = '';
+            });
             syncCheckoutButton();
             return;
         }
@@ -913,25 +749,24 @@
         syncCheckoutButton();
     }
 
+    // 다음 주소 API
     function openPostcode(){
         if(typeof daum === 'undefined' || !daum.Postcode){
             alert('주소 검색 모듈 로딩에 실패했습니다.');
             return;
         }
-
         new daum.Postcode({
             oncomplete: function (data) {
                 document.getElementById('zip').value = data.zonecode || '';
-                const addr = (data.roadAddress && data.roadAddress !== '')
-                    ? data.roadAddress
-                    : (data.jibunAddress || '');
-                document.getElementById('addr').value = addr;
+                const roadAddr = data.roadAddress || data.jibunAddress || '';
+                document.getElementById('addr').value = roadAddr;
                 document.getElementById('detail').focus();
                 syncCheckoutButton();
             }
         }).open();
     }
 
+    // 기본주소로 저장
     async function saveDefaultAddr(){
         const st = getAddrState();
         if(!st.zip || !st.addr || !st.detail){
@@ -961,13 +796,186 @@
             alert('기본주소 저장에 실패했습니다.');
             return;
         }
-
         alert('기본주소로 저장되었습니다.');
     }
 
-    window.addEventListener('DOMContentLoaded', () => {
+
+    /* =========================================
+       3. 결제 및 대여 로직 (핵심)
+       ========================================= */
+
+    // 결제 버튼 활성화/비활성화 체크
+    function isCheckoutBlocked(){
+        if (hasQuotaExceeded){
+            return { blocked:true, msg:'대여 가능 권수를 초과했습니다.', reason:'대여권수 초과' };
+        }
+        if (hasUnlendable){
+            return { blocked:true, msg:'대여가 불가능한 도서가 포함되어있습니다.', reason:'대여불가 도서 포함' };
+        }
+        if (hasPaper){
+            const st = getAddrState();
+            if (!st.ok){
+                return { blocked:true, msg:'종이책 배송을 위해 주소를 입력해주세요.', reason:'배송지 입력 필요' };
+            }
+        }
+        return { blocked:false, msg:'', reason:'' };
+    }
+
+    // 버튼 UI 업데이트
+    function syncCheckoutButton(){
+        const btn = document.getElementById('checkoutBtn');
+        if(!btn) return;
+
+        const baseDisabled = (btn.getAttribute('data-base-disabled') === 'true');
+        if (baseDisabled) return;
+
+        const guard = isCheckoutBlocked();
+        btn.disabled = guard.blocked;
+
+        const defaultLabel = btn.getAttribute('data-label') || '결제하기';
+        if (guard.blocked){
+            btn.textContent = `결제 불가 · ${guard.reason}`;
+            btn.classList.add('is-blocked');
+        } else {
+            btn.textContent = defaultLabel;
+            btn.classList.remove('is-blocked');
+        }
+    }
+
+    // [메인 진입점] 결제/대여 버튼 클릭 시 실행
+    async function goCheckout() {
+        // 1. 로그인 체크 (안전장치)
+        if (!loginUser.id || loginUser.id.trim() === "") {
+            alert("로그인이 필요합니다.");
+            location.href = "/users/login";
+            return;
+        }
+
+        // 2. 종이책 포함 시 -> 결제 로직 (Bootpay)
+        if (hasPaper) {
+            const st = getAddrState();
+            if (!st.ok) {
+                alert('종이책 배송을 위해 주소를 입력해주세요.');
+                syncCheckoutButton();
+                return;
+            }
+            requestPayment(); // 결제창 호출
+            return;
+        }
+
+        // 3. 전자책만 있을 시 -> 무료 대여 로직
+        try {
+            const res = await fetch("/book/cart/checkout/free", { method: "POST" });
+            const json = await res.json().catch(()=> ({}));
+
+            if (!res.ok || !json.ok) {
+                alert(json.message || "대여 처리 실패");
+                return;
+            }
+
+            alert("대여가 완료되었습니다.");
+            location.href = "/book/cart"; // 혹은 주문완료 페이지로 이동
+        } catch (e) {
+            console.error(e);
+            alert("처리 중 오류가 발생했습니다.");
+        }
+    }
+
+
+
+    /* =========================================
+           Step UI 변경 함수
+           ========================================= */
+    function setStep(stepName) {
+        const cartStep = document.getElementById('step-cart');
+        const payStep = document.getElementById('step-pay');
+
+        // 둘 다 active 제거
+        cartStep.classList.remove('active');
+        payStep.classList.remove('active');
+
+        // 단계별 active
+        if (stepName === 'CART') {
+            cartStep.classList.add('active');
+        } else if (stepName === 'PAY') {
+            payStep.classList.add('active');
+        }
+    }
+
+    // [Bootpay] 결제 요청 함수
+    function requestPayment() {
+        const username = loginUser.username || loginUser.id;
+
+        setStep('PAY');
+
+        Bootpay.requestPayment({
+            application_id: "696053425fd7d0429f0ad118",
+            price: 3000,
+            order_name: "도서 배송비",
+            order_id: "ORDER_" + Date.now(),
+            user: {
+                id: loginUser.id,
+                username: username
+            }
+        })
+            .then(async function (response) {
+                // 결제 승인 후 로직
+                const receiptId = response.receipt_id || response.receipt_data?.receipt_id;
+
+                try {
+                    // 1) 결제 정보 저장 (비동기 처리 주의)
+                    await fetch("/payment/complete", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            userId: loginUser.id,
+                            receiptId: receiptId
+                        })
+                    });
+
+                    // 2) 카트 비우기 및 대여 확정 처리
+                    const paidRes = await fetch("/book/cart/checkout/paid", { method: "POST" });
+                    const paidJson = await paidRes.json().catch(() => ({}));
+
+                    if (!paidRes.ok || !paidJson.ok) {
+                        alert(paidJson.message || "결제는 성공했으나 대여 처리 중 오류가 발생했습니다. 관리자에게 문의하세요.");
+                        return;
+                    }
+
+                    alert("결제 및 대여가 완료되었습니다.");
+                    // 성공 시 리다이렉트
+                    location.href = "/book/cart/result"; // 주문완료 페이지
+
+                } catch (err) {
+                    console.error("서버 처리 중 오류:", err);
+                    alert("서버 통신 중 오류가 발생했습니다.");
+                    setStep('CART');
+                }
+            })
+            .catch(function (e) {
+                console.error("Bootpay error:", e);
+                // 결제창 닫기나 취소 시에는 에러가 아닐 수 있으므로 메시지 처리 주의
+                if(e.event !== 'cancel') {
+                    alert("결제 중 오류가 발생했습니다.");
+                    setStep('CART');
+                }
+            });
+    }
+
+    /* =========================================
+       4. 초기화 이벤트 리스너
+       ========================================= */
+    document.addEventListener('DOMContentLoaded', () => {
         syncCheckoutButton();
     });
+
+    // 주소 입력 시 버튼 상태 실시간 동기화
+    document.addEventListener('input', (e)=>{
+        if(e.target && (e.target.id === 'detail' || e.target.id === 'zip' || e.target.id === 'addr')) {
+            syncCheckoutButton();
+        }
+    });
+
 </script>
 
 <div th:replace="fragments/footer :: footer"></div>

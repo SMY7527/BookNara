@@ -1102,36 +1102,6 @@
           animation: spin 0.9s linear infinite;
         }
 
-        /* 전체화면 진입 시 */
-        .viewer:fullscreen {
-          background: #fff;
-        }
-
-        /* 크롬 / 사파리 대응 */
-        .viewer:-webkit-full-screen {
-          background: #fff;
-        }
-
-        /* 전체화면일 때 상단 여백 제거 */
-        .viewer.fullscreen-mode {
-          width: 100vw;
-          height: 100vh;
-        }
-
-        /* 버튼 안의 아이콘 기본 숨김 */
-        #fullscreenBtn .full-icon { display: none; }
-
-        /* 활성화된 아이콘만 표시 + 검정 fill */
-        #fullscreenBtn .full-icon.is-active {
-          display: block;
-          fill: black;
-        }
-
-        /* (선택) hover 시도 같이 하고 싶으면 */
-        #fullscreenBtn:hover .full-icon.is-active {
-          fill: black;
-        }
-
         @keyframes spin{
           to { transform: rotate(360deg); }
         }
@@ -1194,12 +1164,6 @@
                 <!-- 목차 버튼에 id 추가 -->
                 <button class="icon-btn" id="tocBtn" title="목차" type="button">
                     <svg viewBox="0 0 24 24"><path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M3 6h.01"/><path d="M3 12h.01"/><path d="M3 18h.01"/></svg>
-                </button>
-                <!-- 전체화면 버튼 -->
-                <button id="fullscreenBtn" class="icon-btn" title="전체화면">
-<!--                    ⛶-->
-                    <svg id="fullIn" class="full-icon is-active" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--!Font Awesome Pro v5.15.4 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2026 Fonticons, Inc.--><path d="M0 180V56c0-13.3 10.7-24 24-24h124c6.6 0 12 5.4 12 12v40c0 6.6-5.4 12-12 12H64v84c0 6.6-5.4 12-12 12H12c-6.6 0-12-5.4-12-12zM288 44v40c0 6.6 5.4 12 12 12h84v84c0 6.6 5.4 12 12 12h40c6.6 0 12-5.4 12-12V56c0-13.3-10.7-24-24-24H300c-6.6 0-12 5.4-12 12zm148 276h-40c-6.6 0-12 5.4-12 12v84h-84c-6.6 0-12 5.4-12 12v40c0 6.6 5.4 12 12 12h124c13.3 0 24-10.7 24-24V332c0-6.6-5.4-12-12-12zM160 468v-40c0-6.6-5.4-12-12-12H64v-84c0-6.6-5.4-12-12-12H12c-6.6 0-12 5.4-12 12v124c0 13.3 10.7 24 24 24h124c6.6 0 12-5.4 12-12z"/></svg>
-                    <svg id="fullOut" class="full-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--!Font Awesome Free v5.15.4 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path d="M436 192H312c-13.3 0-24-10.7-24-24V44c0-6.6 5.4-12 12-12h40c6.6 0 12 5.4 12 12v84h84c6.6 0 12 5.4 12 12v40c0 6.6-5.4 12-12 12zm-276-24V44c0-6.6-5.4-12-12-12h-40c-6.6 0-12 5.4-12 12v84H12c-6.6 0-12 5.4-12 12v40c0 6.6 5.4 12 12 12h124c13.3 0 24-10.7 24-24zm0 300V344c0-13.3-10.7-24-24-24H12c-6.6 0-12 5.4-12 12v40c0 6.6 5.4 12 12 12h84v84c0 6.6 5.4 12 12 12h40c6.6 0 12-5.4 12-12zm192 0v-84h84c6.6 0 12-5.4 12-12v-40c0-6.6-5.4-12-12-12H312c-13.3 0-24 10.7-24 24v124c0 6.6 5.4 12 12 12h40c6.6 0 12-5.4 12-12z"/></svg>
                 </button>
             </div>
         </div>
@@ -2827,48 +2791,6 @@
       }
 
     })();
-
-    /*const viewerEl = document.querySelector(".viewer");*/
-    const fullscreenBtn = document.getElementById("fullscreenBtn");
-    const fullIn = document.getElementById("fullIn");
-    const fullOut = document.getElementById("fullOut");
-
-    function isFullscreen() {
-      return document.fullscreenElement ||
-             document.webkitFullscreenElement;
-    }
-
-    function requestFullscreen(el) {
-      if (el.requestFullscreen) return el.requestFullscreen();
-      if (el.webkitRequestFullscreen) return el.webkitRequestFullscreen();
-    }
-
-    function exitFullscreen() {
-      if (document.exitFullscreen) return document.exitFullscreen();
-      if (document.webkitExitFullscreen) return document.webkitExitFullscreen();
-    }
-
-    // 버튼 클릭
-    fullscreenBtn.addEventListener("click", () => {
-      console.log('click');
-      if (!isFullscreen()) {
-        requestFullscreen(shell);
-      } else {
-        exitFullscreen();
-      }
-    });
-
-    // 전체화면 변경 감지 (ESC 포함)
-    document.addEventListener("fullscreenchange", syncFullscreenUI);
-    document.addEventListener("webkitfullscreenchange", syncFullscreenUI);
-
-    function syncFullscreenUI() {
-      const on = isFullscreen();
-      shell.classList.toggle("fullscreen-mode", on);
-      fullIn.classList.toggle("is-active", !on);
-      fullOut.classList.toggle("is-active", on);
-    }
-
 </script>
 </body>
 </html>

@@ -47,35 +47,35 @@ public class EBookController {
                             @AuthenticationPrincipal CustomUserDetails userDetails,
                             Model model) throws IOException {
 //        String userId = auth.getName();
-        String userId = userDetails.getUserId();
-        // 검증
-        boolean hasAccess = service.canReadBook(userId, bookid);
-        if (!hasAccess) {
-            //throw new ResponseStatusException(HttpStatus.FORBIDDEN);
-            System.out.println("실패");
-        }
-        else {
-            // DB에서 도서 번호로 도서 isbn 가져와서 model에 저장
-            String isbn = service.findIsbn(bookid);
-            model.addAttribute("isbn", isbn);
-
-            SaveCfiRequest loc_info = service.findCfi(userId, isbn);
-            if(loc_info != null) {
-                float pct = loc_info.getPct() != null ? Float.parseFloat(loc_info.getPct()) : 0;
-                System.out.println(loc_info.getCfi());
-                System.out.println(loc_info.getPct());
-                System.out.println(loc_info.getHref());
-                model.addAttribute("lastCfi", loc_info.getCfi());
-                model.addAttribute("lastPct", pct);
-                model.addAttribute("lastHref", loc_info.getHref());
-            }
-        }
-
-        // DB에서 회원의 현재 대여중인 전자책 정보 가져오기
-        List<MyEBookItemDTO> e_list = service.findEBookList(userId);
-        e_list.forEach(System.out::println);
-
-        model.addAttribute("myEbookList", e_list);
+//        String userId = userDetails.getUserId();
+//        // 검증
+//        boolean hasAccess = service.canReadBook(userId, bookid);
+//        if (!hasAccess) {
+//            //throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+//            System.out.println("실패");
+//        }
+//        else {
+//            // DB에서 도서 번호로 도서 isbn 가져와서 model에 저장
+//            String isbn = service.findIsbn(bookid);
+//            model.addAttribute("isbn", isbn);
+//
+//            SaveCfiRequest loc_info = service.findCfi(userId, isbn);
+//            if(loc_info != null) {
+//                float pct = loc_info.getPct() != null ? Float.parseFloat(loc_info.getPct()) : 0;
+//                System.out.println(loc_info.getCfi());
+//                System.out.println(loc_info.getPct());
+//                System.out.println(loc_info.getHref());
+//                model.addAttribute("lastCfi", loc_info.getCfi());
+//                model.addAttribute("lastPct", pct);
+//                model.addAttribute("lastHref", loc_info.getHref());
+//            }
+//        }
+//
+//        // DB에서 회원의 현재 대여중인 전자책 정보 가져오기
+//        List<MyEBookItemDTO> e_list = service.findEBookList(userId);
+//        e_list.forEach(System.out::println);
+//
+//        model.addAttribute("myEbookList", e_list);
 
         return "/ebook/ebook";
     }

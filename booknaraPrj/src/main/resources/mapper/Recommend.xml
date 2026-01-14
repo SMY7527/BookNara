@@ -8,7 +8,7 @@
 
     <!--성별,연령-->
     <select id="selectAgeGenderTopBooks" resultType="map">
-        WITH user_segment AS (
+        WITH USER_SEGMENT AS (
         SELECT
         u.USER_ID,
         u.GENDER,
@@ -35,7 +35,7 @@
         WHERE us.AGE_GROUP IS NOT NULL
         GROUP BY us.AGE_GROUP, us.GENDER, l.ISBN13
         ),
-        ranked AS (
+        RANKED AS (
         SELECT
         ls.*,
         ROW_NUMBER() OVER (
@@ -76,7 +76,7 @@
         b.PUBLISHER,
         b.NAVER_IMAGE,
         b.ALADIN_IMAGE_BIG
-        ORDER BY rentCnt DESC
+        ORDER BY RENTCNT DESC
         LIMIT 6
 
     </select>
@@ -102,7 +102,7 @@
         b.PUBLISHER,
         b.NAVER_IMAGE,
         b.ALADIN_IMAGE_BIG
-        ORDER BY rentCnt DESC
+        ORDER BY RENTCNT DESC
         LIMIT 6
 
     </select>

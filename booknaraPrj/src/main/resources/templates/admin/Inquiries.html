@@ -353,7 +353,7 @@
                             const name = file.name || '첨부파일';
                             const fileNameFromDb = file.url;
 
-                            let downloadUrl = "/admin/download/" + encodeURIComponent(file.name);
+                            let downloadUrl = "/admin/download/" + encodeURIComponent(name);
                             const fileItem = document.createElement('div');
                             fileItem.className = "cursor-pointer flex items-center gap-3 p-3 bg-white border border-gray-100 rounded-xl hover:border-main hover:text-main transition-all group shadow-sm";
                             fileItem.onclick = () => downloadFileSafe(downloadUrl, name);

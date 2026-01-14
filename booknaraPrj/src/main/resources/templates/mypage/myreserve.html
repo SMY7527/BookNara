@@ -37,7 +37,7 @@
                  th:each="book : ${reserveList}"
                  th:attr="data-rsv=${book.rsvId}, data-isbn=${book.isbn13}">
 
-                <a class="book-link" th:href="@{/book/detail(isbn13=${book.isbn13})}">
+                <a class="book-link" th:href="@{/book/detail/${isbn13}(isbn13=${book.isbn13})}">
                     <img class="book-img" th:src="${book.coverImg}" alt="도서 표지">
                 </a>
 

@@ -22,7 +22,7 @@ public class BookIsbnBatchScheduler {
      * - Cron 표현식: 초 분 시 일 월 요일
      */
 
-    @Scheduled(cron = "0 00 03 * * *", zone = "Asia/Seoul")
+    @Scheduled(cron = "0 00 18 * * *", zone = "Asia/Seoul")
     public void runNightlyBatch() {
         log.info("⏰ 정기 도서 수집 배치가 예약된 시간에 트리거되었습니다. (KST 03:00)");
 

@@ -49,7 +49,26 @@
                      #{inqContent},
                      NOW()
                  )
-
     </insert>
+
+    <!-- ===============================
+       파일 경로 UPDATE (최대 3개)
+  =============================== -->
+    <update id="updateInquiryFiles">
+        UPDATE INQUIRY
+        <set>
+            <if test="file1 != null">
+                FILE_PATH1 = #{file1},
+            </if>
+            <if test="file2 != null">
+                FILE_PATH2 = #{file2},
+            </if>
+            <if test="file3 != null">
+                FILE_PATH3 = #{file3},
+            </if>
+            UPDATED_AT = NOW()
+        </set>
+        WHERE INQ_ID = #{inqId}
+    </update>
 
 </mapper>

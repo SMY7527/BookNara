@@ -16,8 +16,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableScheduling
 @EnableJpaRepositories(basePackages = "com.booknara.booknaraPrj")
 @EnableConfigurationProperties({NaverProperties.class, AladinProperties.class})
-@MapperScan({"com.booknara.booknaraPrj.**.mapper",
-        "com.booknara.booknaraPrj.mypage"})
+//@MapperScan({"com.booknara.booknaraPrj.**.mapper",
+//        "com.booknara.booknaraPrj.mypage"})
 //@MapperScan(basePackages = {
 //        "com.booknara.booknaraPrj.login_signup.mapper",
 //        "com.booknara.booknaraPrj.bookAPI.mapper",
@@ -57,7 +57,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
         "com.booknara.booknaraPrj.mypage.myinquiry",
         "com.booknara.booknaraPrj.mypage.withdraw",
         "com.booknara.booknaraPrj.feed.review.mapper",
-        "com.booknara.booknaraPrj.report.mapper"
+        "com.booknara.booknaraPrj.report.mapper",
+        "com.booknara.booknaraPrj.recommend.mapper"
 
 })
 public class BooknaraPrjApplication {

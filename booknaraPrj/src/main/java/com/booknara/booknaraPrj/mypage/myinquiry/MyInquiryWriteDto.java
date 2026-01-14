@@ -8,5 +8,7 @@ public class MyInquiryWriteDto {
     private String userId;
     private String inqTitle;
     private String inqContent;
-    private int inqType; // 1~6
+    private int inqType; // 1~5
+    private String inqId;
+
 }

@@ -19,7 +19,7 @@
         .filter-group { display: flex; gap: 8px; padding: 6px; background: white; border-radius: 16px; border: 1px solid #E5E7EB; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
         .filter-btn { padding: 8px 20px; border-radius: 12px; font-size: 14px; font-weight: bold; color: #6B7280; transition: all 0.2s; }
         .filter-btn:hover { background-color: #F9FAFB; }
-        .filter-btn.active { background-color: var(--main-color) !important; color: white !important; }
+        .filter-btn.active { background-color: var(--main-color); color: white; }
         .table-container { background: white; border-radius: 24px; border: 1px solid #E5E7EB; overflow: hidden; }
         .th-style { padding: 16px 24px; font-size: 12px; font-weight: bold; color: #9CA3AF; text-transform: uppercase; background: #F9FAFB; border-bottom: 1px solid #E5E7EB; }
         .td-style { padding: 20px 24px; border-bottom: 1px solid #F3F4F6; }
@@ -84,23 +84,19 @@
 <main class="flex-1 overflow-y-auto p-10 bg-[#FBFBFD]">
     <div class="mb-10">
         <h2 class="text-3xl font-extrabold text-gray-800 tracking-tight">도서관리</h2>
+        <p class="text-gray-400 mt-2 font-medium">전체 도서 목록을 관리하고 상태를 변경합니다. (개별 도서 관리 모드)</p>
     </div>
 
     <div class="flex items-center justify-between mb-6">
         <div class="filter-group">
             <a th:href="@{/admin/BookManageMent(keyword=${keyword})}"
-               class="filter-btn"
-               th:classappend="${param.bookState == null or param.bookState[0] == ''} ? 'active' : ''">전체</a>
-
+               class="filter-btn" th:classappend="${#strings.isEmpty(bookState)} ? 'active' : ''">전체</a>
             <a th:href="@{/admin/BookManageMent(bookState='N', keyword=${keyword})}"
-               class="filter-btn flex items-center gap-2"
-               th:classappend="${param.bookState != null and param.bookState[0] == 'N'} ? 'active' : ''">
+               class="filter-btn flex items-center gap-2" th:classappend="${bookState == 'N'} ? 'active' : ''">
                 <span class="w-2 h-2 bg-green-500 rounded-full"></span> 대여가능
             </a>
-
             <a th:href="@{/admin/BookManageMent(bookState='L', keyword=${keyword})}"
-               class="filter-btn flex items-center gap-2"
-               th:classappend="${param.bookState != null and param.bookState[0] == 'L'} ? 'active' : ''">
+               class="filter-btn flex items-center gap-2" th:classappend="${bookState == 'L'} ? 'active' : ''">
                 <span class="w-2 h-2 bg-gray-400 rounded-full"></span> 정비중
             </a>
         </div>

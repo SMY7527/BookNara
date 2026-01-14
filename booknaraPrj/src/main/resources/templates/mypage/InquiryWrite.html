@@ -3,7 +3,11 @@
 
         <h2 class="inquiry-title">문의 작성</h2>
 
-        <form method="post" action="/my/inquiry" class="inquiry-form">
+        <form method="post"
+              action="/my/inquiry"
+              class="inquiry-form"
+              enctype="multipart/form-data">
+
 
             <!-- 문의 유형 -->
             <div class="form-row">
@@ -13,8 +17,8 @@
                     <option value="2">대여/반납</option>
                     <option value="3">시스템</option>
                     <option value="4">계정</option>
-                    <option value="5">신고</option>
-                    <option value="6">기타</option>
+                    <option value="5">기타</option>
+
                 </select>
             </div>
 
@@ -27,9 +31,22 @@
             <!-- 내용 -->
             <div class="form-row">
                 <label>문의 내용</label>
-                <textarea name="inqContent" rows="6"
+                <textarea name="inqContent" rows="5"
                           placeholder="문의 내용을 입력하세요" required></textarea>
             </div>
+
+            <div>
+                <label>파일 첨부 (최대 3개)</label>
+
+                <!-- 실제 파일 선택 -->
+                <input type="file" id="fileInput" name="files" multiple>
+
+                <!-- 선택된 파일 목록 -->
+                <ul id="fileList"></ul>
+            </div>
+
+
+
 
             <!-- 버튼 영역 -->
             <div class="form-actions">
@@ -40,4 +57,64 @@
         </form>
 
     </div>
+
+    <script>
+        const MAX_FILES = 3;
+        let selectedFiles = [];
+
+        const fileInput = document.getElementById("fileInput");
+        const fileList = document.getElementById("fileList");
+
+        fileInput.addEventListener("change", () => {
+            const files = Array.from(fileInput.files);
+
+            for (let file of files) {
+                if (selectedFiles.length >= MAX_FILES) {
+                    alert("파일은 최대 3개까지 첨부할 수 있습니다.");
+                    break;
+                }
+
+                selectedFiles.push(file);
+            }
+
+            syncInputFiles();   // ⭐⭐⭐ 이게 핵심
+            renderFileList();
+
+        });
+
+        function syncInputFiles() {
+            const dt = new DataTransfer();
+            selectedFiles.forEach(file => dt.items.add(file));
+            fileInput.files = dt.files;   // ⭐⭐⭐ 실제 input에 반영
+        }
+
+        function renderFileList() {
+            fileList.innerHTML = "";
+            selectedFiles.forEach((file, idx) => {
+                const li = document.createElement("li");
+                li.textContent = file.name;
+
+                const btn = document.createElement("button");
+                btn.type = "button";
+                btn.textContent = "삭제";
+                btn.onclick = () => {
+                    selectedFiles.splice(idx, 1);
+                    syncInputFiles();
+                    renderFileList();
+                };
+
+                li.appendChild(btn);
+                fileList.appendChild(li);
+            });
+        }
+
+    </script>
+
+
+
+
+
+
+
 </th:block>
+

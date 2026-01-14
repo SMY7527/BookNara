@@ -8,11 +8,11 @@ public class NoticeCotroller {
 
     @GetMapping("/notice")
     public String noticeView() {
-        return "/information/notice";
+        return "information/notice";
     }
 
     @GetMapping("/noticeDetail")
     public String noticeDetailView() {
-        return "/information/noticeDetail";
+        return "information/noticeDetail";
     }
 }

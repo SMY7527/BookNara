@@ -76,6 +76,6 @@ public class NotificationController {
     // 알림 전체 보기 뷰어
     @GetMapping("/notification/list")
     public String list() {
-        return "/notification/notification_list";
+        return "notification/notification_list";
     }
 }

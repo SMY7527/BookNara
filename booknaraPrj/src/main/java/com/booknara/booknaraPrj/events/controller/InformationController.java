@@ -10,37 +10,37 @@ public class InformationController {
 
     @GetMapping("/information")
     public String infoHome(){
-        return "/information/information";
+        return "information/information";
 
 
     }
 
     @GetMapping("/location")
     public String locationView(){
-        return "/information/location";
+        return "information/location";
     }
 
     @GetMapping("/flow")
     public String flowView(){
-        return "/information/flow";
+        return "information/flow";
     }
 
 
 
     @GetMapping("/guide")
     public String guideView(){
-        return "/information/guide";
+        return "information/guide";
     }
 
 
 
     @GetMapping("/locker")
     public String lockerView(){
-        return "/information/locker";
+        return "information/locker";
     }
     @GetMapping("/schedule")
     public String scheduleView(){
-        return "/information/schedule";
+        return "information/schedule";
     }
 
 
@@ -48,7 +48,7 @@ public class InformationController {
     @GetMapping("/guideDetail")    //guideDetail?id=1
     public String guideDetail(@RequestParam( name="id" ) String id     , Model model ){
         model.addAttribute("id", id);
-        return "/information/guideDetail";
+        return "information/guideDetail";
     }
 
 

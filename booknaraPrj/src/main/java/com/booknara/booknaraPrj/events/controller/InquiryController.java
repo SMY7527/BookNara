@@ -9,6 +9,6 @@ public class InquiryController {
 
     @GetMapping("/inquiry")
     public String inquiryView() {
-        return "/information/inquiry";
+        return "information/inquiry";
     }
 }

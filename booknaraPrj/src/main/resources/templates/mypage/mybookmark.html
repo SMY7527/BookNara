@@ -36,7 +36,7 @@
                         aria-label="북마크 해제"></button>
 
                 <!-- 책 이미지 클릭 -> 도서 상세 이동 -->
-                <a class="book-link" th:href="@{/book/detail/${book.isbn13}}">
+                <a class="book-link" th:href="@{/book/detail/{isbn}(isbn13=${book.isbn13})}">
                     <img class="book-img" th:src="${book.coverImg}" alt="도서 표지" />
                 </a>
 

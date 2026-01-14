@@ -63,6 +63,4 @@
         WHERE INQ_ID = #{inqId}
     </update>
 
-
-
 </mapper>

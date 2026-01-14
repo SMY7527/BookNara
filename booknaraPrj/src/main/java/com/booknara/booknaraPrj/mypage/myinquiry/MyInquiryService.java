@@ -19,7 +19,7 @@ public class MyInquiryService {
 
     private final MyInquiryMapper inquiryMapper;
 
-    @Value("uploads.path}")
+    @Value("${uploads.path}")
     private String uploadDir;
 
     public List<MyInquiryHistoryDto> getMyInquiry(String userId, String keyword) {

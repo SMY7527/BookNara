@@ -3,7 +3,7 @@ name: Deploy To EC2
 on:
   push:
     branches:
-      - main
+      - dev
 
 jobs:
   deploy:
@@ -19,7 +19,7 @@ jobs:
           java-version: 17
 
       - name: application.properties 파일 만들기
-        run: echo "${{ secrets.APPLICATION_PROPERTIES }}" > ./src/main/resources/application.properties
+        run: echo "${{ secrets.APPLICATION_PROPERTIES }}" > .booknaraPrj/src/main/resources/application.properties
 
 
       - name: 권한 주기

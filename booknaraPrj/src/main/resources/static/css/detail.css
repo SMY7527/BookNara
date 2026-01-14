@@ -20,7 +20,7 @@ body {
   background: var(--bg);
   color: var(--text);
 }
-
+/*
 .site-header {
   background: linear-gradient(90deg, var(--brand), #e7b35a);
   border-bottom: 1px solid rgba(0, 0, 0, 0.06);
@@ -32,7 +32,7 @@ body {
   font-weight: 900;
   text-align: center;
 }
-
+*/
 .container {
   max-width: var(--wrap);
   margin: 28px auto;

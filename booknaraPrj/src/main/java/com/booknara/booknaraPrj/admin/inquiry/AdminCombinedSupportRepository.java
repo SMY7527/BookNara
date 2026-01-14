@@ -8,7 +8,7 @@ import org.springframework.data.repository.query.Param;
 
 public interface AdminCombinedSupportRepository extends JpaRepository<AdminCombinedSupport, String> {
 
-    @Query(value = "SELECT * FROM view_combined_support v " +
+    @Query(value = "SELECT * FROM VIEW_COMBINED_SUPPORT v " +
             "WHERE (:type = 'ALL' OR v.type = :type) " +
             "AND (:status = 'ALL' OR v.state = :status) " +
             "AND (:keyword IS NULL OR :keyword = '' OR v.user_id LIKE CONCAT('%', :keyword, '%')) " +
@@ -18,7 +18,7 @@ public interface AdminCombinedSupportRepository extends JpaRepository<AdminCombi
             "CASE WHEN :sortField = 'resolvedAt' AND :sortDir = 'asc' THEN v.resolved_at END ASC, " +
             "CASE WHEN :sortField = 'resolvedAt' AND :sortDir = 'desc' THEN v.resolved_at END DESC, " +
             "v.reg_date DESC",
-            countQuery = "SELECT count(*) FROM view_combined_support v " +
+            countQuery = "SELECT count(*) FROM VIEW_COMBINED_SUPPORT v " +
                     "WHERE (:type = 'ALL' OR v.type = :type) " +
                     "AND (:status = 'ALL' OR v.state = :status) " +
                     "AND (:keyword IS NULL OR :keyword = '' OR v.user_id LIKE CONCAT('%', :keyword, '%'))",

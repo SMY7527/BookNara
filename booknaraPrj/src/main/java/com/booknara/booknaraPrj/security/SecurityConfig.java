@@ -60,6 +60,8 @@ public class SecurityConfig {
                                 "/notice",
                                 "/inquiry",
 
+                                "/terms",
+                                "/copyright",
 
                                 "/users/signup",
                                 "/users/find-account",

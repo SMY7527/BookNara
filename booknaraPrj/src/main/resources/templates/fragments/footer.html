@@ -24,7 +24,6 @@
             <ul>
                 <li><a th:href="@{/recommend}">맞춤 추천</a></li>
                 <li><a th:href="@{/book/search}">검색</a></li>
-                <li><a th:href="@{/feed}">피드</a></li>
                 <li><a th:href="@{/}">안내</a></li>
                 <li><a th:href="@{/}">이벤트</a></li>
             </ul>
@@ -34,10 +33,10 @@
         <div class="footer-menu">
             <h3>고객센터</h3>
             <ul>
-                <li><a th:href="@{/}">FAQ</a></li>
-                <li><a th:href="@{/}">1:1 문의</a></li>
-                <li><a th:href="@{/}">대여·반납 안내</a></li>
-                <li><a th:href="@{/}">무인반납함 위치</a></li>
+                <li><a th:href="@{/information}">FAQ</a></li>
+                <li><a th:href="@{/information}">1:1 문의</a></li>
+                <li><a th:href="@{/guideDetail?id=1}">대여·반납 안내</a></li>
+                <li><a th:href="@{/guideDetail?id=5}">수거함 위치</a></li>
             </ul>
         </div>
 
@@ -45,9 +44,9 @@
         <div class="footer-menu">
             <h3>정책</h3>
             <ul>
-                <li><a th:href="@{/}">이용약관</a></li>
-                <li><a th:href="@{/}">개인정보처리방침</a></li>
-                <li><a th:href="@{/}">저작권 정책</a></li>
+                <li><a th:href="@{/terms}">이용약관</a></li>
+                <li><a th:href="@{/guideDetail?id=8}">개인정보처리방침</a></li>
+                <li><a th:href="@{/copyright}">저작권 정책</a></li>
             </ul>
         </div>
 

@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>이용약관 | 북나라</title>
+
+    <!-- 공통 CSS(있으면 연결) -->
+    <link rel="stylesheet" th:href="@{/css/header.css}">
+    <link rel="stylesheet" th:href="@{/css/footer.css}">
+
+    <style>
+        :root{
+          --page-max: 1440px;
+          --content-max: 900px;
+          --accent: #DCA244;
+          --text: #111;
+          --muted: #666;
+          --line: #e5e5e5;
+          --bg: #fff;
+          --soft: #faf7f1;
+        }
+
+        body{
+          margin: 0;
+          background: var(--bg);
+          color: var(--text);
+          font-family: "Pretendard", "Noto Sans KR", system-ui, -apple-system, Arial, sans-serif;
+        }
+
+        .terms-wrap{
+          max-width: var(--page-max);
+          margin: 0 auto;
+          padding: 28px 16px 80px;
+        }
+
+        .terms-card{
+          max-width: var(--content-max);
+          margin: 0 auto;
+          border: 1px solid var(--line);
+          border-radius: 14px;
+          overflow: hidden;
+          background: #fff;
+        }
+
+        .terms-head{
+          padding: 22px 22px 16px;
+          background: linear-gradient(180deg, var(--soft), #fff);
+          border-bottom: 1px solid var(--line);
+        }
+
+        .terms-title{
+          margin: 0;
+          font-size: 24px;
+          font-weight: 800;
+          letter-spacing: -0.3px;
+        }
+
+        .terms-sub{
+          margin: 6px 0 0;
+          font-size: 13px;
+          color: var(--muted);
+          line-height: 1.5;
+        }
+
+        .terms-body{
+          padding: 22px;
+          line-height: 1.85;
+          font-size: 14px;
+        }
+
+        .terms-body h2{
+          margin: 18px 0 8px;
+          font-size: 16px;
+          font-weight: 800;
+        }
+
+        .terms-body p{
+          margin: 6px 0;
+        }
+
+        .terms-body ol{
+          margin: 8px 0 12px 18px;
+          padding: 0;
+        }
+
+        .terms-body li{
+          margin: 6px 0;
+        }
+
+        .badge{
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          margin-top: 10px;
+          padding: 6px 10px;
+          border-radius: 999px;
+          border: 1px solid var(--line);
+          font-size: 12px;
+          color: var(--muted);
+          background: #fff;
+        }
+
+        .dot{
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+          background: var(--accent);
+          display: inline-block;
+        }
+
+        .terms-footer-note{
+          margin-top: 18px;
+          padding-top: 14px;
+          border-top: 1px dashed var(--line);
+          color: var(--muted);
+          font-size: 13px;
+        }
+
+        /* 목차(옵션) */
+        .toc{
+          margin-top: 14px;
+          padding: 12px 14px;
+          border: 1px solid var(--line);
+          border-radius: 12px;
+          background: #fff;
+        }
+        .toc-title{
+          font-size: 13px;
+          font-weight: 800;
+          margin: 0 0 8px;
+        }
+        .toc a{
+          text-decoration: none;
+          color: var(--text);
+        }
+        .toc a:hover{
+          text-decoration: underline;
+        }
+        .toc ul{
+          margin: 0;
+          padding-left: 18px;
+          color: var(--muted);
+          font-size: 13px;
+          line-height: 1.7;
+        }
+    </style>
+</head>
+
+<body>
+<!-- ✅ 헤더 프래그먼트 (너네 프로젝트 경로에 맞춰 수정) -->
+<div th:replace="~{fragments/header :: header}"></div>
+
+<main class="terms-wrap">
+    <section class="terms-card">
+        <header class="terms-head">
+            <h1 class="terms-title">이용약관</h1>
+            <p class="terms-sub">
+                본 약관은 북나라 서비스 이용과 관련된 기본 규칙을 안내합니다.
+                서비스 이용 전 꼭 확인해 주세요.
+            </p>
+            <div class="badge">
+                <span class="dot"></span>
+                <span>시행일: <span th:text="${effectiveDate}">2026년 ○월 ○일</span></span>
+            </div>
+
+            <!-- ✅ 목차(원하면 삭제해도 됨) -->
+            <nav class="toc" aria-label="이용약관 목차">
+                <p class="toc-title">목차</p>
+                <ul>
+                    <li><a href="#a1">제1조 (목적)</a></li>
+                    <li><a href="#a2">제2조 (정의)</a></li>
+                    <li><a href="#a3">제3조 (약관의 효력 및 변경)</a></li>
+                    <li><a href="#a4">제4조 (회원가입)</a></li>
+                    <li><a href="#a5">제5조 (회원 정보의 관리)</a></li>
+                    <li><a href="#a6">제6조 (서비스의 제공 및 변경)</a></li>
+                    <li><a href="#a7">제7조 (도서 대여 및 반납)</a></li>
+                    <li><a href="#a8">제8조 (금지 행위)</a></li>
+                    <li><a href="#a9">제9조 (계약 해지 및 이용 제한)</a></li>
+                    <li><a href="#a10">제10조 (책임의 제한)</a></li>
+                    <li><a href="#a11">제11조 (개인정보 보호)</a></li>
+                    <li><a href="#a12">제12조 (준거법 및 관할)</a></li>
+                </ul>
+            </nav>
+        </header>
+
+        <article class="terms-body">
+            <h2 id="a1">제1조 (목적)</h2>
+            <p>
+                이 약관은 북나라(이하 “회사”)가 제공하는 도서 대여 및 관련 서비스(이하 “서비스”)의 이용과 관련하여
+                회사와 이용자 간의 권리, 의무 및 책임사항을 정함을 목적으로 합니다.
+            </p>
+
+            <h2 id="a2">제2조 (정의)</h2>
+            <ol>
+                <li><b>회원</b>이란 본 약관에 동의하고 회사와 이용계약을 체결한 자를 말합니다.</li>
+                <li><b>비회원</b>이란 회원가입을 하지 않고 서비스를 이용하는 자를 말합니다.</li>
+                <li><b>도서</b>란 회사가 제공하는 종이책, 전자책 및 기타 열람 가능한 콘텐츠를 말합니다.</li>
+                <li><b>대여</b>란 회사가 정한 기간 동안 회원이 도서를 이용할 수 있도록 하는 행위를 말합니다.</li>
+            </ol>
+
+            <h2 id="a3">제3조 (약관의 효력 및 변경)</h2>
+            <ol>
+                <li>본 약관은 서비스 화면에 게시하거나 기타의 방법으로 회원에게 공지함으로써 효력이 발생합니다.</li>
+                <li>회사는 관련 법령을 위반하지 않는 범위 내에서 약관을 변경할 수 있으며, 변경 시 사전 공지합니다.</li>
+                <li>변경된 약관에 동의하지 않을 경우 회원은 이용계약을 해지할 수 있습니다.</li>
+            </ol>
+
+            <h2 id="a4">제4조 (회원가입)</h2>
+            <ol>
+                <li>회원가입은 이용자가 약관에 동의하고 회사가 정한 가입 절차를 완료함으로써 성립됩니다.</li>
+                <li>
+                    회사는 다음 각 호에 해당하는 경우 회원가입을 제한하거나 취소할 수 있습니다.
+                    <ol>
+                        <li>허위 정보를 기재한 경우</li>
+                        <li>타인의 정보를 도용한 경우</li>
+                        <li>서비스 운영에 지장을 주는 경우</li>
+                    </ol>
+                </li>
+            </ol>
+
+            <h2 id="a5">제5조 (회원 정보의 관리)</h2>
+            <ol>
+                <li>회원은 본인의 개인정보를 정확하게 관리할 책임이 있습니다.</li>
+                <li>회원의 부주의로 발생한 불이익에 대해서는 회사가 책임지지 않습니다.</li>
+            </ol>
+
+            <h2 id="a6">제6조 (서비스의 제공 및 변경)</h2>
+            <ol>
+                <li>회사는 연중무휴, 1일 24시간 서비스를 제공함을 원칙으로 합니다.</li>
+                <li>시스템 점검, 장애, 기타 불가피한 사유가 있는 경우 서비스 제공이 일시 중단될 수 있습니다.</li>
+            </ol>
+
+            <h2 id="a7">제7조 (도서 대여 및 반납)</h2>
+            <ol>
+                <li>도서의 대여 기간, 수량 및 조건은 회사가 정한 정책에 따릅니다.</li>
+                <li>대여한 도서는 정해진 반납 기한 내에 반납해야 하며, 연체 시 서비스 이용이 제한될 수 있습니다.</li>
+                <li>도서의 분실·훼손 시 회사가 정한 기준에 따라 책임을 질 수 있습니다.</li>
+            </ol>
+
+            <h2 id="a8">제8조 (금지 행위)</h2>
+            <p>회원은 다음 행위를 하여서는 안 됩니다.</p>
+            <ol>
+                <li>타인의 계정을 사용하는 행위</li>
+                <li>서비스의 정상적인 운영을 방해하는 행위</li>
+                <li>도서 및 콘텐츠를 무단 복제·배포하는 행위</li>
+                <li>관련 법령에 위반되는 행위</li>
+            </ol>
+
+            <h2 id="a9">제9조 (계약 해지 및 이용 제한)</h2>
+            <ol>
+                <li>회원은 언제든지 서비스 이용을 중단하고 탈퇴를 요청할 수 있습니다.</li>
+                <li>회사는 회원이 약관을 위반한 경우 사전 통지 후 이용을 제한하거나 계약을 해지할 수 있습니다.</li>
+            </ol>
+
+            <h2 id="a10">제10조 (책임의 제한)</h2>
+            <ol>
+                <li>회사는 천재지변, 시스템 장애 등 불가항력적인 사유로 인한 서비스 장애에 대해 책임을 지지 않습니다.</li>
+                <li>회사는 회원 간 또는 회원과 제3자 간 발생한 분쟁에 개입하지 않습니다.</li>
+            </ol>
+
+            <h2 id="a11">제11조 (개인정보 보호)</h2>
+            <p>
+                회사는 관련 법령에 따라 회원의 개인정보를 보호하며, 개인정보 처리에 관한 사항은 개인정보처리방침에 따릅니다.
+            </p>
+
+            <h2 id="a12">제12조 (준거법 및 관할)</h2>
+            <p>
+                본 약관과 관련된 분쟁은 대한민국 법을 준거법으로 하며, 관할 법원은 회사의 본점 소재지를 따릅니다.
+            </p>
+
+            <div class="terms-footer-note">
+                <p><b>부칙</b></p>
+                <p>본 약관은 <span th:text="${effectiveDate}">2026년 ○월 ○일</span>부터 시행합니다.</p>
+            </div>
+        </article>
+    </section>
+</main>
+
+<!-- ✅ 푸터 프래그먼트 (너네 프로젝트 경로에 맞춰 수정) -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

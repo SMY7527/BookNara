@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>저작권 정책 | 북나라</title>
+
+    <!-- 공통 CSS(프로젝트에 맞게 유지/삭제) -->
+    <link rel="stylesheet" th:href="@{/css/header.css}">
+    <link rel="stylesheet" th:href="@{/css/footer.css}">
+
+    <style>
+        :root{
+          --page-max: 1440px;
+          --content-max: 900px;
+          --accent: #DCA244;
+          --text: #111;
+          --muted: #666;
+          --line: #e5e5e5;
+          --bg: #fff;
+          --soft: #faf7f1;
+        }
+
+        body{
+          margin: 0;
+          background: var(--bg);
+          color: var(--text);
+          font-family: "Pretendard", "Noto Sans KR", system-ui, -apple-system, Arial, sans-serif;
+        }
+
+        .wrap{
+          max-width: var(--page-max);
+          margin: 0 auto;
+          padding: 28px 16px 80px;
+        }
+
+        .card{
+          max-width: var(--content-max);
+          margin: 0 auto;
+          border: 1px solid var(--line);
+          border-radius: 14px;
+          overflow: hidden;
+          background: #fff;
+        }
+
+        .head{
+          padding: 22px 22px 16px;
+          background: linear-gradient(180deg, var(--soft), #fff);
+          border-bottom: 1px solid var(--line);
+        }
+
+        h1{
+          margin: 0;
+          font-size: 24px;
+          font-weight: 800;
+          letter-spacing: -0.3px;
+        }
+
+        .sub{
+          margin: 6px 0 0;
+          font-size: 13px;
+          color: var(--muted);
+          line-height: 1.5;
+        }
+
+        .meta{
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          margin-top: 10px;
+          padding: 6px 10px;
+          border-radius: 999px;
+          border: 1px solid var(--line);
+          font-size: 12px;
+          color: var(--muted);
+          background: #fff;
+        }
+
+        .dot{
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+          background: var(--accent);
+          display: inline-block;
+        }
+
+        .body{
+          padding: 22px;
+          line-height: 1.85;
+          font-size: 14px;
+        }
+
+        .body h2{
+          margin: 18px 0 8px;
+          font-size: 16px;
+          font-weight: 800;
+        }
+
+        .body p{
+          margin: 6px 0;
+          color: var(--text);
+        }
+
+        .body ul, .body ol{
+          margin: 8px 0 12px 18px;
+          padding: 0;
+          color: var(--text);
+        }
+
+        .body li{
+          margin: 6px 0;
+        }
+
+        .callout{
+          margin-top: 14px;
+          padding: 14px 14px;
+          border: 1px solid var(--line);
+          border-radius: 12px;
+          background: #fff;
+        }
+
+        .callout b{
+          color: var(--text);
+        }
+
+        .muted{
+          color: var(--muted);
+        }
+
+        .mail{
+          font-weight: 700;
+        }
+
+        .footer-note{
+          margin-top: 18px;
+          padding-top: 14px;
+          border-top: 1px dashed var(--line);
+          color: var(--muted);
+          font-size: 13px;
+        }
+
+        a{
+          color: inherit;
+        }
+    </style>
+</head>
+
+<body>
+<!-- ✅ 헤더 프래그먼트 (경로 맞춰 쓰기) -->
+<div th:replace="~{fragments/header :: header}"></div>
+
+<main class="wrap">
+    <section class="card">
+        <header class="head">
+            <h1>저작권 정책</h1>
+            <p class="sub">
+                북나라에서 제공되는 콘텐츠(도서 정보, 이미지, 리뷰 등)의 저작권 및 사용 기준을 안내합니다.
+            </p>
+            <div class="meta">
+                <span class="dot"></span>
+                <span>최종 업데이트: <span th:text="${updatedDate}">2026년 1월 14일</span></span>
+            </div>
+        </header>
+
+        <article class="body">
+            <h2>1. 저작권의 귀속</h2>
+            <p>
+                북나라 서비스 내에서 제공되는 텍스트, UI/디자인, 로고, 캐릭터(말랑이), 기획 콘텐츠 등
+                회사가 직접 제작한 자료에 대한 저작권은 회사에 귀속됩니다.
+            </p>
+            <p class="muted">
+                단, 도서 표지 이미지/도서 설명/서지 정보 등은 외부 제공처(출판사, 유통사, API 제공사 등)의 권리가
+                포함될 수 있으며, 해당 권리자의 정책을 따릅니다.
+            </p>
+
+            <h2>2. 이용자가 작성한 콘텐츠(리뷰/댓글/게시글 등)</h2>
+            <ol>
+                <li>이용자가 작성한 리뷰, 댓글, 게시글 등(이하 “이용자 콘텐츠”)의 저작권은 원칙적으로 작성자에게 귀속됩니다.</li>
+                <li>
+                    이용자는 서비스 운영 및 노출(예: 리뷰 리스트, 추천 영역, 검색 결과)에 필요한 범위 내에서
+                    회사가 이용자 콘텐츠를 무상으로 저장, 복제, 전송, 전시할 수 있도록 허락합니다.
+                </li>
+                <li>
+                    이용자 콘텐츠가 타인의 권리를 침해하거나 관련 법령을 위반하는 경우,
+                    회사는 사전 통지 없이 해당 콘텐츠를 숨김/삭제 처리하거나 이용을 제한할 수 있습니다.
+                </li>
+            </ol>
+
+            <h2>3. 금지되는 사용</h2>
+            <p>다음 행위는 허용되지 않습니다.</p>
+            <ul>
+                <li>서비스 내 콘텐츠(텍스트/이미지/캐릭터/디자인 등)를 무단 복제·배포·판매하는 행위</li>
+                <li>도서 표지 이미지, 상세 설명 등을 무단으로 수집하여 재게시하거나 상업적으로 이용하는 행위</li>
+                <li>자동화 도구(크롤링/스크래핑 등)로 대량 수집하여 서비스 운영을 방해하는 행위</li>
+                <li>타인의 저작권/상표권/초상권 등 권리를 침해하는 행위</li>
+            </ul>
+
+            <h2>4. 인용 및 공유</h2>
+            <ol>
+                <li>비상업적 목적의 인용/공유는 관련 법령(저작권법 등)이 허용하는 범위 내에서 가능합니다.</li>
+                <li>
+                    인용 시에는 출처(서비스명/페이지 등)를 표시하고, 원저작자의 권리를 침해하지 않도록 해야 합니다.
+                </li>
+                <li>상업적 이용 또는 대량 이용이 필요한 경우 사전에 회사와 협의가 필요합니다.</li>
+            </ol>
+
+            <h2>5. 신고 및 권리침해 대응</h2>
+            <p>
+                서비스 내 콘텐츠가 본인의 권리를 침해한다고 판단되는 경우, 아래 정보를 포함하여 신고해 주세요.
+            </p>
+
+            <div class="callout">
+                <p><b>신고 시 포함하면 좋은 정보</b></p>
+                <ul>
+                    <li>침해가 의심되는 콘텐츠의 위치(URL 또는 화면 설명)</li>
+                    <li>권리자임을 증명할 수 있는 자료(가능한 범위 내)</li>
+                    <li>요청 사항(삭제, 비공개 처리, 수정 등)</li>
+                    <li>연락 가능한 이메일</li>
+                </ul>
+                <p class="muted">
+                    접수된 내용은 확인 후 가능한 신속히 조치하며, 필요 시 추가 자료를 요청할 수 있습니다.
+                </p>
+            </div>
+
+            <h2>6. 문의처</h2>
+            <p>
+                저작권 정책 관련 문의는 아래 이메일로 연락해 주세요.
+            </p>
+            <p class="mail">
+                이메일: <a th:href="'mailto:' + ${contactEmail}" th:text="${contactEmail}">support@booknara.com</a>
+            </p>
+
+            <div class="footer-note">
+                <p>
+                    본 정책은 서비스 운영상 필요에 따라 변경될 수 있으며, 변경 시 서비스 내 공지합니다.
+                </p>
+            </div>
+        </article>
+    </section>
+</main>
+
+<!-- ✅ 푸터 프래그먼트 -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

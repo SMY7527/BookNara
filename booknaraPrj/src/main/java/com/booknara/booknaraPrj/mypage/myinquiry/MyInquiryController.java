@@ -66,6 +66,6 @@ public class MyInquiryController {
 
         inquiryService.writeInquiry(dto, files);
 
-        return "redirect:/my/inquiry";
+        return "redirect:my/inquiry";
     }
 }

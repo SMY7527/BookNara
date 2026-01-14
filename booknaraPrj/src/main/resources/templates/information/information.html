@@ -10,9 +10,7 @@
   </head>
 
   <body>
-<!--    <header id="siteHeader"></header>-->
-    <!-- ================= 헤더 ================= -->
-    <div th:replace="fragments/header :: header"></div>
+  <div th:replace="fragments/header :: header"></div>
 
     <main class="container cc">
       <!-- HERO -->
@@ -143,6 +141,7 @@
         </section>
       </div>
     </main>
+  <div th:replace="fragments/footer :: footer"></div>
 
     <script th:src="@{/js/common.js}" defer></script>
     <script th:src="@{/js/information.js}" defer></script>

@@ -12,8 +12,8 @@
   </head>
 
   <body>
-  <!-- ================= 헤더 ================= -->
-  <div th:replace="fragments/header :: header"></div>
+    <!-- common.js가 헤더 그려줌 -->
+    <div th:replace="fragments/header :: header"></div>
 
     <main class="container">
       <h2 class="page-title">찾아오는길</h2>
@@ -88,5 +88,7 @@
 
     <script th:src="@{/js/common.js}" defer></script>
     <script th:src="@{/js/location.js}" defer></script>
+    <div th:replace="fragments/footer :: footer"></div>
+
   </body>
 </html>

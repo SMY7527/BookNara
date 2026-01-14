@@ -58,11 +58,11 @@ a{
 /* ===== 중앙 메뉴 ===== */
 .nav {
   position: absolute;
-  left: 50%;
+  left: 52%;
   transform: translateX(-50%);
   display: flex;
   gap: clamp(10px, 3vw, 43px);
-  font-size: 15px;
+  font-size: 18px;
   white-space: nowrap;
 }
 .nav a {

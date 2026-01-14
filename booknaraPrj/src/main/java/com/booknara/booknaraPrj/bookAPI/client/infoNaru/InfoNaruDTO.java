@@ -6,19 +6,15 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * [InfoNaruDTO]
- * 정보나루(Data4Library) API 응답 도서 정보를 매핑하는 객체
- */
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-@JsonIgnoreProperties(ignoreUnknown = true) // 응답 데이터의 불필요한 필드 무시
+
+//외부 API변경 대응
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class InfoNaruDTO {
-
-    @JsonProperty("bookname") // API 필드명 'bookname'을 시스템 표준인 'booktitle'로 매핑
+    @JsonProperty("bookname")
     private String booktitle;
-
-    private String publisher;  // 출판사
-    private String isbn13;     // 시스템 핵심 식별자(ISBN13)
+    private String publisher;
+    private String isbn13;
 }

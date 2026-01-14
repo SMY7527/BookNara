@@ -121,16 +121,4 @@
         WHERE USER_ID = #{userId}
     </update>
 
-    <insert id="insertDelivery">
-        INSERT INTO DELIVERY_H (
-            LEND_ID,
-            CREATED_AT
-        ) VALUES (
-                     #{lendId},
-                     NOW()
-                 )
-    </insert>
-
-
-
 </mapper>

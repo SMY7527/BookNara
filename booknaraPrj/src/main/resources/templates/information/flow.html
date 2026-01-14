@@ -9,7 +9,6 @@
     <link rel="stylesheet" th:href="@{/css/flow.css}" />
   </head>
   <body>
-  <!-- ================= 헤더 ================= -->
   <div th:replace="fragments/header :: header"></div>
 
     <main class="container">
@@ -147,5 +146,7 @@
 
     <script th:src="@{/js/common.js}" defer></script>
     <script th:src="@{/js/flow.js}" defer></script>
+    <div th:replace="fragments/footer :: footer"></div>
+
   </body>
 </html>

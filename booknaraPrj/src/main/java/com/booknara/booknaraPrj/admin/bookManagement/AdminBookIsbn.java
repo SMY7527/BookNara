@@ -17,9 +17,7 @@ import java.util.List;
 @Builder
 @Table(name = "BOOK_ISBN")
 public class AdminBookIsbn {
-    //ㅠㅠ
-    //ㅇㅅㅇ
-    //제발요
+    //owo
     @Id
     @Column(name = "ISBN13", length = 20)
     private String isbn13;

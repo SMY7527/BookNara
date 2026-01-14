@@ -43,6 +43,7 @@ public class SecurityConfig {
                         ).permitAll()
 
                         .requestMatchers(
+                                "/",
                                 "/home",
                                 "/users/login",
 

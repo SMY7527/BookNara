@@ -2,7 +2,7 @@ package com.booknara.booknaraPrj.bookcart.service;
 
 import com.booknara.booknaraPrj.bookcart.dto.BookCartDTO;
 import com.booknara.booknaraPrj.bookcart.mapper.BookCartMapper;
-import com.booknara.booknaraPrj.bookcirculation.command.mapper.BookCirculationCommandMapper;
+import com.booknara.booknaraPrj.bookcirculation.command.mapper.BookCommandMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,7 +16,7 @@ public class OrderPaymentService {
 
     private final BookCartService cartService;
     private final BookCartMapper cartMapper;                  // quota + cart clear
-    private final BookCirculationCommandMapper lendMapper;    // FOR UPDATE 선점 + LENDS insert
+    private final BookCommandMapper lendMapper;    // FOR UPDATE 선점 + LENDS insert
 
     /** 전자책-only: 무료 확정 */
     @Transactional

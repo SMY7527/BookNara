@@ -194,7 +194,7 @@ const NOTI_META = {
     tab: 'ADMIN',
     icon: 'inquiry_noti',
     title: '문의 답변',
-    href: (n) => `/my/inquiries/${n.targetId}` // 문의 검색
+    href: (n) => `/my/inquiry` // 문의 검색
   },
 
   DELIVERY_START: {

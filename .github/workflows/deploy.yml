@@ -65,8 +65,9 @@ jobs:
           script: |
             docker stop acorn-server || true
             docker rm acorn-server || true
+            docker rmi ${{ steps.login-ecr.outputs.registry }}/acorn-server:latest || true
             docker pull ${{ steps.login-ecr.outputs.registry }}/acorn-server:latest
-            docker run -d --name acorn-server -p 8080:8080 \ 
+            docker run -d --name acorn-server -p 8080:8080 \
             -v /home/ubuntu/ePub:/app/data \
             -v /home/ubuntu/uploads:/app/data1 \
             ${{ steps.login-ecr.outputs.registry }}/acorn-server:latest

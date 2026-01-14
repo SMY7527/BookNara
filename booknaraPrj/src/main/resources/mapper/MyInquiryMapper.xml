@@ -58,13 +58,13 @@
         UPDATE INQUIRY
         <set>
             <if test="filePath1 != null">
-                FILE_PATH1 = #{filePath1},
+                FILE_PATH_1 = #{filePath1},
             </if>
             <if test="filePath2 != null">
-                FILE_PATH2 = #{filePath2},
+                FILE_PATH_2 = #{filePath2},
             </if>
             <if test="filePath3 != null">
-                FILE_PATH3 = #{filePath3},
+                FILE_PATH_3 = #{filePath3},
             </if>
             UPDATED_AT = NOW()
         </set>

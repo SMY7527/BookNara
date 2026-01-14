@@ -64,7 +64,7 @@ public class AdminController {
     private final NotificationService notificationService;
 
 
-    @Value("uploads.path}")
+    @Value("${uploads.path}")
     private String uploadDir;
 
     @GetMapping("/BookManageMent")

@@ -5,11 +5,13 @@ import com.booknara.booknaraPrj.ebook.dto.MyEBookItemDTO;
 import com.booknara.booknaraPrj.ebook.dto.SaveCfiRequest;
 import com.booknara.booknaraPrj.ebook.service.EBookService;
 import com.booknara.booknaraPrj.ebook.service.GoogleDictionaryService;
+import com.booknara.booknaraPrj.security.CustomUserDetails;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -24,11 +26,13 @@ public class EBookController {
     private final EBookService service;
 
     @GetMapping("/ebook")
-    public String ebookView(Authentication auth,
+    public String ebookView(/*Authentication auth,*/
+                            @AuthenticationPrincipal CustomUserDetails userDetails,
                             Model model) throws IOException {
         // DB에서 회원의 현재 대여중인 전자책 정보 가져오기
         System.out.println("ebook");
-        String userId = auth.getName();
+        //String userId = auth.getName();
+        String userId = userDetails.getUserId();
         List<MyEBookItemDTO> e_list = service.findEBookList(userId);
         e_list.forEach(System.out::println);
 
@@ -39,9 +43,11 @@ public class EBookController {
 
     @GetMapping("/ebook/{bookid}")
     public String ebookView(@PathVariable("bookid") long bookid,
-                            Authentication auth,
+//                            Authentication auth,
+                            @AuthenticationPrincipal CustomUserDetails userDetails,
                             Model model) throws IOException {
-        String userId = auth.getName();
+//        String userId = auth.getName();
+        String userId = userDetails.getUserId();
         // 검증
         boolean hasAccess = service.canReadBook(userId, bookid);
         if (!hasAccess) {
@@ -77,9 +83,11 @@ public class EBookController {
     @ResponseBody
     @GetMapping("/ebook/epub/{isbn}")
     public ResponseEntity<Resource> streamEpub(@PathVariable("isbn") String isbn,
-                                               Authentication auth) throws IOException {
+//                                               Authentication auth,
+                                               @AuthenticationPrincipal CustomUserDetails userDetails) throws IOException {
         // 검증
-        String userId = auth.getName();
+//        String userId = auth.getName();
+        String userId = userDetails.getUserId();
         boolean hasAccess = service.canReadBook(userId, isbn);
         if (!hasAccess) {
             //throw new ResponseStatusException(HttpStatus.FORBIDDEN);
@@ -97,9 +105,11 @@ public class EBookController {
     @PutMapping("/ebook/history/{isbn}")
     public ResponseEntity<Void> saveCfi(@PathVariable("isbn") String isbn,
                                         @RequestBody @Valid SaveCfiRequest req,
-                                        Authentication auth) {
+//                                        Authentication auth,
+                                        @AuthenticationPrincipal CustomUserDetails userDetails) {
         // 세션에서 유저 정보 받아오기
-        String userId = auth.getName();
+//        String userId = auth.getName();
+        String userId = userDetails.getUserId();
 
         boolean hasAccess = service.canReadBook(userId, isbn);
         if(hasAccess) {

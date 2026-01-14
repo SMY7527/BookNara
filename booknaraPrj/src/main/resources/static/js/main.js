@@ -1,4 +1,6 @@
-/*이벤트 배너 슬라이드*/
+/* ===============================
+   이벤트 배너 슬라이드
+   =============================== */
 document.addEventListener("DOMContentLoaded", () => {
   fetch("/api/main/events")
     .then(res => res.json())
@@ -12,18 +14,20 @@ document.addEventListener("DOMContentLoaded", () => {
       indicator.innerHTML = "";
 
       events.forEach((e, idx) => {
-        track.innerHTML += `
-          <div class="banner-slide">
+        track.insertAdjacentHTML("beforeend", `
+          <div class="banner-slide" data-event-id="${e.eventId}">
             <img src="${e.imgUrl}" alt="${e.eventTitle}">
           </div>
-        `;
-        indicator.innerHTML += `
-          <span class="dot ${idx === 0 ? 'active' : ''}"></span>
-        `;
+        `);
+
+        indicator.insertAdjacentHTML("beforeend", `
+          <span class="dot ${idx === 0 ? "active" : ""}"></span>
+        `);
       });
 
       initBannerSlider();
-    });
+    })
+    .catch(err => console.error("이벤트 배너 로딩 실패", err));
 });
 
 function initBannerSlider() {
@@ -33,71 +37,79 @@ function initBannerSlider() {
   const prevBtn = document.querySelector(".banner-nav.prev");
   const nextBtn = document.querySelector(".banner-nav.next");
 
+   slides.forEach(slide => {
+     slide.addEventListener("click", () => {
+       const eventId = slide.dataset.eventId;
+       if (eventId) {
+         window.location.href = `/event/detail?id=${eventId}`;
+       }
+     });
+   });
+
+  if (!track || slides.length === 0 || !prevBtn || !nextBtn) {
+    console.warn("배너 슬라이더 요소 부족");
+    return;
+  }
+
   let currentIndex = 0;
   const slideCount = slides.length;
-  let slideInterval;
+  let slideInterval = null;
 
+  // 슬라이드 이동
   function updateSlide(index) {
     track.style.transform = `translateX(-${index * 100}%)`;
     dots.forEach(dot => dot.classList.remove("active"));
-    dots[index].classList.add("active");
+    if (dots[index]) dots[index].classList.add("active");
   }
 
-  nextBtn.addEventListener("click", () => {
+  function nextSlide() {
     currentIndex = (currentIndex + 1) % slideCount;
     updateSlide(currentIndex);
+  }
+
+  function prevSlide() {
+    currentIndex = (currentIndex - 1 + slideCount) % slideCount;
+    updateSlide(currentIndex);
+  }
+
+  // 자동 슬라이드 (5초)
+  function startAutoSlide() {
+    stopAutoSlide();
+    slideInterval = setInterval(nextSlide, 5000); // ⭐ 5초
+  }
+
+  function stopAutoSlide() {
+    if (slideInterval) {
+      clearInterval(slideInterval);
+      slideInterval = null;
+    }
+  }
+
+  // 버튼 이벤트
+  nextBtn.addEventListener("click", () => {
+    nextSlide();
+    startAutoSlide(); // 수동 조작 시 리셋
   });
 
   prevBtn.addEventListener("click", () => {
-    currentIndex = (currentIndex - 1 + slideCount) % slideCount;
-    updateSlide(currentIndex);
+    prevSlide();
+    startAutoSlide(); // 수동 조작 시 리셋
   });
 
+  // 점(인디케이터)
   dots.forEach((dot, index) => {
     dot.addEventListener("click", () => {
       currentIndex = index;
       updateSlide(currentIndex);
+      startAutoSlide(); // 수동 조작 시 리셋
     });
   });
 
-  function updateSlide(index) {
-      track.style.transform = `translateX(-${index * 100}%)`;
-      dots.forEach(dot => dot.classList.remove("active"));
-      dots[index].classList.add("active");
-    }
-
-    // ✅ 다음 슬라이드로 이동하는 기능 (재사용을 위해 분리)
-    function nextSlide() {
-      currentIndex = (currentIndex + 1) % slideCount;
-      updateSlide(currentIndex);
-    }
-
-    // ✅ 자동 넘김 시작 함수 (3초마다 실행)
-    function startAutoSlide() {
-      stopAutoSlide(); // 중복 방지
-      slideInterval = setInterval(nextSlide, 3000); // 3000ms = 3초
-    }
-
-    nextBtn.addEventListener("click", () => {
-        nextSlide();
-        startAutoSlide(); // 수동 조작 시 타이머 리셋
-      });
-
-      prevBtn.addEventListener("click", () => {
-        currentIndex = (currentIndex - 1 + slideCount) % slideCount;
-        updateSlide(currentIndex);
-        startAutoSlide(); // 수동 조작 시 타이머 리셋
-      });
-
-      dots.forEach((dot, index) => {
-        dot.addEventListener("click", () => {
-          currentIndex = index;
-          updateSlide(currentIndex);
-          startAutoSlide(); // 수동 조작 시 타이머 리셋
-        });
-      });
-      startAutoSlide();
+  // 초기 실행
+  updateSlide(0);
+  startAutoSlide();
 }
+
 
 /* ===============================
    말랑이픽 (해시태그 + 도서)

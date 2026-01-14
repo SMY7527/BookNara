@@ -34,6 +34,7 @@
       width: 100%;
       height: 100%;
       overflow: hidden;
+
       }
 
       /* 트랙 */
@@ -47,6 +48,7 @@
       .banner-slide {
       min-width: 100%;
       height: 100%;
+      pointer-events: auto;
       }
 
       .banner-slide img {
@@ -54,6 +56,7 @@
       height: 100%;
       object-fit: cover;   /* ⭐ 가로 확대/축소에도 꽉 */
       display: block;
+      cursor: pointer;
       }
 
       /* 좌우 버튼 */

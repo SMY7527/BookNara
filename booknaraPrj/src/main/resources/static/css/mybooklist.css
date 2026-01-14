@@ -186,29 +186,48 @@
     color: #666;
 }
 
-.hidden{ display: none; }
 
 button:disabled{
     opacity: 0.5;
     cursor: not-allowed;
 }
+.book-card {
+    position: relative; /* ⭐ 필수 */
+}
+
 .ebook-badge {
-    display: inline-block;
-    margin-top: 6px;
+    position: absolute;          /* ⭐ 떠 있게 */
+    top: 8px;
+    right: 8px;
+
+    z-index: 20;                 /* ⭐ 이미지 위로 */
     padding: 4px 8px;
     font-size: 12px;
     border-radius: 12px;
-    background: #eef6ff;
-    color: #1d4ed8;
+    background: #f2c94c;
+    color: #333;
     cursor: pointer;
-    width: fit-content;
+    font-weight: 700;
 }
+
 
 .ebook-badge:hover {
     background: #dbeafe;
 }
 
 
+button {
+    padding: 10px 15px;
+    border-radius: 6px;
+    border: none;
+    background: #f2c94c;
+    color: #333;
+    font-weight: 700;
+    cursor: pointer;
+}
+button:hover {
+    filter: brightness(0.95);
+}
 
 
 /* ===== 반응형 ===== */

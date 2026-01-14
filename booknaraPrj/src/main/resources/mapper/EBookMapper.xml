@@ -47,7 +47,7 @@
     <select id="selectUserIsbn" parameterType="hashmap" resultType="int">
         SELECT 1
         FROM LENDS l
-        join books b
+        join BOOKS b
           on l.BOOK_ID = b.BOOK_ID
         WHERE l.USER_ID = #{userId}
             AND b.ISBN13 = #{isbn}

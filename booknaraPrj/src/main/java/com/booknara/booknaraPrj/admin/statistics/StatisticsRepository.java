@@ -16,19 +16,19 @@ public interface StatisticsRepository extends JpaRepository<Users,String> {
             "  WHEN (YEAR(CURDATE()) - YEAR(BIRTHDAY)) < 40 THEN '30대' " +
             "  WHEN (YEAR(CURDATE()) - YEAR(BIRTHDAY)) < 50 THEN '40대' " +
             "  ELSE '50대 이상' " +
-            "END AS LABEL, " +
-            "COUNT(*) AS COUNT, " +
-            "ROUND(COUNT(*) * 100.0 / (SELECT COUNT(*) FROM USERS), 1) AS PERCENTAGE " +
+            "END AS label, " +
+            "COUNT(*) AS count, " +
+            "ROUND(COUNT(*) * 100.0 / (SELECT COUNT(*) FROM USERS), 1) AS percentage " +
             "FROM USERS " +
-            "GROUP BY LABEL " +
-            "ORDER BY LABEL", nativeQuery = true)
+            "GROUP BY label " +
+            "ORDER BY label", nativeQuery = true)
     List<UserAgeStatProjection> findAgeGroupStatistics();
 
     // 2. 실시간 성별 분포 쿼리
     @Query(value = "SELECT " +
-            "GENDER AS LABEL, " +
-            "COUNT(*) AS COUNT, " +
-            "ROUND(COUNT(*) * 100.0 / (SELECT COUNT(*) FROM USERS), 1) AS PERCENTAGE " +
+            "GENDER AS label, " +
+            "COUNT(*) AS count, " +
+            "ROUND(COUNT(*) * 100.0 / (SELECT COUNT(*) FROM USERS), 1) AS percentage " +
             "FROM USERS " +
             "GROUP BY GENDER", nativeQuery = true)
     List<UserAgeStatProjection> findGenderStatistics();
@@ -41,9 +41,9 @@ public interface StatisticsRepository extends JpaRepository<Users,String> {
             "  WHEN (YEAR(CURDATE()) - YEAR(BIRTHDAY)) < 40 THEN '30대' " +
             "  WHEN (YEAR(CURDATE()) - YEAR(BIRTHDAY)) < 50 THEN '40대' " +
             "  ELSE '50대 이상' " +
-            "END AS LABEL, " +
-            "COUNT(*) AS COUNT, " +
-            "ROUND(COUNT(*) * 100.0 / (SELECT COUNT(*) FROM USERS WHERE GENDER = :gender), 1) AS PERCENTAGE " +
+            "END AS label, " +
+            "COUNT(*) AS count, " +
+            "ROUND(COUNT(*) * 100.0 / (SELECT COUNT(*) FROM USERS WHERE GENDER = :gender), 1) AS percentage " +
             "FROM USERS " +
             "WHERE GENDER = :gender " +
             "GROUP BY LABEL " +

@@ -63,6 +63,7 @@ public class EBookService {
     // epub파일 가져오기
     public ResponseEntity<Resource> getEpubResource(String epub) throws IOException {
         Path epubPath = Paths.get(ebookBasePath).resolve(epub);
+        System.out.println("Path : " + epubPath);
 
         if (!Files.exists(epubPath)) {
             System.out.println("Not Found");

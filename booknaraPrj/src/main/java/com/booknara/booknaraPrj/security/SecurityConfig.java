@@ -79,6 +79,9 @@ public class SecurityConfig {
                                 "/api/bookmarks/**",
                                 "/api/users/**",
 
+                                "/ebook/history/*",
+                                "/notifications/unread/count",
+
                                 "/oauth2/**",
                                 "/login/oauth2/**",
                                 "/api/users/**",

@@ -49,6 +49,7 @@
                     <div class="ebook-badge"
                          th:if="${#strings.equalsIgnoreCase(book.ebookYn, 'Y')}"
                          th:data-isbn="${book.isbn13}"
+                         th:data-bookid="${book.bookId}"
                          onclick="openEbook(this)">
                         📘 EBOOK
                     </div>
@@ -234,7 +235,7 @@
 
     <script>
         function openEbook(el) {
-            const bookId = el.dataset.bookId;
+            const bookId = el.dataset.bookid;
 
             if (!bookId) {
                 alert("도서 정보가 없습니다.");
@@ -243,7 +244,7 @@
 
             // ✅ 이미 만들어둔 ebook 페이지 (bookid 기준)
             window.open(
-                "/ebook" + encodeURIComponent(bookId),
+                "/ebook/" + encodeURIComponent(bookId),
                 "_blank"
             );
         }

@@ -11,14 +11,19 @@ import org.springframework.transaction.annotation.Transactional;
 
 public interface AdminBookManagementRepository extends JpaRepository<AdminBooks, Long> {
 
-    @Query("SELECT b.bookId, i.isbn13, i.bookTitle, i.authors, i.description, " +
+    @Query("SELECT new com.booknara.booknaraPrj.admin.bookManagement.AdminBookListResponseDto(" +
+            "b.bookId, i.isbn13, i.bookTitle, i.authors, i.description, " +
             "i.publisher, i.pubDate, i.naverImage, i.aladinImageBig, " +
-            "i.eBookYn, i.epub, g.genreNm, b.bookState " + // <-- 앞에 SELECT를 반드시 붙여야 합니다.
+            "i.eBookYn, i.epub, g.genreNm, b.bookState) " +
             "FROM AdminBooks b " +
             "LEFT JOIN b.bookIsbn i " +
             "LEFT JOIN i.adminGenre g " +
-            "WHERE (:keyword IS NULL OR i.bookTitle LIKE :keyword OR i.authors LIKE :keyword OR i.isbn13 = :keyword) " +
-            "AND (:bookState IS NULL OR :bookState = '' OR b.bookState = :bookState)")
+            "WHERE (:keyword IS NULL OR :keyword = '' " +
+            "      OR i.bookTitle LIKE CONCAT(:keyword, '%') " + // 뒤에만 % 붙임
+            "      OR i.authors LIKE CONCAT(:keyword, '%') " +   // 뒤에만 % 붙임
+            "      OR i.isbn13 = :keyword) " +                  // ISBN은 완전일치 추천
+            "AND (:bookState IS NULL OR :bookState = '' OR :bookState = '전체' " +
+            "      OR b.bookState = :bookState)")
     Slice<AdminBookListResponseDto> findByFiltersDto(
             @Param("keyword") String keyword,
             @Param("bookState") String bookState,

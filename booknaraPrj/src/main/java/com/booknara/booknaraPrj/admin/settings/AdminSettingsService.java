@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -33,19 +34,40 @@ public class AdminSettingsService {
 
     @Transactional
     public void updateSettings(AdminSettings newSettings) {
+        // 1. 조회
         AdminSettings existing = adminSettingsRepository.findFirstByOrderBySettingsIdAsc()
-                .orElse(new AdminSettings());
+                .orElse(null);
 
-        existing.setDefaultLendDays(newSettings.getDefaultLendDays());
-        existing.setDefaultExtendDays(newSettings.getDefaultExtendDays());
-        existing.setLateFeePerDay(newSettings.getLateFeePerDay());
-        existing.setLatePenaltyDays(newSettings.getLatePenaltyDays());
-        existing.setMaxLendCount(newSettings.getMaxLendCount());
-        existing.setDbUpdateCycleDays(newSettings.getDbUpdateCycleDays());
-        existing.setAdminEmail(newSettings.getAdminEmail());
-        existing.setAdminPhone(newSettings.getAdminPhone());
+        if (existing == null) {
+            // 2-A. 데이터가 전혀 없을 경우: 새로 저장
+            // Builder를 사용 중이시라면 아래처럼 생성하거나, new로 생성 후 필드 주입
+            existing = AdminSettings.builder()
+                    .defaultLendDays(newSettings.getDefaultLendDays())
+                    .defaultExtendDays(newSettings.getDefaultExtendDays())
+                    .lateFeePerDay(newSettings.getLateFeePerDay())
+                    .latePenaltyDays(newSettings.getLatePenaltyDays())
+                    .maxLendCount(newSettings.getMaxLendCount())
+                    .dbUpdateCycleDays(newSettings.getDbUpdateCycleDays())
+                    .adminEmail(newSettings.getAdminEmail())
+                    .adminPhone(newSettings.getAdminPhone())
+                    .createdAt(LocalDateTime.now())
+                    .updatedAt(LocalDateTime.now())
+                    .build();
+        } else {
+            // 2-B. 기존 데이터가 있을 경우: 더티 체킹 활용
+            existing.setDefaultLendDays(newSettings.getDefaultLendDays());
+            existing.setDefaultExtendDays(newSettings.getDefaultExtendDays());
+            existing.setLateFeePerDay(newSettings.getLateFeePerDay());
+            existing.setLatePenaltyDays(newSettings.getLatePenaltyDays());
+            existing.setMaxLendCount(newSettings.getMaxLendCount());
+            existing.setDbUpdateCycleDays(newSettings.getDbUpdateCycleDays());
+            existing.setAdminEmail(newSettings.getAdminEmail());
+            existing.setAdminPhone(newSettings.getAdminPhone());
+            existing.setUpdatedAt(LocalDateTime.now());
+        }
 
-        adminSettingsRepository.save(existing);
+        // 3. saveAndFlush로 즉시 DB 반영 강제
+        adminSettingsRepository.saveAndFlush(existing);
     }
 
     // 1. 도서 검색 (검색어 기반)

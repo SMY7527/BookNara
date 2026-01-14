@@ -18,8 +18,8 @@ public interface StatisticsRepository extends JpaRepository<Users,String> {
             "  ELSE '50대 이상' " +
             "END AS label, " +
             "COUNT(*) AS count, " +
-            "ROUND(COUNT(*) * 100.0 / (SELECT COUNT(*) FROM users), 1) AS percentage " +
-            "FROM users " +
+            "ROUND(COUNT(*) * 100.0 / (SELECT COUNT(*) FROM USERS), 1) AS percentage " +
+            "FROM USERS " +
             "GROUP BY label " +
             "ORDER BY label", nativeQuery = true)
     List<UserAgeStatProjection> findAgeGroupStatistics();
@@ -28,8 +28,8 @@ public interface StatisticsRepository extends JpaRepository<Users,String> {
     @Query(value = "SELECT " +
             "GENDER AS label, " +
             "COUNT(*) AS count, " +
-            "ROUND(COUNT(*) * 100.0 / (SELECT COUNT(*) FROM users), 1) AS percentage " +
-            "FROM users " +
+            "ROUND(COUNT(*) * 100.0 / (SELECT COUNT(*) FROM USERS), 1) AS percentage " +
+            "FROM USERS " +
             "GROUP BY GENDER", nativeQuery = true)
     List<UserAgeStatProjection> findGenderStatistics();
 
@@ -43,8 +43,8 @@ public interface StatisticsRepository extends JpaRepository<Users,String> {
             "  ELSE '50대 이상' " +
             "END AS label, " +
             "COUNT(*) AS count, " +
-            "ROUND(COUNT(*) * 100.0 / (SELECT COUNT(*) FROM users WHERE GENDER = :gender), 1) AS percentage " +
-            "FROM users " +
+            "ROUND(COUNT(*) * 100.0 / (SELECT COUNT(*) FROM USERS WHERE GENDER = :gender), 1) AS percentage " +
+            "FROM USERS " +
             "WHERE GENDER = :gender " +
             "GROUP BY label " +
             "ORDER BY label", nativeQuery = true)

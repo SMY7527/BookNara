@@ -2,29 +2,32 @@ package com.booknara.booknaraPrj.bookAPI.client.infoNaru;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
-
 import java.util.List;
 
-//정보나루 API 응답 매핑용 DTO
+/**
+ * [InfoNaruResponse]
+ * 정보나루 API의 최상위 응답 포맷 매핑 객체
+ */
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class InfoNaruResponse {
 
-    //응답 데이터 영역
-    private ResponseData response;
+    private ResponseData response; // 응답 데이터 본문
 
-    // 전체 건수 + 도서 목록
+    /** 검색 결과 요약 및 목록을 포함하는 데이터 영역 */
     @Data
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class ResponseData {
-        private int numFound;              // 전체 검색 결과 수
-        private List<DocWrapper> docs;     // 도서 목록
+        private int numFound;          // 검색 조건에 맞는 전체 도서 수
+        private List<DocWrapper> docs; // 도서 정보 래퍼 리스트
     }
 
-    //docs 배열 내 실제 도서 래퍼
+    /** * 개별 도서 정보를 감싸고 있는 래퍼 클래스
+     * API의 { "doc": { ... } } 구조 대응용
+     */
     @Data
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class DocWrapper {
-        private InfoNaruDTO doc;           // 도서 정보
+        private InfoNaruDTO doc;       // 실제 도서 상세 정보 (제목, 저자, ISBN 등)
     }
 }

@@ -351,8 +351,9 @@
                     files.forEach(file => {
                         if (file && file.url) {
                             const name = file.name || '첨부파일';
-                            let downloadUrl = file.url.startsWith('/') ? file.url : '/admin/' + file.url;
+<!--                            let downloadUrl = file.url.startsWith('/') ? file.url : '/admin/' + file.url;-->
 
+                            let downloadUrl = `/admin+file.url`;
                             const fileItem = document.createElement('div');
                             fileItem.className = "cursor-pointer flex items-center gap-3 p-3 bg-white border border-gray-100 rounded-xl hover:border-main hover:text-main transition-all group shadow-sm";
                             fileItem.onclick = () => downloadFileSafe(downloadUrl, name);

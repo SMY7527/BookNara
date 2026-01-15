@@ -53,7 +53,14 @@ body{background:#f5f5f5;}
 .book-list{display:flex;gap:15px;flex-wrap:wrap;}
 .book-item{width:120px;display:flex;flex-direction:column;gap:6px;}
 .book-thumb{width:120px;height:160px;background:#ddd;border-radius:8px;}
-.book-title{font-size:13px;font-weight:bold;}
+.book-title{
+    font-size:13px;
+    font-weight:bold;
+    display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        overflow: hidden;
+}
 .book-date{font-size:12px;color:#666;}
 .book-status{color:#ff6b6b;font-weight:bold;}
 .empty-text{padding:12px;color:#666;font-size:13px;}

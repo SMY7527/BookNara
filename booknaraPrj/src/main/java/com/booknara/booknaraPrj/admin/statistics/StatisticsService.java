@@ -85,7 +85,7 @@ public class StatisticsService {
         data.put("maxCount", maxCount);
 
         // 3. 상단 카드 4종 지표 (getOverdueStatistics 로직 통합)
-        LocalDateTime now = LocalDateTime.of(2026, 1, 8, 14, 0);
+        LocalDateTime now = LocalDateTime.of(2026, 12, 31, 23, 0);
         long totalCount = lendRepository.count();
 
         // 연체율

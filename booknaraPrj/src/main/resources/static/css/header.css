@@ -311,6 +311,7 @@ gap:15px
   font-size: 25px;
   line-height: 100%;
   cursor: pointer;
+  padding : 0;
 }
 
 #alarmBox {

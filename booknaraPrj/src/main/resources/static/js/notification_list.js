@@ -59,69 +59,77 @@ const NOTI_META = {
     tab: 'SYSTEM',
     icon: 'lend_expiration_noti',
     title: '반납 기한',
-    href: () => '/my/library'
+    href: () => '/my/booklist' // 내 서재
   },
+
   PAST_DUE: {
     tab: 'SYSTEM',
     icon: 'past_due_noti',
     title: '연체',
-    href: () => '/my/library'
+    href: () => '/my/booklist' // 내 서재
   },
+
   RESERVATION_AVAILABLE: {
     tab: 'SYSTEM',
     icon: 'resv_noti',
     title: '예약 도서',
-    href: (n) => `/books/${n.targetId}`
+    href: (n) => `/books/${n.targetId}` // 도서 상세 페이지
   },
+
   FEED_COMMENT: {
     tab: 'COMMUNITY',
     icon: 'feed_comment_noti',
     title: '댓글',
-    href: (n) => `/feeds/${n.targetId}`
+    href: (n) => `/feeds/${n.targetId}` // 피드 상세
   },
+
   FEED_LIKE: {
     tab: 'COMMUNITY',
     icon: 'feed_like_noti',
     title: '좋아요',
-    href: (n) => `/feeds/${n.targetId}`
+    href: (n) => `/feeds/${n.targetId}` // 피드 상세
   },
+
   EVENT_WON: {
     tab: 'EVENT',
     icon: 'event_noti',
     title: '이벤트',
-    href: (n) => `/events/${n.targetId}`
+    href: (n) => `/events/${n.targetId}` // 이벤트 상세
   },
+
   ACCOUNT_RESTRICTED: {
     tab: 'SYSTEM',
     icon: 'restricted_noti',
     title: '계정 제한',
-    href: () => ''
+    href: () => '#' // 밴 사유 페이지
   },
+
   ADMIN_MESSAGE: {
     tab: 'ADMIN',
     icon: 'admin_noti',
     title: '관리자 메시지',
-    href: (n) => ``
+    href: () => `#` // 링크 없음
   },
+
   INQUIRY_ANSWERED: {
     tab: 'ADMIN',
     icon: 'inquiry_noti',
     title: '문의 답변',
-    href: (n) => `/my/inquiry`
+    href: (n) => `/my/inquiry` // 문의 검색
   },
 
   DELIVERY_START: {
     tab: 'DELIVERY',
     icon: 'delivery_start_noti',
     title: '배송 시작',
-    href: (n) => `/mypage/${n.targetId}` // 마이페이지 도서 상세
+    href: (n) => `/my/booklist` // 마이페이지 도서 상세
   },
 
   DELIVERY_ARRIVE: {
     tab: 'DELIVERY',
     icon: 'delivery_arrive_noti',
     title: '배송 도착',
-    href: (n) => `/mypage/${n.targetId}` // 마이페이지 도서 상세
+    href: (n) => `/my/booklist` // 마이페이지 도서 상세
   }
 };
 

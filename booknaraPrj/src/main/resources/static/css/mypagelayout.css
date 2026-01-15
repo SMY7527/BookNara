@@ -28,7 +28,7 @@ body {
     border-radius: 10px;
 }
 
-.profile-box .profile-img {
+.profile-box .profile-image  {
     border: 1px solid black;
     margin: 0 auto;
     width: 150px;
@@ -37,6 +37,13 @@ body {
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
+    overflow: hidden;
+}
+.profile-box .profile-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;         /* ⭐ 핵심 */
+    display: block;
 }
 
 .profile-box .profile-name {
